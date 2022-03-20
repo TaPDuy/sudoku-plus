@@ -1,44 +1,54 @@
-from pygame import Surface
+from pygame import Surface, SRCALPHA
+
 from ..gfx import Graphics
-
-
-TILE_SIZE = 64
+from .tile import Tile
 
 
 class Board:
 
     def __init__(self):
         # Data properties
-        self.apos = self.ax, self.ay = 10, 10
+        self.pxpos = self.pxx, self.pxy = 10, 10
         self.tlsize = self.tlw, self.tlh = 9, 9
-        self.pxsize = self.pxw, self.pxh = TILE_SIZE * self.tlw, TILE_SIZE * self.tlh
+        self.pxsize = self.pxw, self.pxh = Tile.SIZE * self.tlw, Tile.SIZE * self.tlh
 
         # Graphics properties
-        self.__surface = Surface(self.pxsize)
+        self.__surface = Surface(self.pxsize, SRCALPHA)
         self.__redraw()
+
+        # Children properties
+        self.__tiles = [
+            [
+                Tile((x * Tile.SIZE, y * Tile.SIZE)) for x in range(self.tlw)
+            ] for y in range(self.tlh)
+        ]
 
     def update(self):
         pass
 
     def draw(self, surface: Surface):
-        """Draw the board's surface on a surface."""
-        surface.blit(self.__surface, self.apos)
+        """Draw the board and childen components' surfaces on another surface."""
+        for r in self.__tiles:
+            for tl in r:
+                tl.draw(self.__surface)
+
+        surface.blit(self.__surface, self.pxpos)
 
     def __redraw(self):
         """Redraw the board's surface."""
         for tly in range(self.tlh):
             Graphics.line(
                 self.__surface,
-                (0, tly * TILE_SIZE),
-                (self.pxw, tly * TILE_SIZE),
+                (0, tly * Tile.SIZE),
+                (self.pxw, tly * Tile.SIZE),
                 1 if tly % 3 else 2
             )
 
         for tlx in range(self.tlw):
             Graphics.line(
                 self.__surface,
-                (tlx * TILE_SIZE, 0),
-                (tlx * TILE_SIZE, self.pxh),
+                (tlx * Tile.SIZE, 0),
+                (tlx * Tile.SIZE, self.pxh),
                 1 if tlx % 3 else 2
             )
 
