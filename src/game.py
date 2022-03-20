@@ -1,12 +1,15 @@
 import pygame as pg
 
 from .app import Application
+from .sudoku.board import Board
 
 
 class Game(Application):
 
     def __init__(self):
         super().__init__()
+
+        self.board = Board()
 
     def _process_events(self):
         for evt in pg.event.get():
@@ -22,4 +25,4 @@ class Game(Application):
         pass
 
     def _draw(self):
-        pass
+        self.board.draw(self._screen)
