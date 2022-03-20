@@ -12,10 +12,6 @@ class Board:
         self.tlsize = self.tlw, self.tlh = 9, 9
         self.pxsize = self.pxw, self.pxh = Tile.SIZE * self.tlw, Tile.SIZE * self.tlh
 
-        # Graphics properties
-        self.__surface = Surface(self.pxsize, SRCALPHA)
-        self.__redraw()
-
         # Children properties
         self.__tiles = [
             [
@@ -23,19 +19,23 @@ class Board:
             ] for y in range(self.tlh)
         ]
 
+        # Graphics properties
+        self.__surface = Surface(self.pxsize, SRCALPHA)
+        self.__redraw()
+
     def update(self):
         pass
 
     def draw(self, surface: Surface):
         """Draw the board and childen components' surfaces on another surface."""
-        for r in self.__tiles:
-            for tl in r:
-                tl.draw(self.__surface)
-
         surface.blit(self.__surface, self.pxpos)
 
     def __redraw(self):
         """Redraw the board's surface."""
+        for r in self.__tiles:
+            for tl in r:
+                tl.draw(self.__surface)
+
         for tly in range(self.tlh):
             Graphics.line(
                 self.__surface,
