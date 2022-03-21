@@ -1,10 +1,11 @@
 import time
 import pygame as pg
+from pygame.rect import Rect, RectType
 
 
 class Application:
     TARGET_FPS = 60
-    CLEAR_COLOR = (0, 0, 0)
+    CLEAR_COLOR = (100, 20, 50)
 
     def __init__(self, size: tuple[int, int] = (600, 600)):
         pg.init()
@@ -15,6 +16,9 @@ class Application:
         self.is_running = False
 
     def run(self):
+        self._screen.fill(Application.CLEAR_COLOR)
+        pg.display.update()
+
         self.is_running = True
         last_time = time.time()
         while self.is_running:
@@ -27,11 +31,12 @@ class Application:
             self._update(dt * Application.TARGET_FPS)
 
             self._screen.fill(Application.CLEAR_COLOR)
-            self._draw()
-            textsurface = self._font.render(f"FPS: {int(self._clock.get_fps())}", False, (255, 255, 255))
-            self._screen.blit(textsurface, (0, 0))
+            rects = self._draw(self._screen)
 
-            pg.display.update()
+            textsurface = self._font.render(f"FPS: {int(self._clock.get_fps())}", False, (255, 255, 255))
+            rects.append(self._screen.blit(textsurface, (0, 0)))
+
+            pg.display.update(rects)
             self._clock.tick(0)
 
     def close(self):
@@ -43,5 +48,5 @@ class Application:
     def _update(self, dt):
         pass
 
-    def _draw(self):
+    def _draw(self, surface) -> list[Rect | RectType]:
         pass

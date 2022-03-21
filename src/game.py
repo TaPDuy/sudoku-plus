@@ -1,4 +1,6 @@
 import pygame as pg
+from pygame.rect import Rect, RectType
+from pygame.sprite import LayeredDirty
 
 from .app import Application
 from .sudoku.board import Board
@@ -9,7 +11,9 @@ class Game(Application):
     def __init__(self):
         super().__init__()
 
-        self.board = Board()
+        self.sprites = LayeredDirty()
+
+        self.board = Board(self.sprites)
 
     def _process_events(self):
         for evt in pg.event.get():
@@ -24,5 +28,5 @@ class Game(Application):
     def _update(self, dt):
         pass
 
-    def _draw(self):
-        self.board.draw(self._screen)
+    def _draw(self, surface) -> list[Rect | RectType]:
+        return self.sprites.draw(surface)
