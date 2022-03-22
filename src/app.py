@@ -5,7 +5,7 @@ from pygame.rect import Rect, RectType
 
 class Application:
     TARGET_FPS = 60
-    CLEAR_COLOR = (100, 20, 50)
+    CLEAR_COLOR = (0, 0, 0)
 
     def __init__(self, size: tuple[int, int] = (600, 600)):
         pg.init()

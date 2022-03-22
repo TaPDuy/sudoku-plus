@@ -4,6 +4,7 @@ from pygame.rect import Rect
 
 from ..gfx import Graphics
 from .tile import Tile
+from .selection import SelectionGrid
 
 
 class Board(DirtySprite):
@@ -29,6 +30,13 @@ class Board(DirtySprite):
 
         # self.__surface = Surface(self.pxsize, SRCALPHA)
         sprite_groups.add(self)
+
+        self.selection = SelectionGrid(self.pxpos, self.tlsize, sprite_groups)
+        self.selection.select((2, 2))
+        self.selection.select((3, 3))
+        self.selection.select((1, 3))
+        self.selection.select((2, 4))
+
         self.__initdraw()
 
     def update(self):

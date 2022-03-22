@@ -26,7 +26,7 @@ class Game(Application):
                             self.close()
 
     def _update(self, dt):
-        pass
+        self.sprites.update()
 
     def _draw(self, surface) -> list[Rect | RectType]:
         return self.sprites.draw(surface)
