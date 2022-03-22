@@ -69,22 +69,15 @@ class MeshGrid:
 
         self.mesh_tiles = [[MeshTile(
             (self.ax + x * self.tile_size, self.ay + y * self.tile_size),
-            self.tile_size
+            self.tile_size,
+            self,
+            (x, y)
         ) for x in range(tlsize[0])] for y in range(tlsize[1])]
 
         sprite_groups.add(self.mesh_tiles[y][x] for x in range(tlsize[0]) for y in range(tlsize[1]))
 
     def add_to_scalar(self, sfpos: tuple[int, int], val: int):
-        old_val = self.scalar_field[sfpos[1]][sfpos[0]]
         self.scalar_field[sfpos[1]][sfpos[0]] += val
-        if old_val * val <= 0:
-            self.mesh_tiles[sfpos[1]][sfpos[0]].state ^= 1 << 0
-            if sfpos[0] > 0:
-                self.mesh_tiles[sfpos[1]][sfpos[0] - 1].state ^= 1 << 1
-            if sfpos[1] > 0 and sfpos[0] > 0:
-                self.mesh_tiles[sfpos[1] - 1][sfpos[0] - 1].state ^= 1 << 2
-            if sfpos[1] > 0:
-                self.mesh_tiles[sfpos[1] - 1][sfpos[0]].state ^= 1 << 3
 
     def set_scalar(self, sfpos: tuple[int, int], val: int):
         self.scalar_field[sfpos[1]][sfpos[0]] = val
@@ -296,11 +289,14 @@ class MeshTile(DirtySprite):
     def __init__(
             self,
             apos: tuple[float, float],
-            tile_size: float
+            tile_size: float,
+            parent: MeshGrid,
+            tlpos: tuple[int, int]
     ):
         super().__init__()
 
-        self.state = 0
+        self.parent = parent
+        self.tlpos = self.tlx, self.tly = tlpos
 
         # Graphics properties
         self.apos = self.ax, self.ay = apos
@@ -309,5 +305,9 @@ class MeshTile(DirtySprite):
         self.rect = Rect(self.apos, self.size)
 
     def update(self):
-        if MeshGrid.state_sprite_map.get(self.state):
-            self.image = MeshGrid.state_sprite_map.get(self.state)
+        state = ((1 if self.parent.scalar_field[self.tly][self.tlx] else 0) << 0) | \
+                ((1 if self.parent.scalar_field[self.tly][self.tlx + 1] else 0) << 1) | \
+                ((1 if self.parent.scalar_field[self.tly + 1][self.tlx + 1] else 0) << 2) | \
+                ((1 if self.parent.scalar_field[self.tly + 1][self.tlx] else 0) << 3)
+        if MeshGrid.state_sprite_map.get(state):
+            self.image = MeshGrid.state_sprite_map.get(state)
