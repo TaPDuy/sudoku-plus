@@ -17,7 +17,7 @@ class Graphics:
             color=(255, 255, 255),
             stroke_weight: float = 1,
             stroke_color=(255, 255, 255),
-            subdivision: int = 16
+            subdivision: int = 32
     ):
         if start_angle > stop_angle:
             stop_angle += (start_angle // (2 * np.pi)) * 2 * np.pi
@@ -25,9 +25,7 @@ class Graphics:
         if start_angle == stop_angle:
             return
 
-        da = stop_angle - start_angle
-        resolution = da * 2 * subdivision / PI
-        rate = da / resolution
+        rate = TWO_PI / subdivision
 
         outer_vertices = (*tuple(
             (x + r * np.cos(rad), y - r * np.sin(rad))
@@ -81,7 +79,7 @@ class Graphics:
             color=(255, 255, 255),
             stroke_weight: float = 1,
             stroke_color=(255, 255, 255),
-            subdivision: int = 16
+            subdivision: int = 32
     ):
         if start_angle > stop_angle:
             stop_angle += (start_angle // TWO_PI) * TWO_PI
@@ -90,9 +88,7 @@ class Graphics:
             return
 
         # Pie part
-        da = stop_angle - start_angle
-        resolution = da * 2 * subdivision / PI
-        rate = da / resolution
+        rate = TWO_PI / subdivision
 
         outer_vertices = (*tuple(
             (x + r * np.cos(rad), y - r * np.sin(rad))
