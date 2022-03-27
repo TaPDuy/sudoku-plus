@@ -27,7 +27,7 @@ class SelectionGrid:
             sprite_groups
         )
 
-        self.mesh.generate_mesh_sprites(.5, (255, 0, 255, 150), 2, (255, 0, 255))
+        self.mesh.generate_mesh_sprites(.25, (255, 0, 255, 150), 2, (255, 0, 255))
 
     def select(self, tlpos: tuple[int, int]):
         if tlpos in self.selected:
@@ -69,15 +69,41 @@ class MeshGrid:
 
         self.mesh_tiles = [[MeshTile(
             (self.ax + x * self.tile_size, self.ay + y * self.tile_size),
-            self.tile_size,
-            self,
-            (x, y)
+            self.tile_size
         ) for x in range(tlsize[0])] for y in range(tlsize[1])]
+
+        # Scalar mapping
+        self.scalar_to_tile_position_map = {
+            (0, 0): [(0, 0)],
+            (self.sfw - 1, 0): [(self.sfw - 2, 0)],
+            (self.sfw - 1, self.sfh - 1): [(self.sfw - 2, self.sfh - 2)],
+            (0, self.sfh - 1): [(0, self.sfh - 2)]
+        }
+        self.scalar_to_tile_position_map.update({(x, 0): [(x, 0), (x - 1, 0)] for x in range(1, self.sfw - 1)})
+        self.scalar_to_tile_position_map.update({(0, y): [(0, y), (0, y - 1)] for y in range(1, self.sfh - 1)})
+        self.scalar_to_tile_position_map.update(
+            {(x, self.sfh - 1): [(x, self.sfh - 2), (x - 1, self.sfh - 2)] for x in range(1, self.sfw - 1)})
+        self.scalar_to_tile_position_map.update(
+            {(self.sfw - 1, y): [(self.sfw - 2, y), (self.sfw - 2, y - 1)] for y in range(1, self.sfh - 1)})
+        self.scalar_to_tile_position_map.update({
+            (x, y): [(x, y), (x - 1, y), (x - 1, y - 1), (x, y - 1)] for y in range(1, self.sfh - 1) for x in
+            range(1, self.sfw - 1)
+        })
 
         sprite_groups.add(self.mesh_tiles[y][x] for x in range(tlsize[0]) for y in range(tlsize[1]))
 
     def add_to_scalar(self, sfpos: tuple[int, int], val: int):
+        old_val = self.scalar_field[sfpos[1]][sfpos[0]]
         self.scalar_field[sfpos[1]][sfpos[0]] += val
+
+        if self.scalar_field[sfpos[1]][sfpos[0]] * old_val == 0:
+            for x, y in self.scalar_to_tile_position_map[sfpos]:
+                self.mesh_tiles[y][x].set_state(
+                    (1 if self.scalar_field[y][x] else 0) |
+                    ((1 if self.scalar_field[y][x + 1] else 0) << 1) |
+                    ((1 if self.scalar_field[y + 1][x + 1] else 0) << 2) |
+                    ((1 if self.scalar_field[y + 1][x] else 0) << 3)
+                )
 
     def set_scalar(self, sfpos: tuple[int, int], val: int):
         self.scalar_field[sfpos[1]][sfpos[0]] = val
@@ -289,14 +315,11 @@ class MeshTile(DirtySprite):
     def __init__(
             self,
             apos: tuple[float, float],
-            tile_size: float,
-            parent: MeshGrid,
-            tlpos: tuple[int, int]
+            tile_size: float
     ):
         super().__init__()
 
-        self.parent = parent
-        self.tlpos = self.tlx, self.tly = tlpos
+        self.state = 0
 
         # Graphics properties
         self.apos = self.ax, self.ay = apos
@@ -304,10 +327,11 @@ class MeshTile(DirtySprite):
         self.image = Surface(self.size, SRCALPHA)
         self.rect = Rect(self.apos, self.size)
 
+    def set_state(self, state: int):
+        if self.state != state:
+            self.state = state
+            self.dirty = 1
+
     def update(self):
-        state = ((1 if self.parent.scalar_field[self.tly][self.tlx] else 0) << 0) | \
-                ((1 if self.parent.scalar_field[self.tly][self.tlx + 1] else 0) << 1) | \
-                ((1 if self.parent.scalar_field[self.tly + 1][self.tlx + 1] else 0) << 2) | \
-                ((1 if self.parent.scalar_field[self.tly + 1][self.tlx] else 0) << 3)
-        if MeshGrid.state_sprite_map.get(state):
-            self.image = MeshGrid.state_sprite_map.get(state)
+        if MeshGrid.state_sprite_map.get(self.state):
+            self.image = MeshGrid.state_sprite_map.get(self.state)
