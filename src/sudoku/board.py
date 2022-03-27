@@ -1,3 +1,4 @@
+import pygame
 from pygame import Surface, SRCALPHA
 from pygame.sprite import DirtySprite, AbstractGroup
 from pygame.rect import Rect
@@ -5,6 +6,10 @@ from pygame.rect import Rect
 from ..gfx import Graphics
 from .tile import Tile
 from .selection import SelectionGrid
+
+
+def get_tile_pos(pxpos: tuple[float, float]) -> tuple[int, int]:
+    return pxpos[0] // Tile.SIZE, pxpos[1] // Tile.SIZE
 
 
 class Board(DirtySprite):
@@ -32,15 +37,24 @@ class Board(DirtySprite):
         sprite_groups.add(self)
 
         self.selection = SelectionGrid(self.pxpos, self.tlsize, sprite_groups)
-        self.selection.select((2, 2))
-        self.selection.select((3, 3))
-        self.selection.select((1, 3))
-        self.selection.select((2, 4))
+        self.mouse_holding = False
+        self.should_select = False
 
         self.__initdraw()
 
+    def mouse_button_down(self):
+        self.mouse_holding = True
+        self.should_select = not self.selection.is_selected(get_tile_pos(pygame.mouse.get_pos()))
+
+    def mouse_button_up(self):
+        self.mouse_holding = False
+
     def update(self):
-        pass
+        if self.mouse_holding:
+            if self.should_select:
+                self.selection.select(get_tile_pos(pygame.mouse.get_pos()))
+            else:
+                self.selection.unselect(get_tile_pos(pygame.mouse.get_pos()))
 
     # def draw(self, surface: Surface) -> list[Rect | RectType]:
     #     """Draw the board and childen components' surfaces on another surface."""

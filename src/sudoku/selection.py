@@ -29,6 +29,9 @@ class SelectionGrid:
 
         self.mesh.generate_mesh_sprites(.25, (255, 0, 255, 150), 2, (255, 0, 255))
 
+    def is_selected(self, tlpos: tuple[int, int]) -> bool:
+        return tlpos in self.selected
+
     def select(self, tlpos: tuple[int, int]):
         if tlpos in self.selected:
             return
@@ -44,7 +47,7 @@ class SelectionGrid:
         if tlpos not in self.selected:
             return
 
-        mtlx, mtly = tlpos[0] << 1 + 1, tlpos[1] << 1 + 1
+        mtlx, mtly = (tlpos[0] << 1) + 1, (tlpos[1] << 1) + 1
         for dy in range(3):
             for dx in range(3):
                 self.mesh.add_to_scalar((mtlx + dx, mtly + dy), -1)

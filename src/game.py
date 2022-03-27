@@ -24,6 +24,10 @@ class Game(Application):
                     match evt.key:
                         case pg.K_ESCAPE:
                             self.close()
+                case pg.MOUSEBUTTONDOWN:
+                    self.board.mouse_button_down()
+                case pg.MOUSEBUTTONUP:
+                    self.board.mouse_button_up()
 
     def _update(self, dt):
         self.sprites.update()
