@@ -30,8 +30,8 @@ class SelectionGrid:
         self.mesh.generate_mesh_sprites(.25, (255, 0, 255, 150), 1, (255, 0, 255))
 
     def clear(self):
-        for pos in self.selected.copy():
-            self.unselect(pos)
+        self.selected.clear()
+        self.mesh.reset()
 
     def is_selected(self, tlpos: tuple[int, int]) -> bool:
         return tlpos in self.selected
@@ -98,6 +98,12 @@ class MeshGrid:
         })
 
         sprite_groups.add(self.mesh_tiles[y][x] for x in range(tlsize[0]) for y in range(tlsize[1]))
+
+    def reset(self):
+        self.scalar_field = [[0 for x in range(self.sfw)] for y in range(self.sfh)]
+        for y in range(self.sfh - 1):
+            for x in range(self.sfw - 1):
+                self.mesh_tiles[y][x].set_state(0)
 
     def add_to_scalar(self, sfpos: tuple[int, int], val: int):
         old_val = self.scalar_field[sfpos[1]][sfpos[0]]

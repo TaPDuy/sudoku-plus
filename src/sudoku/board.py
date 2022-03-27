@@ -40,7 +40,7 @@ class Board(DirtySprite):
         sprite_groups.add(self)
 
         self.selection = SelectionGrid(self.pxpos, self.tlsize, sprite_groups)
-        self.multi_select = False
+        self.mouse_holding = False
         self.should_select = False
 
         self.__initdraw()
@@ -59,14 +59,14 @@ class Board(DirtySprite):
         if not pygame.key.get_mods() & pygame.KMOD_SHIFT:
             self.selection.clear()
 
-        self.multi_select = True
+        self.mouse_holding = True
         self.should_select = not self.selection.is_selected(get_tile_pos(pygame.mouse.get_pos()))
 
     def mouse_button_up(self):
-        self.multi_select = False
+        self.mouse_holding = False
 
     def update(self):
-        if self.multi_select:
+        if self.mouse_holding:
             if self.should_select:
                 self.selection.select(get_tile_pos(pygame.mouse.get_pos()))
             else:
