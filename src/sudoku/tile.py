@@ -3,11 +3,21 @@ from pygame.font import SysFont
 from pygame.sprite import DirtySprite, AbstractGroup
 from pygame.rect import Rect
 
-from ..gfx import Graphics
-
 
 class Tile(DirtySprite):
     SIZE = 64
+    COLORS = (
+        (0, 0, 0, 0),
+        (100, 100, 100, 255),
+        (100, 100, 200, 255),
+        (100, 200, 100, 255),
+        (100, 200, 200, 255),
+        (200, 100, 100, 255),
+        (200, 100, 200, 255),
+        (200, 200, 100, 255),
+        (200, 200, 200, 255),
+        (150, 100, 200, 255)
+    )
 
     def __init__(self, pxpos: tuple[float, float], sprite_groups: AbstractGroup):
         super().__init__(sprite_groups)
@@ -28,7 +38,7 @@ class Tile(DirtySprite):
         self.__initdraw()
 
     def set_value(self, value: int):
-        self.value = value
+        self.value = 0 if value == self.value else value
         self.dirty = 1
         self.__initdraw()
 
@@ -50,11 +60,7 @@ class Tile(DirtySprite):
     #     return self.sprites.draw(surface)
 
     def __initdraw(self):
-        self.image.fill((0, 0, 0, 0))
-
-        # Map color later
-        if self.color:
-            Graphics.rect(self.image, (0, 0), self.pxsize, (0, 0, 255))
+        self.image.fill(Tile.COLORS[self.color])
 
         if 0 < self.value < 10:
             text = self.__font_value.render(str(self.value), True, (255, 255, 255))
