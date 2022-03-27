@@ -29,12 +29,18 @@ class Tile(DirtySprite):
 
     def set_value(self, value: int):
         self.value = value
+        self.dirty = 1
+        self.__initdraw()
 
-    def mark(self, value: int):
+    def set_mark(self, value: int):
         self.mark ^= 1 << (value - 1)
+        self.dirty = 1
+        self.__initdraw()
 
     def set_color(self, index: int):
         self.color = index
+        self.dirty = 1
+        self.__initdraw()
 
     def update(self):
         pass
@@ -44,6 +50,8 @@ class Tile(DirtySprite):
     #     return self.sprites.draw(surface)
 
     def __initdraw(self):
+        self.image.fill((0, 0, 0, 0))
+
         # Map color later
         if self.color:
             Graphics.rect(self.image, (0, 0), self.pxsize, (0, 0, 255))

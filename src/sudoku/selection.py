@@ -27,7 +27,7 @@ class SelectionGrid:
             sprite_groups
         )
 
-        self.mesh.generate_mesh_sprites(.25, (255, 0, 255, 150), 2, (255, 0, 255))
+        self.mesh.generate_mesh_sprites(.25, (255, 0, 255, 150), 1, (255, 0, 255))
 
     def is_selected(self, tlpos: tuple[int, int]) -> bool:
         return tlpos in self.selected

@@ -13,6 +13,9 @@ def get_tile_pos(pxpos: tuple[float, float]) -> tuple[int, int]:
 
 
 class Board(DirtySprite):
+    INPUT_MODE_VALUE = 0
+    INPUT_MODE_MARK = 1
+    INPUT_MODE_COLOR = 2
 
     def __init__(self, sprite_groups: AbstractGroup):
         super().__init__()
@@ -41,6 +44,16 @@ class Board(DirtySprite):
         self.should_select = False
 
         self.__initdraw()
+
+    def fill_tiles(self, value: int, mode: int):
+        for x, y in self.selection.selected:
+            match mode:
+                case Board.INPUT_MODE_VALUE:
+                    self.__tiles[y][x].set_value(value)
+                case Board.INPUT_MODE_MARK:
+                    self.__tiles[y][x].set_mark(value)
+                case Board.INPUT_MODE_COLOR:
+                    self.__tiles[y][x].set_color(value)
 
     def mouse_button_down(self):
         self.mouse_holding = True
