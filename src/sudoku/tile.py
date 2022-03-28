@@ -5,7 +5,7 @@ from pygame.rect import Rect
 
 
 class Tile(DirtySprite):
-    SIZE = 64
+    SIZE = 32
     COLORS = (
         (0, 0, 0, 0),
         (100, 100, 100, 255),
@@ -53,7 +53,7 @@ class Tile(DirtySprite):
 
     def set_color(self, index: int) -> int:
         old_value = self.color
-        self.color = index
+        self.color = 0 if index == self.color else index
         self.dirty = 1
         self.__initdraw()
         return old_value
