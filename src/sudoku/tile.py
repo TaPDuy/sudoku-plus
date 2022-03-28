@@ -45,11 +45,10 @@ class Tile(DirtySprite):
         return old_value
 
     def set_mark(self, value: int) -> int:
-        old_value = self.mark
         self.mark ^= 1 << (value - 1)
         self.dirty = 1
         self.__initdraw()
-        return old_value
+        return value
 
     def set_color(self, index: int) -> int:
         old_value = self.color
