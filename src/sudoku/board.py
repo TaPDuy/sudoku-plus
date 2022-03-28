@@ -21,7 +21,7 @@ class Board(DirtySprite):
         super().__init__()
 
         # Data properties
-        self.pxpos = self.pxx, self.pxy = 10, 10
+        self.pxpos = self.pxx, self.pxy = 32, 32
         self.tlsize = self.tlw, self.tlh = 9, 9
         self.pxsize = self.pxw, self.pxh = Tile.SIZE * self.tlw, Tile.SIZE * self.tlh
 
@@ -71,9 +71,6 @@ class Board(DirtySprite):
         return old_value
 
     def mouse_button_down(self):
-        if not self.rect.collidepoint(pygame.mouse.get_pos()):
-            return
-
         if not pygame.key.get_mods() & pygame.KMOD_SHIFT:
             self.selection.clear()
 
@@ -85,7 +82,7 @@ class Board(DirtySprite):
 
     def update(self):
         mpos = pygame.mouse.get_pos()
-        if self.multi_select:
+        if self.multi_select and self.rect.collidepoint(pygame.mouse.get_pos()):
             if self.should_select:
                 self.selection.select(get_tile_pos((mpos[0] - self.pxx, mpos[1] - self.pxy)))
             else:
