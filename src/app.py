@@ -9,7 +9,7 @@ class Application:
     TARGET_FPS = 60
     CLEAR_COLOR = (0, 0, 0)
 
-    def __init__(self, size: tuple[int, int] = (600, 600)):
+    def __init__(self, size: tuple[int, int] = (700, 500)):
         pg.init()
         self._clock = pg.time.Clock()
         self._screen = pg.display.set_mode(size)

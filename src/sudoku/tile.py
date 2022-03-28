@@ -6,7 +6,7 @@ from pygame.transform import smoothscale
 
 
 class Tile(DirtySprite):
-    SIZE = 32
+    SIZE = 48
     COLORS = (
         (0, 0, 0, 0),
         (100, 100, 100, 255),
@@ -60,10 +60,6 @@ class Tile(DirtySprite):
 
     def update(self):
         pass
-
-    # def draw(self, surface: Surface, blend_mode=0) -> list[Rect | RectType]:
-    #     # surface.blit(self.__surface, self.pxpos, special_flags=blend_mode)
-    #     return self.sprites.draw(surface)
 
     def __initdraw(self):
         self.image.fill(Tile.COLORS[self.color])

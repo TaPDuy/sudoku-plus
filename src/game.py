@@ -19,7 +19,7 @@ class Game(Application):
         self.sprites = LayeredDirty()
 
         self.board = Board(self.sprites)
-        self.input = InputPanel((50, 350), self.ui_manager, self.board, self.action_manager)
+        self.input = InputPanel((500, 48), self.ui_manager, self.board, self.action_manager)
 
     def _process_events(self, evt):
         match evt.type:
