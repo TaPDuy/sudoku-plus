@@ -37,20 +37,26 @@ class Tile(DirtySprite):
         self.__font_mark = SysFont("Arial", 14)
         self.__initdraw()
 
-    def set_value(self, value: int):
+    def set_value(self, value: int) -> int:
+        old_value = self.value
         self.value = 0 if value == self.value else value
         self.dirty = 1
         self.__initdraw()
+        return old_value
 
-    def set_mark(self, value: int):
+    def set_mark(self, value: int) -> int:
+        old_value = self.mark
         self.mark ^= 1 << (value - 1)
         self.dirty = 1
         self.__initdraw()
+        return old_value
 
-    def set_color(self, index: int):
+    def set_color(self, index: int) -> int:
+        old_value = self.color
         self.color = index
         self.dirty = 1
         self.__initdraw()
+        return old_value
 
     def update(self):
         pass

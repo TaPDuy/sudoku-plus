@@ -45,15 +45,30 @@ class Board(DirtySprite):
 
         self.__initdraw()
 
-    def fill_tiles(self, value: int, mode: int):
-        for x, y in self.selection.selected:
+    def fill_tiles(self, value: int, mode: int, tiles=None) -> dict[tuple[int, int], int]:
+        tiles = tiles or self.selection.selected
+
+        old_values = {}
+        for x, y in tiles:
             match mode:
                 case Board.INPUT_MODE_VALUE:
-                    self.__tiles[y][x].set_value(value)
+                    old_values[x, y] = self.__tiles[y][x].set_value(value)
                 case Board.INPUT_MODE_MARK:
-                    self.__tiles[y][x].set_mark(value)
+                    old_values[x, y] = self.__tiles[y][x].set_mark(value)
                 case Board.INPUT_MODE_COLOR:
-                    self.__tiles[y][x].set_color(value)
+                    old_values[x, y] = self.__tiles[y][x].set_color(value)
+        return old_values
+
+    def fill_tile(self, value: int, mode: int, tlpos: tuple[int, int]) -> int:
+        old_value = 0
+        match mode:
+            case Board.INPUT_MODE_VALUE:
+                old_value = self.__tiles[tlpos[1]][tlpos[0]].set_value(value)
+            case Board.INPUT_MODE_MARK:
+                old_value = self.__tiles[tlpos[1]][tlpos[0]].set_mark(value)
+            case Board.INPUT_MODE_COLOR:
+                old_value = self.__tiles[tlpos[1]][tlpos[0]].set_color(value)
+        return old_value
 
     def mouse_button_down(self):
         if not self.rect.collidepoint(pygame.mouse.get_pos()):
