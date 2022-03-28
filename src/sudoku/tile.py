@@ -2,6 +2,7 @@ from pygame import Surface, SRCALPHA
 from pygame.font import SysFont
 from pygame.sprite import DirtySprite, AbstractGroup
 from pygame.rect import Rect
+from pygame.transform import smoothscale
 
 
 class Tile(DirtySprite):
@@ -69,6 +70,7 @@ class Tile(DirtySprite):
 
         if 0 < self.value < 10:
             text = self.__font_value.render(str(self.value), True, (255, 255, 255))
+            text = smoothscale(text, (text.get_width() * Tile.SIZE / 64, text.get_height() * Tile.SIZE / 64))
             self.image.blit(text, (
                 self.pxw / 2 - text.get_width() / 2,
                 self.pxh / 2 - text.get_height() / 2
@@ -76,6 +78,7 @@ class Tile(DirtySprite):
         elif self.mark:
             textstr = ''.join(str(i + 1) for i in range(9) if 1 << i & self.mark)
             text = self.__font_mark.render(textstr, True, (255, 255, 255))
+            text = smoothscale(text, (text.get_width() * Tile.SIZE / 64, text.get_height() * Tile.SIZE / 64))
             self.image.blit(text, (
                 self.pxw / 2 - text.get_width() / 2,
                 self.pxh / 2 - text.get_height() / 2
