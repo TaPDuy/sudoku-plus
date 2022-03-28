@@ -1,10 +1,12 @@
 import pygame as pg
+import pygame_gui as pgui
 from pygame.rect import Rect, RectType
 from pygame.sprite import LayeredDirty
 
 from .app import Application
-from .application import ActionManager, BoardInputAction
+from .application import ActionManager
 from .sudoku.board import Board
+from .sudoku.input import InputPanel
 
 
 class Game(Application):
@@ -17,46 +19,40 @@ class Game(Application):
         self.sprites = LayeredDirty()
 
         self.board = Board(self.sprites)
+        self.input = InputPanel((50, 350), self.ui_manager, self.board, self.action_manager)
 
-    def _process_events(self):
-        for evt in pg.event.get():
-            match evt.type:
-                case pg.WINDOWCLOSE:
-                    self.close()
-                case pg.KEYDOWN:
-                    match evt.key:
-                        case pg.K_ESCAPE:
-                            self.close()
-                        case pg.K_z:
-                            if evt.mod & pg.KMOD_CTRL:
-                                self.action_manager.undo()
-                        case pg.K_y:
-                            if evt.mod & pg.KMOD_CTRL:
-                                self.action_manager.redo()
-                        case pg.K_1 | pg.K_2 | pg.K_3 | pg.K_4 | pg.K_5 | pg.K_6 | pg.K_7 | pg.K_8 | pg.K_9:
-                            mode = (evt.mod & pg.KMOD_SHIFT) | (bool(evt.mod & pg.KMOD_CTRL) << 1)
-
-                            old_values = self.board.fill_tiles(evt.key - pg.K_0, mode)
-                            self.action_manager.new_action(BoardInputAction(
-                                self.board,
-                                evt.key - pg.K_0,
-                                mode,
-                                old_values
-                            ))
-                        case pg.K_KP1 | pg.K_KP2 | pg.K_KP3 | pg.K_KP4 | pg.K_KP5 | pg.K_KP6 | pg.K_KP7 | pg.K_KP8 | pg.K_KP9:
-                            mode = (evt.mod & pg.KMOD_SHIFT) | (bool(evt.mod & pg.KMOD_CTRL) << 1)
-
-                            old_values = self.board.fill_tiles(evt.key - pg.K_KP1 + 1, mode)
-                            self.action_manager.new_action(BoardInputAction(
-                                self.board,
-                                evt.key - pg.K_KP1 + 1,
-                                mode,
-                                old_values
-                            ))
-                case pg.MOUSEBUTTONDOWN:
-                    self.board.mouse_button_down()
-                case pg.MOUSEBUTTONUP:
-                    self.board.mouse_button_up()
+    def _process_events(self, evt):
+        match evt.type:
+            case pg.WINDOWCLOSE:
+                self.close()
+            case pg.KEYDOWN:
+                match evt.key:
+                    case pg.K_ESCAPE:
+                        self.close()
+                    case pg.K_z:
+                        if evt.mod & pg.KMOD_CTRL:
+                            self.action_manager.undo()
+                    case pg.K_y:
+                        if evt.mod & pg.KMOD_CTRL:
+                            self.action_manager.redo()
+                    case pg.K_1 | pg.K_2 | pg.K_3 | pg.K_4 | pg.K_5 | pg.K_6 | pg.K_7 | pg.K_8 | pg.K_9:
+                        self.input.toggle_highlight_button(evt.key - pg.K_1)
+                        self.input.trigger_button(evt.key - pg.K_1)
+                    case pg.K_KP1 | pg.K_KP2 | pg.K_KP3 | pg.K_KP4 | pg.K_KP5 | pg.K_KP6 | pg.K_KP7 | pg.K_KP8 | pg.K_KP9:
+                        self.input.toggle_highlight_button(evt.key - pg.K_KP1)
+                        self.input.trigger_button(evt.key - pg.K_KP1)
+            case pg.KEYUP:
+                match evt.key:
+                    case pg.K_1 | pg.K_2 | pg.K_3 | pg.K_4 | pg.K_5 | pg.K_6 | pg.K_7 | pg.K_8 | pg.K_9:
+                        self.input.toggle_highlight_button(evt.key - pg.K_1)
+                    case pg.K_KP1 | pg.K_KP2 | pg.K_KP3 | pg.K_KP4 | pg.K_KP5 | pg.K_KP6 | pg.K_KP7 | pg.K_KP8 | pg.K_KP9:
+                        self.input.toggle_highlight_button(evt.key - pg.K_KP1)
+            case pg.MOUSEBUTTONDOWN:
+                self.board.mouse_button_down()
+            case pg.MOUSEBUTTONUP:
+                self.board.mouse_button_up()
+            case pgui.UI_BUTTON_PRESSED:
+                self.input.button_pressed(evt)
 
     def _update(self, dt):
         self.sprites.update()

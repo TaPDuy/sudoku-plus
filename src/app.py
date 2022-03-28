@@ -2,6 +2,8 @@ import time
 import pygame as pg
 from pygame.rect import Rect, RectType
 
+from .gfx import GUIManager
+
 
 class Application:
     TARGET_FPS = 60
@@ -12,6 +14,8 @@ class Application:
         self._clock = pg.time.Clock()
         self._screen = pg.display.set_mode(size)
         self._font = pg.font.SysFont("Consolas", 14)
+
+        self.ui_manager = GUIManager(size)
 
         self.is_running = False
 
@@ -27,11 +31,18 @@ class Application:
             dt = new_time - last_time
             last_time = new_time
 
-            self._process_events()
+            for evt in pg.event.get():
+                self._process_events(evt)
+                self.ui_manager.process_events(evt)
+
             self._update(dt * Application.TARGET_FPS)
+            self.ui_manager.update(dt * Application.TARGET_FPS)
 
             self._screen.fill(Application.CLEAR_COLOR)
             rects = self._draw(self._screen)
+            ui_rects = self.ui_manager.draw_ui(self._screen)
+            if ui_rects:
+                rects.extend(ui_rects)
 
             textsurface = self._font.render(f"FPS: {int(self._clock.get_fps())}", False, (255, 255, 255))
             rects.append(self._screen.blit(textsurface, (0, 0)))
@@ -42,7 +53,7 @@ class Application:
     def close(self):
         self.is_running = False
 
-    def _process_events(self):
+    def _process_events(self, evt):
         pass
 
     def _update(self, dt):

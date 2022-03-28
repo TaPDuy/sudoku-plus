@@ -6,6 +6,7 @@ from pygame.rect import Rect
 from ..gfx import Graphics
 from .tile import Tile
 from .selection import SelectionGrid
+from ..utils.constants import InputMode
 
 
 def get_tile_pos(pxpos: tuple[float, float]) -> tuple[int, int]:
@@ -13,9 +14,6 @@ def get_tile_pos(pxpos: tuple[float, float]) -> tuple[int, int]:
 
 
 class Board(DirtySprite):
-    INPUT_MODE_VALUE = 0
-    INPUT_MODE_MARK = 1
-    INPUT_MODE_COLOR = 2
 
     def __init__(self, sprite_groups: AbstractGroup):
         super().__init__()
@@ -45,32 +43,35 @@ class Board(DirtySprite):
 
         self.__initdraw()
 
-    def fill_tiles(self, value: int, mode: int, tiles=None) -> dict[tuple[int, int], int]:
+    def fill_tiles(self, value: int, mode: InputMode, tiles=None) -> dict[tuple[int, int], int]:
         tiles = tiles or self.selection.selected
 
         old_values = {}
         for x, y in tiles:
             match mode:
-                case Board.INPUT_MODE_VALUE:
+                case InputMode.INPUT_MODE_VALUE:
                     old_values[x, y] = self.__tiles[y][x].set_value(value)
-                case Board.INPUT_MODE_MARK:
+                case InputMode.INPUT_MODE_MARK:
                     old_values[x, y] = self.__tiles[y][x].set_mark(value)
-                case Board.INPUT_MODE_COLOR:
+                case InputMode.INPUT_MODE_COLOR:
                     old_values[x, y] = self.__tiles[y][x].set_color(value)
         return old_values
 
-    def fill_tile(self, value: int, mode: int, tlpos: tuple[int, int]) -> int:
+    def fill_tile(self, value: int, mode: InputMode, tlpos: tuple[int, int]) -> int:
         old_value = 0
         match mode:
-            case Board.INPUT_MODE_VALUE:
+            case InputMode.INPUT_MODE_VALUE:
                 old_value = self.__tiles[tlpos[1]][tlpos[0]].set_value(value)
-            case Board.INPUT_MODE_MARK:
+            case InputMode.INPUT_MODE_MARK:
                 old_value = self.__tiles[tlpos[1]][tlpos[0]].set_mark(value)
-            case Board.INPUT_MODE_COLOR:
+            case InputMode.INPUT_MODE_COLOR:
                 old_value = self.__tiles[tlpos[1]][tlpos[0]].set_color(value)
         return old_value
 
     def mouse_button_down(self):
+        if not self.rect.collidepoint(pygame.mouse.get_pos()):
+            return
+
         if not pygame.key.get_mods() & pygame.KMOD_SHIFT:
             self.selection.clear()
 
@@ -87,11 +88,6 @@ class Board(DirtySprite):
                 self.selection.select(get_tile_pos((mpos[0] - self.pxx, mpos[1] - self.pxy)))
             else:
                 self.selection.unselect(get_tile_pos((mpos[0] - self.pxx, mpos[1] - self.pxy)))
-
-    # def draw(self, surface: Surface) -> list[Rect | RectType]:
-    #     """Draw the board and childen components' surfaces on another surface."""
-    #     # surface.blit(self.__surface, self.pxpos)
-    #     return self.sprites.draw(surface)
 
     def __initdraw(self):
         """Draw initial sprite"""

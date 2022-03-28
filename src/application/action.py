@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 
 from ..sudoku.board import Board
+from ..utils.constants import InputMode
 
 
 class Action(ABC):
@@ -68,7 +69,7 @@ class BoardInputAction(Action):
         self,
         board: Board,
         value: int,
-        mode: int,
+        mode: InputMode,
         old_values: dict[tuple[int, int], int]
     ):
         self.board = board
