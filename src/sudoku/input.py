@@ -92,6 +92,7 @@ class InputPanel:
     def trigger_button(self, index: int):
         if 0 <= index <= 8:
             mode = InputMode((get_mods() & KMOD_SHIFT) | (bool(get_mods() & KMOD_CTRL) << 1) or self.force_mode.value)
+            mode = self.force_mode if mode == 3 else mode
             old_values = self.board.fill_tiles(index + 1, mode)
             self.action_manager.new_action(BoardInputAction(
                 self.board,
