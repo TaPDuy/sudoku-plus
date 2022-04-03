@@ -32,40 +32,47 @@ class Tile(DirtySprite):
         self.value = 0
         self.mark = 0
         self.color = 0
+        self.highlight = False
 
         # self.__surface = Surface(self.pxsize, SRCALPHA)
         self.__font_value = SysFont("Arial", 48)
         self.__font_mark = SysFont("Arial", 14)
-        self.__initdraw()
+        self.__redraw()
+
+    def set_highlight(self, b: bool):
+        self.highlight = b
+        self.__redraw()
 
     def set_value(self, value: int) -> int:
         old_value = self.value
         self.value = 0 if value == self.value else value
-        self.dirty = 1
-        self.__initdraw()
+        self.__redraw()
         return old_value
 
     def set_mark(self, value: int) -> int:
         self.mark ^= 1 << (value - 1)
-        self.dirty = 1
-        self.__initdraw()
+        self.__redraw()
         return value
 
     def set_color(self, index: int) -> int:
         old_value = self.color
         self.color = 0 if index == self.color else index
-        self.dirty = 1
-        self.__initdraw()
+        self.__redraw()
         return old_value
 
     def update(self):
         pass
 
-    def __initdraw(self):
+    def __redraw(self):
+        self.dirty = 1
         self.image.fill(Tile.COLORS[self.color])
 
         if 0 < self.value < 10:
-            text = self.__font_value.render(str(self.value), True, (255, 255, 255))
+            text = self.__font_value.render(
+                str(self.value),
+                True,
+                (255, 0, 0) if self.highlight else (255, 255, 255)
+            )
             text = smoothscale(text, (text.get_width() * Tile.SIZE / 64, text.get_height() * Tile.SIZE / 64))
             self.image.blit(text, (
                 self.pxw / 2 - text.get_width() / 2,

@@ -7,6 +7,7 @@ from ..gfx import Graphics
 from .tile import Tile
 from .selection import SelectionGrid
 from ..utils.constants import InputMode
+from .rule import ColumnRule
 
 
 def get_tile_pos(pxpos: tuple[float, float]) -> tuple[int, int]:
@@ -33,6 +34,8 @@ class Board(DirtySprite):
                 Tile((self.pxx + x * Tile.SIZE, self.pxy + y * Tile.SIZE), sprite_groups) for x in range(self.tlw)
             ] for y in range(self.tlh)
         ]
+        self.conflicts: dict[tuple, set] = {}
+        self.value_to_tile_map: dict[int, set] = {}
 
         # self.__surface = Surface(self.pxsize, SRCALPHA)
         sprite_groups.add(self)
@@ -43,6 +46,45 @@ class Board(DirtySprite):
 
         self.__initdraw()
 
+    def __set_value(self, x, y, value) -> int:
+        old = self.__tiles[y][x].set_value(value)
+
+        if old:
+            if self.conflicts.get((x, y)):
+                for conflict in self.conflicts.get((x, y)):
+                    self.conflicts[conflict].remove((x, y))
+
+                    if not len(self.conflicts[conflict]):
+                        self.conflicts.pop(conflict)
+                        self.__tiles[conflict[1]][conflict[0]].set_highlight(False)
+
+                self.conflicts.pop((x, y))
+                self.__tiles[y][x].set_highlight(False)
+
+            self.value_to_tile_map[old].remove((x, y))
+
+        if value:
+            if not self.value_to_tile_map.get(value):
+                self.value_to_tile_map[value] = set()
+
+            for valpos in self.value_to_tile_map[value]:
+                if ColumnRule.conflict((x, y), valpos):
+
+                    if not self.conflicts.get((x, y)):
+                        self.conflicts[x, y] = set()
+                    if not self.conflicts.get(valpos):
+                        self.conflicts[valpos] = set()
+
+                    self.conflicts[x, y].add(valpos)
+                    self.conflicts[valpos].add((x, y))
+
+                    self.__tiles[valpos[1]][valpos[0]].set_highlight(True)
+                    self.__tiles[y][x].set_highlight(True)
+
+            self.value_to_tile_map[value].add((x, y))
+
+        return old
+
     def fill_tiles(self, value: int, mode: InputMode, tiles=None) -> dict[tuple[int, int], int]:
         tiles = tiles or self.selection.selected
 
@@ -50,7 +92,7 @@ class Board(DirtySprite):
         for x, y in tiles:
             match mode:
                 case InputMode.INPUT_MODE_VALUE:
-                    old_values[x, y] = self.__tiles[y][x].set_value(value)
+                    old_values[x, y] = self.__set_value(x, y, value)
                 case InputMode.INPUT_MODE_MARK:
                     old_values[x, y] = self.__tiles[y][x].set_mark(value)
                 case InputMode.INPUT_MODE_COLOR:
@@ -61,7 +103,7 @@ class Board(DirtySprite):
         old_value = 0
         match mode:
             case InputMode.INPUT_MODE_VALUE:
-                old_value = self.__tiles[tlpos[1]][tlpos[0]].set_value(value)
+                old_value = self.__set_value(tlpos[0], tlpos[1], value)
             case InputMode.INPUT_MODE_MARK:
                 old_value = self.__tiles[tlpos[1]][tlpos[0]].set_mark(value)
             case InputMode.INPUT_MODE_COLOR:
