@@ -64,7 +64,7 @@ class Board(DirtySprite):
 
             self.value_to_tile_map[old].remove((x, y))
 
-        if value:
+        if value and value != old:
             if not self.value_to_tile_map.get(value):
                 self.value_to_tile_map[value] = set()
 
@@ -83,7 +83,7 @@ class Board(DirtySprite):
 
             self.value_to_tile_map[value].add((x, y))
 
-        print(self.conflicts)
+        # print(self.conflicts)
 
         return old
 
