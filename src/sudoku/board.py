@@ -7,7 +7,7 @@ from ..gfx import Graphics
 from .tile import Tile
 from .selection import SelectionGrid
 from ..utils.constants import InputMode
-from .rule import ColumnRule
+from .rule import SudokuRule
 
 
 def get_tile_pos(pxpos: tuple[float, float]) -> tuple[int, int]:
@@ -36,6 +36,7 @@ class Board(DirtySprite):
         ]
         self.conflicts: dict[tuple, set] = {}
         self.value_to_tile_map: dict[int, set] = {}
+        self.rules = [SudokuRule()]
 
         # self.__surface = Surface(self.pxsize, SRCALPHA)
         sprite_groups.add(self)
@@ -68,8 +69,7 @@ class Board(DirtySprite):
                 self.value_to_tile_map[value] = set()
 
             for valpos in self.value_to_tile_map[value]:
-                if ColumnRule.conflict((x, y), valpos):
-
+                if sum(map(lambda rule: rule.conflict((x, y), valpos), self.rules)):
                     if not self.conflicts.get((x, y)):
                         self.conflicts[x, y] = set()
                     if not self.conflicts.get(valpos):
@@ -82,6 +82,8 @@ class Board(DirtySprite):
                     self.__tiles[y][x].set_highlight(True)
 
             self.value_to_tile_map[value].add((x, y))
+
+        print(self.conflicts)
 
         return old
 
