@@ -4,10 +4,12 @@ from pygame.rect import Rect, RectType
 from pygame.sprite import LayeredDirty
 
 from .app import Application
-from .core import ActionManager
-from .sudoku.board import Board
+from .core import ActionManager, BoardInputAction
+from .sudoku.board import Board, InputMode
 from .sudoku.input import InputPanel
 from .sudoku.rule import RuleManager, SudokuRule, KillerRule
+
+from functools import partial
 
 
 class Game(Application):
@@ -23,10 +25,51 @@ class Game(Application):
             SudokuRule(),
             KillerRule(19, [(0, 0), (1, 0), (2, 0), (3, 0), (3, 1)])
         ])
-        self.input = InputPanel((500, 48), self.ui_manager, self.board, self.action_manager, self.rule_manager)
+
+        self.input = InputPanel((500, 48), self.ui_manager)
+        self.input.assign(0, partial(self.fill_selection, 1))
+        self.input.assign(1, partial(self.fill_selection, 2))
+        self.input.assign(2, partial(self.fill_selection, 3))
+        self.input.assign(3, partial(self.fill_selection, 4))
+        self.input.assign(4, partial(self.fill_selection, 5))
+        self.input.assign(5, partial(self.fill_selection, 6))
+        self.input.assign(6, partial(self.fill_selection, 7))
+        self.input.assign(7, partial(self.fill_selection, 8))
+        self.input.assign(8, partial(self.fill_selection, 9))
+        self.input.assign(InputPanel.BUTTON_VALUE, partial(self.select_input_mode, InputPanel.BUTTON_VALUE))
+        self.input.assign(InputPanel.BUTTON_MARK, partial(self.select_input_mode, InputPanel.BUTTON_MARK))
+        self.input.assign(InputPanel.BUTTON_COLOR, partial(self.select_input_mode, InputPanel.BUTTON_COLOR))
+        self.input.assign(InputPanel.BUTTON_UNDO, self.action_manager.undo)
+        self.input.assign(InputPanel.BUTTON_REDO, self.action_manager.redo)
+        self.input.assign(InputPanel.BUTTON_CHECK, self.check_win)
 
         # Event handlers
         self.board.on_changed.add_handler(self.rule_manager.update)
+
+    def check_win(self):
+        if self.rule_manager.check():
+            print("You win!")
+        else:
+            print("Something's wrong...")
+
+    def select_input_mode(self, index):
+        self.input.toggle_highlight_button(self.input.force_mode.value + InputPanel.BUTTON_VALUE)
+        self.input.toggle_highlight_button(index)
+        self.input.force_mode = InputMode(index - InputPanel.BUTTON_VALUE)
+
+    def fill_selection(self, value):
+        mode = InputMode((pg.key.get_mods() & pg.KMOD_SHIFT) | (bool(pg.key.get_mods() & pg.KMOD_CTRL) << 1) or self.input.force_mode.value)
+        mode = self.input.force_mode if mode == 3 else mode
+
+        if mode == InputMode.INPUT_MODE_VALUE or value != 0:
+            old_values = self.board.fill_tiles(value, mode)
+
+            self.action_manager.new_action(BoardInputAction(
+                self.board,
+                value,
+                mode,
+                old_values
+            ))
 
     def _process_events(self, evt):
         match evt.type:
@@ -42,6 +85,8 @@ class Game(Application):
                     case pg.K_y:
                         if evt.mod & pg.KMOD_CTRL:
                             self.action_manager.redo()
+                    case pg.K_BACKSPACE:
+                        self.fill_selection(0)
                     case pg.K_1 | pg.K_2 | pg.K_3 | pg.K_4 | pg.K_5 | pg.K_6 | pg.K_7 | pg.K_8 | pg.K_9:
                         self.input.toggle_highlight_button(evt.key - pg.K_1)
                         self.input.trigger_button(evt.key - pg.K_1)

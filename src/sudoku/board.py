@@ -79,7 +79,8 @@ class Board(DirtySprite):
                 case InputMode.INPUT_MODE_COLOR:
                     old_values[x, y] = self.__tiles[y][x].set_color(value)
 
-        self.on_changed(value, old_values)
+        if mode == InputMode.INPUT_MODE_VALUE:
+            self.on_changed(value, old_values)
 
         return old_values
 
@@ -93,7 +94,8 @@ class Board(DirtySprite):
             case InputMode.INPUT_MODE_COLOR:
                 old_value = self.__tiles[tlpos[1]][tlpos[0]].set_color(value)
 
-        self.on_changed(value, {tlpos: old_value})
+        if mode == InputMode.INPUT_MODE_VALUE:
+            self.on_changed(value, {tlpos: old_value})
 
         return old_value
 
