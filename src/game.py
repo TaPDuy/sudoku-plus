@@ -4,7 +4,7 @@ from pygame.rect import Rect, RectType
 from pygame.sprite import LayeredDirty
 
 from .app import Application
-from .application import ActionManager
+from .core import ActionManager
 from .sudoku.board import Board
 from .sudoku.input import InputPanel
 from .sudoku.rule import RuleManager, SudokuRule, KillerRule

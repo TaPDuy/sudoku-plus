@@ -4,8 +4,8 @@ from pygame.rect import Rect
 
 import numpy as np
 
-from ..gfx.graphics import Graphics
-from ..utils.constants import *
+from src.core.gfx.graphics import Graphics
+from src.core.utils.constants import *
 from .tile import Tile
 
 

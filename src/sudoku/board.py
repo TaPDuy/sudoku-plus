@@ -1,17 +1,24 @@
+from enum import Enum
+
 import pygame
 from pygame import Surface, SRCALPHA
 from pygame.sprite import DirtySprite, AbstractGroup
 from pygame.rect import Rect
 
-from ..gfx import Graphics
+from src.core.gfx import Graphics
 from .tile import Tile
 from .selection import SelectionGrid
-from ..utils.constants import InputMode
-from ..application.event import Event
+from ..core.event import Event
 
 
 def get_tile_pos(pxpos: tuple[float, float]) -> tuple[int, int]:
     return pxpos[0] // Tile.SIZE, pxpos[1] // Tile.SIZE
+
+
+class InputMode(Enum):
+    INPUT_MODE_VALUE = 0
+    INPUT_MODE_MARK = 1
+    INPUT_MODE_COLOR = 2
 
 
 class Board(DirtySprite):
