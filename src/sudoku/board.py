@@ -7,7 +7,6 @@ from ..gfx import Graphics
 from .tile import Tile
 from .selection import SelectionGrid
 from ..utils.constants import InputMode
-from .rule import SudokuRule
 
 
 def get_tile_pos(pxpos: tuple[float, float]) -> tuple[int, int]:
@@ -34,10 +33,7 @@ class Board(DirtySprite):
                 Tile((self.pxx + x * Tile.SIZE, self.pxy + y * Tile.SIZE), sprite_groups) for x in range(self.tlw)
             ] for y in range(self.tlh)
         ]
-        self.conflicts: dict[tuple, set] = {}
-        self.value_to_tile_map: dict[int, set] = {}
-        self.rules = [SudokuRule()]
-
+        self.old_conflicts = set()
         # self.__surface = Surface(self.pxsize, SRCALPHA)
         sprite_groups.add(self)
 
@@ -47,45 +43,17 @@ class Board(DirtySprite):
 
         self.__initdraw()
 
+    def highlight_conflicts(self, conflicts: set):
+        for cx, cy in self.old_conflicts.difference(conflicts):
+            self.__tiles[cy][cx].set_highlight(False)
+        for cx, cy in conflicts.difference(self.old_conflicts):
+            self.__tiles[cy][cx].set_highlight(True)
+        self.old_conflicts = conflicts
+
     def __set_value(self, x, y, value) -> int:
-        old = self.__tiles[y][x].set_value(value)
-
-        if old:
-            if self.conflicts.get((x, y)):
-                for conflict in self.conflicts.get((x, y)):
-                    self.conflicts[conflict].remove((x, y))
-
-                    if not len(self.conflicts[conflict]):
-                        self.conflicts.pop(conflict)
-                        self.__tiles[conflict[1]][conflict[0]].set_highlight(False)
-
-                self.conflicts.pop((x, y))
-                self.__tiles[y][x].set_highlight(False)
-
-            self.value_to_tile_map[old].remove((x, y))
-
-        if value and value != old:
-            if not self.value_to_tile_map.get(value):
-                self.value_to_tile_map[value] = set()
-
-            for valpos in self.value_to_tile_map[value]:
-                if sum(map(lambda rule: rule.conflict((x, y), valpos), self.rules)):
-                    if not self.conflicts.get((x, y)):
-                        self.conflicts[x, y] = set()
-                    if not self.conflicts.get(valpos):
-                        self.conflicts[valpos] = set()
-
-                    self.conflicts[x, y].add(valpos)
-                    self.conflicts[valpos].add((x, y))
-
-                    self.__tiles[valpos[1]][valpos[0]].set_highlight(True)
-                    self.__tiles[y][x].set_highlight(True)
-
-            self.value_to_tile_map[value].add((x, y))
-
-        # print(self.conflicts)
-
-        return old
+        if self.__tiles[y][x].value == value:
+            value = 0
+        return self.__tiles[y][x].set_value(value)
 
     def fill_tiles(self, value: int, mode: InputMode, tiles=None) -> dict[tuple[int, int], int]:
         tiles = tiles or self.selection.selected
