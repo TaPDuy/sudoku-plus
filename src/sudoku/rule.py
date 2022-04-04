@@ -71,15 +71,12 @@ class RuleManager:
 
     def update(self, new_val: int, old_values: dict[tuple[int, int], int]):
         for pos, old_val in old_values.items():
-            if new_val == old_val:
-                new_val = 0
-
             for rule in self.global_rules:
-                rule.update(pos, new_val, old_val)
+                rule.update(pos, 0 if new_val == old_val else new_val, old_val)
 
             if self.pos_to_comp_map.get(pos):
                 for rule in self.pos_to_comp_map[pos]:
-                    rule.update(pos, new_val, old_val)
+                    rule.update(pos, 0 if new_val == old_val else new_val, old_val)
 
         self.board.highlight_conflicts(self.get_conflicts())
 
