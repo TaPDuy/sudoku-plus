@@ -7,6 +7,7 @@ from pygame.key import get_mods
 from .board import Board
 from ..application.action import ActionManager, BoardInputAction
 from ..utils.constants import InputMode
+from .rule import RuleManager
 
 
 class InputPanel:
@@ -23,11 +24,12 @@ class InputPanel:
     BUTTON_RESET = 14
     BUTTON_CHECK = 15
 
-    def __init__(self, apos: tuple[float, float], manager: UIManager, board: Board, action_manager: ActionManager):
+    def __init__(self, apos: tuple[float, float], manager: UIManager, board: Board, action_manager: ActionManager, rule_manager: RuleManager):
         self.apos = self.ax, self.ay = apos
 
         self.board = board
         self.action_manager = action_manager
+        self.rule_manager = rule_manager
 
         self.buttons = [UIButton(Rect(
             self.ax + x * InputPanel.BUTTON_SIZE,
@@ -93,7 +95,13 @@ class InputPanel:
         if 0 <= index <= 8:
             mode = InputMode((get_mods() & KMOD_SHIFT) | (bool(get_mods() & KMOD_CTRL) << 1) or self.force_mode.value)
             mode = self.force_mode if mode == 3 else mode
+
             old_values = self.board.fill_tiles(index + 1, mode)
+
+            for oldpos, oldval in old_values.items():
+                self.rule_manager.update(oldpos, 0 if index + 1 == oldval else index + 1, oldval)
+            self.board.highlight_conflicts(self.rule_manager.get_conflicts())
+
             self.action_manager.new_action(BoardInputAction(
                 self.board,
                 index + 1,
@@ -113,7 +121,10 @@ class InputPanel:
                 case InputPanel.BUTTON_RESET:
                     pass
                 case InputPanel.BUTTON_CHECK:
-                    pass
+                    if self.rule_manager.check():
+                        print("You win!")
+                    else:
+                        print("Something's wrong...")
 
     def button_pressed(self, evt):
         for i in range(InputPanel.BUTTONS_NUM):

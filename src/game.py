@@ -7,19 +7,23 @@ from .app import Application
 from .application import ActionManager
 from .sudoku.board import Board
 from .sudoku.input import InputPanel
+from .sudoku.rule import RuleManager, SudokuRule, KillerRule
 
 
 class Game(Application):
 
     def __init__(self):
         super().__init__()
+        self.sprites = LayeredDirty()
 
         self.action_manager = ActionManager()
 
-        self.sprites = LayeredDirty()
-
         self.board = Board(self.sprites)
-        self.input = InputPanel((500, 48), self.ui_manager, self.board, self.action_manager)
+        self.rule_manager = RuleManager(self.board, [
+            SudokuRule(),
+            KillerRule(19, [(0, 0), (1, 0), (2, 0), (3, 0), (3, 1)])
+        ])
+        self.input = InputPanel((500, 48), self.ui_manager, self.board, self.action_manager, self.rule_manager)
 
     def _process_events(self, evt):
         match evt.type:
