@@ -52,6 +52,7 @@ class RuleManager:
 
     def __init__(self, board: Board, rules: list[Rule] = None):
         self.rules: list[Rule] = rules or list()
+        self.board = board
 
         self.component_rules = []
         self.global_rules = []
@@ -68,13 +69,19 @@ class RuleManager:
                 self.global_rules.append(rule)
             rule.board = board
 
-    def update(self, pos: tuple[int, int], new_val: int, old_val: int):
-        for rule in self.global_rules:
-            rule.update(pos, new_val, old_val)
+    def update(self, new_val: int, old_values: dict[tuple[int, int], int]):
+        for pos, old_val in old_values.items():
+            if new_val == old_val:
+                new_val = 0
 
-        if self.pos_to_comp_map.get(pos):
-            for rule in self.pos_to_comp_map[pos]:
+            for rule in self.global_rules:
                 rule.update(pos, new_val, old_val)
+
+            if self.pos_to_comp_map.get(pos):
+                for rule in self.pos_to_comp_map[pos]:
+                    rule.update(pos, new_val, old_val)
+
+        self.board.highlight_conflicts(self.get_conflicts())
 
     def get_conflicts(self) -> set:
         conflicts = set()

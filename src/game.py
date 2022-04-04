@@ -25,6 +25,9 @@ class Game(Application):
         ])
         self.input = InputPanel((500, 48), self.ui_manager, self.board, self.action_manager, self.rule_manager)
 
+        # Event handlers
+        self.board.on_changed.add_handler(self.rule_manager.update)
+
     def _process_events(self, evt):
         match evt.type:
             case pg.WINDOWCLOSE:

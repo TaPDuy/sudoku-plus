@@ -7,6 +7,7 @@ from ..gfx import Graphics
 from .tile import Tile
 from .selection import SelectionGrid
 from ..utils.constants import InputMode
+from ..application.event import Event
 
 
 def get_tile_pos(pxpos: tuple[float, float]) -> tuple[int, int]:
@@ -41,6 +42,9 @@ class Board(DirtySprite):
         self.multi_select = False
         self.should_select = False
 
+        # Events
+        self.on_changed = Event()
+
         self.__initdraw()
 
     def highlight_conflicts(self, conflicts: set):
@@ -67,6 +71,9 @@ class Board(DirtySprite):
                     old_values[x, y] = self.__tiles[y][x].set_mark(value)
                 case InputMode.INPUT_MODE_COLOR:
                     old_values[x, y] = self.__tiles[y][x].set_color(value)
+
+        self.on_changed(value, old_values)
+
         return old_values
 
     def fill_tile(self, value: int, mode: InputMode, tlpos: tuple[int, int]) -> int:
@@ -78,6 +85,9 @@ class Board(DirtySprite):
                 old_value = self.__tiles[tlpos[1]][tlpos[0]].set_mark(value)
             case InputMode.INPUT_MODE_COLOR:
                 old_value = self.__tiles[tlpos[1]][tlpos[0]].set_color(value)
+
+        self.on_changed(value, {tlpos: old_value})
+
         return old_value
 
     def mouse_button_down(self):
