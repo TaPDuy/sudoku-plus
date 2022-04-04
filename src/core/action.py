@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-from ..sudoku.board import Board
-from ..utils.constants import InputMode
+from ..sudoku.board import Board, InputMode
 
 
 class Action(ABC):

@@ -2,7 +2,7 @@ import time
 import pygame as pg
 from pygame.rect import Rect, RectType
 
-from .gfx import GUIManager
+from src.core.gfx import GUIManager
 
 
 class Application:

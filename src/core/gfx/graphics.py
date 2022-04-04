@@ -4,7 +4,7 @@ from pygame.surface import Surface
 
 import numpy as np
 
-from ..utils.constants import *
+from src.core.utils.constants import *
 
 
 class Graphics:

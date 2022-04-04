@@ -1,2 +1,2 @@
 from .game import Game
-from .utils import constants
+from .core.utils import constants

@@ -4,9 +4,8 @@ from pygame_gui.elements import UIButton
 from pygame import KMOD_SHIFT, KMOD_CTRL
 from pygame.key import get_mods
 
-from .board import Board
-from ..application.action import ActionManager, BoardInputAction
-from ..utils.constants import InputMode
+from .board import Board, InputMode
+from ..core.action import ActionManager, BoardInputAction
 from .rule import RuleManager
 
 
