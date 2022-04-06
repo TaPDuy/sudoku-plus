@@ -1,4 +1,4 @@
-from .board import Board
+from src.sudoku.board import Board
 
 
 class Rule:

@@ -5,9 +5,9 @@ import numpy as np
 from pygame import Surface, SRCALPHA
 from pygame.font import SysFont
 
-from ..core.gfx import Graphics
-from ..core.utils import MeshGrid
-from .rule import KillerRule
+from src.core.gfx import Graphics
+from src.core.utils import MeshGrid
+from src.sudoku.rule import KillerRule
 
 
 killer_tile_size = killer_tile_w, killer_tile_h = 24, 24
