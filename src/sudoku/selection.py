@@ -4,11 +4,11 @@ from pygame.rect import Rect
 
 import numpy as np
 
-from src.core.gfx.graphics import Graphics
-from src.core.utils.constants import *
-from .tile import Tile
-
 from functools import cache
+
+from src.core.gfx.graphics import Graphics
+from src.core.utils import HALF_PI, PI, MeshGrid
+from .tile import Tile
 
 
 class SelectionGrid:
@@ -35,7 +35,7 @@ class SelectionGrid:
         ) for x in range(self.spr_grid_w)] for y in range(self.spr_grid_h)]
 
         self.generate_mesh_sprites(.25, (255, 0, 255, 150), 1, (255, 0, 255))
-        self.mesh_grid = MeshGrid(
+        self.mesh_grid = SelectionMeshGrid(
             self.spr_grid_size,
             (self.spr_grid_w + 1, self.spr_grid_h + 1)
         )
@@ -294,44 +294,10 @@ class SelectionTile(DirtySprite):
         self.dirty = 1
 
 
-class MeshGrid:
-    """Holds and calculates the data needed to build a mesh base using Marching Square."""
-
-    def __init__(self, state_size: tuple[int, int], bit_size: tuple[int, int]):
-        """state_size: The size of the state grid
-        bit_size: the size of the bit grid"""
-
-        self.state_size = self.state_w, self.state_h = state_size
-        self.bit_size = self.bit_w, self.bit_h = bit_size
-
-        self._states = [[0 for _ in range(self.state_w)] for _ in range(self.state_h)]
-        self.bits = [[0 for _ in range(self.bit_w)] for _ in range(self.bit_h)]
-
-    @property
-    def states(self):
-        return self._states
-
-    def reset(self):
-        self._states = [[0 for _ in range(self.state_w)] for _ in range(self.state_h)]
-        self.bits = [[0 for _ in range(self.bit_w)] for _ in range(self.bit_h)]
-
-    def add(self, value: int, bit_pos: set[tuple[int, int]]) -> set[tuple[int, int]]:
-        """Adds value to specified positions"""
-        # Update bits and record affected states
-        affected = set()
-        for bx, by in bit_pos:
-            self.bits[by][bx] += value
-            affected |= self.bit_to_state(bx, by)
-
-        # Update affected states
-        for sx, sy in affected:
-            self.update_state(sx, sy)
-
-        return affected
+class SelectionMeshGrid(MeshGrid):
 
     @cache
     def bit_to_state(self, bx, by) -> set[tuple[int, int]]:
-        """Describes how bit position map to state position"""
         conditions = (
             bx > 0 and by > 0,
             by > 0 and bx < self.bit_w - 1,
@@ -343,7 +309,6 @@ class MeshGrid:
         return {states_pos[_] for _ in range(4) if conditions[_]}
 
     def update_state(self, sx, sy):
-        """Recalculates the specified state position"""
         self._states[sy][sx] = (1 if self.bits[sy][sx] > 0 else 0) | \
                                ((1 if self.bits[sy][sx + 1] > 0 else 0) << 1) | \
                                ((1 if self.bits[sy + 1][sx + 1] > 0 else 0) << 2) | \
