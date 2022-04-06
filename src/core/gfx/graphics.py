@@ -225,6 +225,22 @@ class Graphics:
         )
 
     @staticmethod
+    def dashed_lines(
+            surface: Surface,
+            points: list,
+            dash_len: float,
+            gap_len: float,
+            stroke_weight: float = 1,
+            stroke_color=(255, 255, 255)
+    ):
+        ln = len(points)
+        if ln < 2:
+            return
+
+        for i in range(1, ln):
+            Graphics.dashed_line(surface, points[i - 1], points[i], dash_len, gap_len, stroke_weight, stroke_color)
+
+    @staticmethod
     def rect(
             surface: Surface,
             top_left: tuple[float, float],
