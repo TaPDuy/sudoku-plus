@@ -7,7 +7,7 @@ from .app import Application
 from .core import ActionManager, BoardInputAction
 from .sudoku.board import Board, InputMode
 from .sudoku.input import InputPanel
-from .sudoku.rule import RuleManager, SudokuRule, KillerRule
+from .sudoku.rules import RuleManager, SudokuRule, generate_killer_mesh, killer_sudoku, KillerRule
 
 from functools import partial
 
@@ -21,10 +21,14 @@ class Game(Application):
         self.action_manager = ActionManager()
 
         self.board = Board(self.sprites)
+
         self.rule_manager = RuleManager(self.board, [
             SudokuRule(),
             KillerRule(19, [(0, 0), (1, 0), (2, 0), (3, 0), (3, 1)])
         ])
+        generate_killer_mesh()
+        killer_sudoku(self.board.image, KillerRule(36, [(0, 1), (1, 0), (1, 1), (2, 1), (3, 1), (0, 2), (1, 2)]))
+        self.board.dirty = 1
 
         self.input = InputPanel((500, 48), self.ui_manager)
         self.input.assign(0, partial(self.fill_selection, 1))

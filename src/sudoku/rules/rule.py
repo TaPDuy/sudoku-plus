@@ -41,7 +41,7 @@ class Rule:
             self.value_to_tile_map[new_val].add(pos)
 
     def _conflict(self, p1: tuple[int, int], p2: tuple[int, int]) -> bool:
-        """Describes how two positions would conflict for this rule."""
+        """Describes how two positions would conflict for this rules."""
         return False
 
     def check(self) -> bool:
@@ -137,19 +137,3 @@ class SudokuRule(GlobalRule):
         return self.sub_rules[0]._conflict(p1, p2) or \
                self.sub_rules[1]._conflict(p1, p2) or \
                self.sub_rules[2]._conflict(p1, p2)
-
-
-class KillerRule(ComponentRule):
-
-    def __init__(self, target_sum: int, bound_to: list):
-        super().__init__(bound_to)
-
-        self.sum = 0
-        self.target = target_sum
-
-    def update(self, pos: tuple[int, int], new_val: int, old_val: int):
-        super()._check_conflict(pos, new_val, old_val)
-        self.sum = self.sum - old_val + new_val
-
-    def check(self) -> bool:
-        return self.sum == self.target

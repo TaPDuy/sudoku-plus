@@ -7,9 +7,27 @@ from pygame.font import SysFont
 
 from src.core.gfx import Graphics
 from src.core.utils import MeshGrid
-from src.sudoku.rule import KillerRule
+from . import ComponentRule
 
 
+# ----- Data -----
+class KillerRule(ComponentRule):
+
+    def __init__(self, target_sum: int, bound_to: list):
+        super().__init__(bound_to)
+
+        self.sum = 0
+        self.target = target_sum
+
+    def update(self, pos: tuple[int, int], new_val: int, old_val: int):
+        super()._check_conflict(pos, new_val, old_val)
+        self.sum = self.sum - old_val + new_val
+
+    def check(self) -> bool:
+        return self.sum == self.target
+
+
+# ----- Graphics -----
 killer_tile_size = killer_tile_w, killer_tile_h = 24, 24
 killer_sprites = {}
 
@@ -44,8 +62,8 @@ def killer_sudoku(
     text = font.render(str(rule.target), True, (255, 255, 255))
     # text = smoothscale(text, (text.get_width() * Tile.SIZE / 64, text.get_height() * Tile.SIZE / 64))
     surface.blit(text, (
-        (sum_tile[0] + 0.125) * killer_tile_w,
-        (sum_tile[1] + 0.125) * killer_tile_h
+        (sum_tile[0] + 0.125) * killer_tile_w * 2,
+        (sum_tile[1] + 0.125) * killer_tile_h * 2
     ))
 
 
