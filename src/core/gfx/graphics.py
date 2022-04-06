@@ -164,11 +164,16 @@ class Graphics:
     @staticmethod
     def line(
             surface: Surface,
-            start_pos: tuple[float, float],
-            stop_pos: tuple[float, float],
+            start_pos: np.ndarray | tuple[float, float],
+            stop_pos: np.ndarray | tuple[float, float],
             stroke_weight: float = 1,
             stroke_color=(255, 255, 255)
     ):
+        if isinstance(start_pos, tuple):
+            start_pos = np.asarray(start_pos)
+        if isinstance(stop_pos, tuple):
+            stop_pos = np.asarray(stop_pos)
+
         if stroke_weight == 1:
             draw.aaline(surface, stroke_color, start_pos, stop_pos)
         elif stroke_weight > 1:
@@ -180,6 +185,44 @@ class Graphics:
                 (stop_pos[0] + dx, stop_pos[1] + dy),
                 (stop_pos[0] - dx, stop_pos[1] - dy)
             ), stroke_color)
+
+    @staticmethod
+    def dashed_line(
+            surface: Surface,
+            start_pos: np.ndarray | tuple[float, float],
+            stop_pos: np.ndarray | tuple[float, float],
+            dash_len: float,
+            gap_len: float,
+            stroke_weight: float = 1,
+            stroke_color=(255, 255, 255)
+    ):
+        if isinstance(start_pos, tuple):
+            start_pos = np.asarray(start_pos)
+        if isinstance(stop_pos, tuple):
+            stop_pos = np.asarray(stop_pos)
+
+        vec = stop_pos - start_pos
+        dist = np.linalg.norm(vec)
+        unit = vec / dist
+
+        step = dash_len + gap_len
+        ndash = dist // step
+        for i in np.arange(ndash):
+            Graphics.line(
+                surface,
+                start_pos + i * step * unit,
+                start_pos + (i * step + dash_len) * unit,
+                stroke_weight,
+                stroke_color
+            )
+
+        Graphics.line(
+            surface,
+            start_pos + ndash * step * unit,
+            np.minimum(start_pos + (ndash * step + dash_len) * unit, stop_pos),
+            stroke_weight,
+            stroke_color
+        )
 
     @staticmethod
     def rect(
