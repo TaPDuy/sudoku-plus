@@ -13,7 +13,8 @@ from .sudoku.rules import \
     arrow, ArrowRule, \
     thermometer, ThermometerRule, \
     PalindromeRule, palindrome, \
-    OddRule, EvenRule, odd, even
+    OddRule, EvenRule, odd, even, \
+    BlackDotRule, WhiteDotRule, white_dot, black_dot
 
 from functools import partial
 
@@ -30,20 +31,24 @@ class Game(Application):
 
         self.rule_manager = RuleManager(self.board, [
             SudokuRule(),
-            # KillerRule(28, {(0, 1), (1, 0), (1, 1), (2, 1), (3, 1), (0, 2), (1, 2)}),
-            # ArrowRule((1, 1), [(2, 3), (2, 4), (1, 4)]),
-            # ThermometerRule([(7, 7), (7, 6), (6, 6), (5, 5), (5, 6), (4, 6), (4, 5), (5, 4)]),
-            # PalindromeRule([(0, 5), (1, 6), (2, 7), (3, 6), (4, 5), (5, 4)]),
+            KillerRule(28, {(0, 1), (1, 0), (1, 1), (2, 1), (3, 1), (0, 2), (1, 2)}),
+            ArrowRule((1, 1), [(2, 3), (2, 4), (1, 4)]),
+            ThermometerRule([(7, 7), (7, 6), (6, 6), (5, 5), (5, 6), (4, 6), (4, 5), (5, 4)]),
+            PalindromeRule([(0, 5), (1, 6), (2, 7), (3, 6), (4, 5), (5, 4)]),
             OddRule((8, 0)),
-            EvenRule((8, 1))
+            EvenRule((8, 1)),
+            BlackDotRule((0, 0), 1),
+            WhiteDotRule((0, 0), 2)
         ])
         generate_killer_mesh()
-        # killer_sudoku(self.board.image, KillerRule(28, {(0, 1), (1, 0), (1, 1), (2, 1), (3, 1), (0, 2), (1, 2)}))
-        # arrow(self.board.image, ArrowRule((1, 1), [(2, 3), (2, 4), (1, 4)]))
-        # thermometer(self.board.image, ThermometerRule([(7, 7), (7, 6), (6, 6), (5, 5), (5, 6), (4, 6), (4, 5), (5, 4)]))
-        # palindrome(self.board.image, PalindromeRule([(0, 5), (1, 6), (2, 7), (3, 6), (4, 5), (5, 4)]))
+        killer_sudoku(self.board.image, KillerRule(28, {(0, 1), (1, 0), (1, 1), (2, 1), (3, 1), (0, 2), (1, 2)}))
+        arrow(self.board.image, ArrowRule((1, 1), [(2, 3), (2, 4), (1, 4)]))
+        thermometer(self.board.image, ThermometerRule([(7, 7), (7, 6), (6, 6), (5, 5), (5, 6), (4, 6), (4, 5), (5, 4)]))
+        palindrome(self.board.image, PalindromeRule([(0, 5), (1, 6), (2, 7), (3, 6), (4, 5), (5, 4)]))
         odd(self.board.image, OddRule((8, 0)))
         even(self.board.image, EvenRule((8, 1)))
+        black_dot(self.board.image, BlackDotRule((0, 0), 1))
+        white_dot(self.board.image, WhiteDotRule((0, 0), 2))
         self.board.dirty = 1
 
         self.input = InputPanel((500, 48), self.ui_manager)
