@@ -11,7 +11,8 @@ from .sudoku.rules import \
     RuleManager, SudokuRule, \
     generate_killer_mesh, killer_sudoku, KillerRule, \
     arrow, ArrowRule, \
-    thermometer, ThermometerRule
+    thermometer, ThermometerRule, \
+    PalindromeRule, palindrome
 
 from functools import partial
 
@@ -30,12 +31,14 @@ class Game(Application):
             SudokuRule(),
             KillerRule(28, {(0, 1), (1, 0), (1, 1), (2, 1), (3, 1), (0, 2), (1, 2)}),
             ArrowRule((1, 1), [(2, 3), (2, 4), (1, 4)]),
-            ThermometerRule([(7, 7), (7, 6), (6, 6), (5, 5), (5, 6), (4, 6), (4, 5), (5, 4)])
+            ThermometerRule([(7, 7), (7, 6), (6, 6), (5, 5), (5, 6), (4, 6), (4, 5), (5, 4)]),
+            PalindromeRule([(0, 5), (1, 6), (2, 7), (3, 6), (4, 5), (5, 4)])
         ])
         generate_killer_mesh()
         killer_sudoku(self.board.image, KillerRule(28, {(0, 1), (1, 0), (1, 1), (2, 1), (3, 1), (0, 2), (1, 2)}))
         arrow(self.board.image, ArrowRule((1, 1), [(2, 3), (2, 4), (1, 4)]))
         thermometer(self.board.image, ThermometerRule([(7, 7), (7, 6), (6, 6), (5, 5), (5, 6), (4, 6), (4, 5), (5, 4)]))
+        palindrome(self.board.image, PalindromeRule([(0, 5), (1, 6), (2, 7), (3, 6), (4, 5), (5, 4)]))
         self.board.dirty = 1
 
         self.input = InputPanel((500, 48), self.ui_manager)
