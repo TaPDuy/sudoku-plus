@@ -7,6 +7,13 @@ import numpy as np
 from src.core.utils.constants import *
 
 
+def rotation_matrix(rad: float | np.ndarray):
+    return np.array([
+        [np.cos(rad), -np.sin(rad)],
+        [np.sin(rad), np.cos(rad)]
+    ])
+
+
 class Graphics:
 
     @staticmethod
@@ -199,6 +206,50 @@ class Graphics:
 
         for i in range(1, ln):
             Graphics.line(surface, points[i - 1], points[i], stroke_weight, stroke_color)
+
+    @staticmethod
+    def arrow_line(
+            surface: Surface,
+            start_pos: np.ndarray | tuple[float, float],
+            stop_pos: np.ndarray | tuple[float, float],
+            arrow_height: float = 24,
+            arrow_angle: float = HALF_PI / 2,
+            stroke_weight: float = 1,
+            stroke_color=(255, 255, 255)
+    ):
+        if isinstance(start_pos, tuple):
+            start_pos = np.asarray(start_pos)
+        if isinstance(stop_pos, tuple):
+            stop_pos = np.asarray(stop_pos)
+
+        Graphics.line(surface, start_pos, stop_pos, stroke_weight, stroke_color)
+
+        vec_h = start_pos - stop_pos
+        unit = vec_h / np.linalg.norm(vec_h)
+        rad = np.clip(arrow_angle, 0, HALF_PI) / 2
+        unit1, unit2 = np.dot(rotation_matrix(rad), unit), np.dot(rotation_matrix(-rad), unit)
+        mag = arrow_height * np.tan(rad)
+
+        vertices = [stop_pos, stop_pos + mag * unit1, stop_pos + mag * unit2]
+        filled_polygon(surface, vertices, stroke_color)
+        draw.aalines(surface, stroke_color, True, vertices)
+
+    @staticmethod
+    def arrow_lines(
+            surface: Surface,
+            points: list,
+            arrow_height: float = 24,
+            arrow_angle: float = HALF_PI / 2,
+            stroke_weight: float = 1,
+            stroke_color=(255, 255, 255)
+    ):
+        ln = len(points)
+        if ln < 2:
+            return
+
+        for i in range(1, ln - 1):
+            Graphics.line(surface, points[i - 1], points[i], stroke_weight, stroke_color)
+        Graphics.arrow_line(surface, points[-2], points[-1], arrow_height, arrow_angle, stroke_weight, stroke_color)
 
     @staticmethod
     def dashed_line(
