@@ -24,10 +24,10 @@ class Game(Application):
 
         self.rule_manager = RuleManager(self.board, [
             SudokuRule(),
-            KillerRule(19, [(0, 0), (1, 0), (2, 0), (3, 0), (3, 1)])
+            KillerRule(19, {(0, 0), (1, 0), (2, 0), (3, 0), (3, 1)})
         ])
         generate_killer_mesh()
-        killer_sudoku(self.board.image, KillerRule(36, [(0, 1), (1, 0), (1, 1), (2, 1), (3, 1), (0, 2), (1, 2)]))
+        killer_sudoku(self.board.image, KillerRule(36, {(0, 1), (1, 0), (1, 1), (2, 1), (3, 1), (0, 2), (1, 2)}))
         self.board.dirty = 1
 
         self.input = InputPanel((500, 48), self.ui_manager)

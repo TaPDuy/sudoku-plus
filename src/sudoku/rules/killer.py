@@ -13,7 +13,7 @@ from . import ComponentRule
 # ----- Data -----
 class KillerRule(ComponentRule):
 
-    def __init__(self, target_sum: int, bound_to: list):
+    def __init__(self, target_sum: int, bound_to: set):
         super().__init__(bound_to)
 
         self.sum = 0
