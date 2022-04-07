@@ -101,7 +101,7 @@ class GlobalRule(Rule):
 
 class ComponentRule(Rule):
 
-    def __init__(self, bound_to: set):
+    def __init__(self, bound_to):
         super().__init__()
         self.bound_to = bound_to
 
