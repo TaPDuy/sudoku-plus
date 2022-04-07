@@ -187,6 +187,20 @@ class Graphics:
             ), stroke_color)
 
     @staticmethod
+    def lines(
+            surface: Surface,
+            points: list,
+            stroke_weight: float = 1,
+            stroke_color=(255, 255, 255)
+    ):
+        ln = len(points)
+        if ln < 2:
+            return
+
+        for i in range(1, ln):
+            Graphics.line(surface, points[i - 1], points[i], stroke_weight, stroke_color)
+
+    @staticmethod
     def dashed_line(
             surface: Surface,
             start_pos: np.ndarray | tuple[float, float],
