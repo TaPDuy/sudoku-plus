@@ -208,6 +208,22 @@ class Graphics:
             Graphics.line(surface, points[i - 1], points[i], stroke_weight, stroke_color)
 
     @staticmethod
+    def smooth_lines(
+            surface: Surface,
+            points: list,
+            stroke_weight: float = 1,
+            stroke_color=(255, 255, 255)
+    ):
+        ln = len(points)
+        if ln < 2:
+            return
+
+        filled_circle(surface, points[0][0], points[0][1], int(stroke_weight / 2), stroke_color)
+        for i in range(1, ln):
+            Graphics.line(surface, points[i - 1], points[i], stroke_weight, stroke_color)
+            filled_circle(surface, points[i][0], points[i][1], int(stroke_weight / 2), stroke_color)
+
+    @staticmethod
     def arrow_line(
             surface: Surface,
             start_pos: np.ndarray | tuple[float, float],
