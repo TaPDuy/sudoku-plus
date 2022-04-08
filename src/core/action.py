@@ -1,87 +1,77 @@
-from abc import ABC, abstractmethod
+class Action:
 
+    def __init__(self, data):
+        pass
 
-from ..sudoku.board import Board, InputMode
-
-
-class Action(ABC):
-
-    @abstractmethod
     def undo(self):
-        pass
+        print("This action's undo handler hasn't been defined!")
 
-    @abstractmethod
+    def redo(self):
+        print("This action's redo handler hasn't been defined!")
+
     def __call__(self):
-        pass
+        self.redo()
 
 
 class ActionManager:
 
-    def __init__(self):
-        self.undo_stack = []
-        self.redo_stack = []
+    undo_stack = []
+    redo_stack = []
 
-    def new_action(self, action):
-        self.undo_stack.append(action)
-        self.redo_stack.clear()
+    @staticmethod
+    def insert_action(action: Action):
+        ActionManager.undo_stack.append(action)
+        ActionManager.redo_stack.clear()
 
-    def push_undo(self, action: Action):
-        self.undo_stack.append(action)
+    @staticmethod
+    def push_undo(action: Action):
+        ActionManager.undo_stack.append(action)
 
-    def push_redo(self, action: Action):
-        self.redo_stack.append(action)
+    @staticmethod
+    def push_redo(action: Action):
+        ActionManager.redo_stack.append(action)
 
-    def pop_undo(self) -> Action:
+    @staticmethod
+    def pop_undo() -> Action:
         undo = None
         try:
-            undo = self.undo_stack.pop()
+            undo = ActionManager.undo_stack.pop()
         except IndexError:
             print("Nothing to undo!")
         finally:
             return undo
 
-    def pop_redo(self) -> Action:
+    @staticmethod
+    def pop_redo() -> Action:
         redo = None
         try:
-            redo = self.redo_stack.pop()
+            redo = ActionManager.redo_stack.pop()
         except IndexError:
             print("Nothing to redo!")
         finally:
             return redo
 
-    def undo(self):
-        action = self.pop_undo()
+    @staticmethod
+    def undo():
+        action = ActionManager.pop_undo()
         if action:
             action.undo()
-            self.push_redo(action)
+            ActionManager.push_redo(action)
 
-    def redo(self):
-        action = self.pop_redo()
+    @staticmethod
+    def redo():
+        action = ActionManager.pop_redo()
         if action:
             action()
-            self.push_undo(action)
+            ActionManager.push_undo(action)
 
 
-class BoardInputAction(Action):
-
-    def __init__(
-        self,
-        board: Board,
-        value: int,
-        mode: InputMode,
-        old_values: dict[tuple[int, int], int]
-    ):
-        self.board = board
-        self.mode = mode
-        self.old_values = old_values
-        self.value = value
-
-    def __repr__(self):
-        return f"[prev={self.old_values}, value={self.value}, mode={self.mode}]"
-
-    def __call__(self):
-        self.board.fill_tiles(self.value, self.mode, self.old_values.keys())
-
-    def undo(self):
-        for tile, val in self.old_values.items():
-            self.board.fill_tile(val, self.mode, tile)
+def new_action(action_type=Action):
+    def decorator(func):
+        def handler(*args, **kwargs):
+            no_record = kwargs.pop('no_record', False)
+            data = func(*args, **kwargs)
+            if not no_record:
+                ActionManager.insert_action(action_type(data))
+        return handler
+    return decorator
