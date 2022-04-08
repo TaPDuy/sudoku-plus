@@ -5,10 +5,12 @@ import numpy as np
 from . import ComponentRule
 from src.core.utils import TWO_PI
 from src.core.gfx import Graphics
+from src.sudoku import Tile
 
 
 # ----- Data -----
 class ThermometerRule(ComponentRule):
+    color = (150, 150, 150)
 
     def __init__(self, bound_to: list[tuple[int, int]]):
         super().__init__(bound_to)
@@ -25,14 +27,9 @@ class ThermometerRule(ComponentRule):
             return False
         return all(self.values[i - 1] < self.values[i] for i in np.arange(1, self.length))
 
-
-# ----- Graphics -----
-def thermometer(
-        surface: Surface,
-        rule: ThermometerRule
-):
-    org = rule.bound_to[0][0] * 48 + 24, rule.bound_to[0][1] * 48 + 24
-    Graphics.pie(surface, org[0], org[1], 18, 0, TWO_PI, (150, 150, 150), 0)
-    Graphics.smooth_lines(surface, [
-        (x * 48 + 24, y * 48 + 24) for x, y in rule.bound_to
-    ], 18, (150, 150, 150))
+    def draw(self, surface: Surface):
+        org = self.bound_to[0][0] * Tile.SIZE + Tile.SIZE / 2, self.bound_to[0][1] * Tile.SIZE + Tile.SIZE / 2
+        Graphics.pie(surface, org[0], org[1], Tile.SIZE * 3 / 8, 0, TWO_PI, ThermometerRule.color, 0)
+        Graphics.smooth_lines(surface, [
+            (x * Tile.SIZE + Tile.SIZE / 2, y * Tile.SIZE + Tile.SIZE / 2) for x, y in self.bound_to
+        ], Tile.SIZE * 3 / 8, ThermometerRule.color)

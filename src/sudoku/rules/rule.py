@@ -1,3 +1,4 @@
+from pygame import Surface
 from src.sudoku.board import Board
 
 
@@ -119,3 +120,6 @@ class ComponentRule(Rule):
 
     def _conflict(self, p1: tuple[int, int], p2: tuple[int, int]) -> bool:
         return p1 in self.bound_to and p2 in self.bound_to
+
+    def draw(self, surface: Surface):
+        pass

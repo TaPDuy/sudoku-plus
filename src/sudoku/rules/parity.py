@@ -3,56 +3,54 @@ from pygame.gfxdraw import filled_circle
 
 from . import ComponentRule
 from src.core.gfx import Graphics
+from src.sudoku import Tile
 
 
 # ----- Data -----
-class EvenRule(ComponentRule):
+class ParityRule(ComponentRule):
 
     def __init__(self, tile: tuple[int, int]):
         super().__init__([tile])
         self.value = 0
 
+    def __new__(cls, *args, **kwargs):
+        if cls is ParityRule:
+            raise TypeError(f"Only childrens of {cls.__name__} shall be instantiated!")
+        return super().__new__(cls)
+
     def update(self, pos: tuple[int, int], new_val: int, old_val: int):
         self.value = new_val
+
+
+class EvenRule(ParityRule):
+    weight = .75
+    color = (150, 150, 150)
 
     def check(self) -> bool:
         return self.value and self.value % 2 == 0
 
+    def even(self, surface: Surface):
+        bw = Tile.SIZE * (1 - EvenRule.weight) / 2
+        Graphics.rect(
+            surface,
+            (Tile.SIZE * self.bound_to[0][0] + bw, Tile.SIZE * self.bound_to[0][1] + bw),
+            (Tile.SIZE * EvenRule.weight, Tile.SIZE * EvenRule.weight),
+            EvenRule.color
+        )
 
-class OddRule(ComponentRule):
 
-    def __init__(self, tile: tuple[int, int]):
-        super().__init__([tile])
-        self.value = 0
-
-    def update(self, pos: tuple[int, int], new_val: int, old_val: int):
-        self.value = new_val
+class OddRule(ParityRule):
+    weight = .75
+    color = (150, 150, 150)
 
     def check(self) -> bool:
         return self.value % 2 != 0
 
-
-# ----- Graphics -----
-def even(
-        surface: Surface,
-        rule: EvenRule
-):
-    bw = 48 * .25 / 2
-    Graphics.rect(
-        surface,
-        (48 * rule.bound_to[0][0] + bw, 48 * rule.bound_to[0][1] + bw),
-        (48 * .75, 48 * .75),
-        (150, 150, 150)
-    )
-
-
-def odd(
-        surface: Surface,
-        rule: OddRule
-):
-    filled_circle(
-        surface,
-        48 * rule.bound_to[0][0] + 24, 48 * rule.bound_to[0][1] + 24,
-        int(48 * .75 / 2),
-        (150, 150, 150)
-    )
+    def odd(self, surface: Surface):
+        filled_circle(
+            surface,
+            Tile.SIZE * self.bound_to[0][0] + Tile.SIZE / 2,
+            Tile.SIZE * self.bound_to[0][1] + Tile.SIZE / 2,
+            int(Tile.SIZE * OddRule.weight / 2),
+            OddRule.color
+        )

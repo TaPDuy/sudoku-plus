@@ -5,10 +5,12 @@ import numpy as np
 
 from . import ComponentRule
 from src.core.gfx import Graphics
+from src.sudoku import Tile
 
 
 # ----- Data -----
 class ArrowRule(ComponentRule):
+    color = (255, 255, 255)
 
     def __init__(self, sum_tile: tuple[int, int], summands: list[tuple[int, int]]):
         super().__init__({sum_tile} | set(summands))
@@ -26,23 +28,23 @@ class ArrowRule(ComponentRule):
     def check(self) -> bool:
         return self.sum == self.target != 0
 
+    def draw(self, surface: Surface):
+        org = self.sum_tile[0] * Tile.SIZE + Tile.SIZE / 2, \
+              self.sum_tile[1] * Tile.SIZE + Tile.SIZE / 2
+        aaellipse(
+            surface,
+            org[0], org[1],
+            Tile.SIZE * 3 / 8, Tile.SIZE * 3 / 8,
+            ArrowRule.color
+        )
 
-# ----- Graphics -----
-def arrow(
-        surface: Surface,
-        rule: ArrowRule
-):
-    org = rule.sum_tile[0] * 48 + 24, rule.sum_tile[1] * 48 + 24
-    aaellipse(
-        surface,
-        org[0], org[1],
-        18, 18, (255, 255, 255)
-    )
-
-    tile1 = rule.summand_tiles[0][0] * 48 + 24, rule.summand_tiles[0][1] * 48 + 24
-    vec = np.asarray(tile1) - np.asarray(org)
-    unit = vec / np.linalg.norm(vec)
-    Graphics.arrow_lines(
-        surface,
-        [org + 18 * unit] + [(x * 48 + 24, y * 48 + 24) for x, y in rule.summand_tiles]
-    )
+        tile1 = self.summand_tiles[0][0] * Tile.SIZE + Tile.SIZE / 2, \
+                self.summand_tiles[0][1] * Tile.SIZE + Tile.SIZE / 2
+        vec = np.asarray(tile1) - np.asarray(org)
+        unit = vec / np.linalg.norm(vec)
+        Graphics.arrow_lines(
+            surface,
+            [org + Tile.SIZE * 3 / 8 * unit] + [(
+                x * Tile.SIZE + Tile.SIZE / 2, y * Tile.SIZE + Tile.SIZE / 2
+            ) for x, y in self.summand_tiles]
+        )

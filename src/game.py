@@ -1,7 +1,7 @@
 import pygame as pg
 import pygame_gui as pgui
 from pygame.rect import Rect, RectType
-from pygame.sprite import LayeredDirty
+from pygame.sprite import LayeredDirty, DirtySprite
 
 from .app import Application
 from .core import ActionManager
@@ -49,13 +49,24 @@ class Game(Application):
         }, {(1, 1): 1, (2, 2): 2, (7, 6): 3}))
 
     def load_level(self, level: Level):
+        # Load rules
         self.rule_manager.clear_rule()
         self.rule_manager.add_rule(level.rules)
 
+        # Load initial values
         self.board.clear()
         for pos, val in level.start_values.items():
             self.board.fill_tiles(val, InputMode.INPUT_MODE_VALUE, [pos])
         self.board.lock_tile(level.start_values.keys(), True)
+
+        # Draw component rules
+        under = DirtySprite(self.sprites)
+        under.image = pg.Surface(self.board.image.get_size(), pg.SRCALPHA)
+        under.rect = Rect(self.board.rect)
+
+        above = DirtySprite(self.sprites)
+        above.image = pg.Surface(self.board.image.get_size(), pg.SRCALPHA)
+        above.rect = Rect(self.board.rect)
 
     def check_win(self):
         if self.rule_manager.check():

@@ -4,10 +4,12 @@ import numpy as np
 
 from . import ComponentRule
 from src.core.gfx import Graphics
+from src.sudoku import Tile
 
 
 # ----- Data -----
 class PalindromeRule(ComponentRule):
+    color = (100, 100, 100)
 
     def __init__(self, bound_to: list[tuple[int, int]]):
         super().__init__(bound_to)
@@ -23,12 +25,7 @@ class PalindromeRule(ComponentRule):
             return False
         return all(self.values[i] == self.values[-1 - i] for i in np.arange(self.length >> 1))
 
-
-# ----- Graphics -----
-def palindrome(
-    surface: Surface,
-    rule: PalindromeRule
-):
-    Graphics.smooth_lines(surface, [
-        (x * 48 + 24, y * 48 + 24) for x, y in rule.bound_to
-    ], 12, (100, 100, 100))
+    def draw(self, surface: Surface):
+        Graphics.smooth_lines(surface, [
+            (x * Tile.SIZE + Tile.SIZE / 2, y * Tile.SIZE + Tile.SIZE / 2) for x, y in self.bound_to
+        ], Tile.SIZE / 4, PalindromeRule.color)
