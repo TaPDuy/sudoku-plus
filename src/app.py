@@ -4,13 +4,15 @@ from pygame.rect import Rect, RectType
 
 from src.core.gfx import GUIManager
 
+pg.init()
+pg.font.init()
+
 
 class Application:
     TARGET_FPS = 60
     CLEAR_COLOR = (0, 0, 0)
 
     def __init__(self, size: tuple[int, int] = (700, 500)):
-        pg.init()
         self._clock = pg.time.Clock()
         self._screen = pg.display.set_mode(size)
         self._font = pg.font.SysFont("Consolas", 14)

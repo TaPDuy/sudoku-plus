@@ -3,7 +3,7 @@ from pygame.font import SysFont
 from pygame.gfxdraw import filled_circle
 
 from . import ComponentRule
-from src.sudoku import Tile
+from src.sudoku.tile import Tile
 
 
 # ----- Data -----

@@ -4,7 +4,7 @@ import numpy as np
 
 from . import ComponentRule
 from src.core.gfx import Graphics
-from src.sudoku import Tile
+from src.sudoku.tile import Tile
 
 
 # ----- Data -----

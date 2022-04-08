@@ -1,5 +1,5 @@
 from pygame import Surface, SRCALPHA
-from pygame.sprite import DirtySprite, AbstractGroup
+from pygame.sprite import DirtySprite, LayeredDirty
 from pygame.rect import Rect
 
 import numpy as np
@@ -18,7 +18,7 @@ class SelectionGrid:
             self,
             apos: tuple[float, float],
             tlsize: tuple[int, int],
-            sprite_groups: AbstractGroup
+            sprite_groups: LayeredDirty
     ):
         self.apos = self.ax, self.ay = apos
         self.tlsize = self.tlw, self.tlh = tlsize
@@ -281,13 +281,14 @@ class SelectionGrid:
 
 class SelectionTile(DirtySprite):
 
-    def __init__(self, apos: tuple[float, float], size: tuple[float, float], sprite_groups: AbstractGroup):
-        super().__init__(sprite_groups)
+    def __init__(self, apos: tuple[float, float], size: tuple[float, float], sprite_groups: LayeredDirty):
+        super().__init__()
         self.apos = self.ax, self.ay = apos
         self.size = self.w, self.h = size
 
         self.rect = Rect(apos, size)
         self.image = Surface(size, SRCALPHA)
+        sprite_groups.add(self, layer=5)
 
     def redraw(self, state: int):
         self.image = SelectionGrid.sprite_map[state]
