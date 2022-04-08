@@ -9,6 +9,7 @@ from src.core.gfx import Graphics
 from .tile import Tile
 from .selection import SelectionGrid
 from ..core.event import Event
+from src.core import new_action, Action
 
 
 def get_tile_pos(pxpos: tuple[float, float]) -> tuple[int, int]:
@@ -19,6 +20,23 @@ class InputMode(Enum):
     INPUT_MODE_VALUE = 0
     INPUT_MODE_MARK = 1
     INPUT_MODE_COLOR = 2
+
+
+class BoardInputAction(Action):
+
+    def __init__(self, data):
+        super().__init__(data)
+        self.board = data[0]
+        self.mode = data[1]
+        self.old_values = data[2]
+        self.value = data[3]
+
+    def redo(self):
+        self.board.fill_tiles(self.value, self.mode, self.old_values.keys(), no_record=True)
+
+    def undo(self):
+        for tile, val in self.old_values.items():
+            self.board.fill_tiles(val, self.mode, {tile}, no_record=True)
 
 
 class Board(DirtySprite):
@@ -42,7 +60,6 @@ class Board(DirtySprite):
             ] for y in range(self.tlh)
         ]
         self.old_conflicts = set()
-        # self.__surface = Surface(self.pxsize, SRCALPHA)
         sprite_groups.add(self)
 
         self.selection = SelectionGrid(self.pxpos, self.tlsize, sprite_groups)
@@ -54,6 +71,12 @@ class Board(DirtySprite):
 
         self.__initdraw()
 
+    def clear(self):
+        for y in range(self.tlh):
+            for x in range(self.tlw):
+                self.__tiles[y][x].set_value(0).set_mark(0).set_color(0)
+                self.__tiles[y][x].locked = False
+
     def highlight_conflicts(self, conflicts: set):
         for cx, cy in self.old_conflicts.difference(conflicts):
             self.__tiles[cy][cx].set_highlight(False)
@@ -61,43 +84,32 @@ class Board(DirtySprite):
             self.__tiles[cy][cx].set_highlight(True)
         self.old_conflicts = conflicts
 
-    def __set_value(self, x, y, value) -> int:
-        if self.__tiles[y][x].value == value:
-            value = 0
-        return self.__tiles[y][x].set_value(value)
+    def lock_tile(self, tiles: list[tuple[int, int]], lock: bool):
+        for x, y in tiles:
+            self.__tiles[y][x].locked = lock
 
-    def fill_tiles(self, value: int, mode: InputMode, tiles=None) -> dict[tuple[int, int], int]:
+    @new_action(BoardInputAction)
+    def fill_tiles(self, value: int, mode: InputMode, tiles=None):
         tiles = tiles or self.selection.selected
 
         old_values = {}
         for x, y in tiles:
             match mode:
                 case InputMode.INPUT_MODE_VALUE:
-                    old_values[x, y] = self.__set_value(x, y, value)
+                    if not self.__tiles[y][x].locked:
+                        old_values[x, y] = self.__tiles[y][x].value
+                        self.__tiles[y][x].set_value(value)
                 case InputMode.INPUT_MODE_MARK:
-                    old_values[x, y] = self.__tiles[y][x].set_mark(value)
+                    old_values[x, y] = value
+                    self.__tiles[y][x].set_mark(value)
                 case InputMode.INPUT_MODE_COLOR:
-                    old_values[x, y] = self.__tiles[y][x].set_color(value)
+                    old_values[x, y] = self.__tiles[y][x].color
+                    self.__tiles[y][x].set_color(value)
 
         if mode == InputMode.INPUT_MODE_VALUE:
             self.on_changed(value, old_values)
 
-        return old_values
-
-    def fill_tile(self, value: int, mode: InputMode, tlpos: tuple[int, int]) -> int:
-        old_value = 0
-        match mode:
-            case InputMode.INPUT_MODE_VALUE:
-                old_value = self.__set_value(tlpos[0], tlpos[1], value)
-            case InputMode.INPUT_MODE_MARK:
-                old_value = self.__tiles[tlpos[1]][tlpos[0]].set_mark(value)
-            case InputMode.INPUT_MODE_COLOR:
-                old_value = self.__tiles[tlpos[1]][tlpos[0]].set_color(value)
-
-        if mode == InputMode.INPUT_MODE_VALUE:
-            self.on_changed(value, {tlpos: old_value})
-
-        return old_value
+        return self, mode, old_values, value
 
     def mouse_button_down(self):
         if not self.rect.collidepoint(pygame.mouse.get_pos()):

@@ -29,47 +29,61 @@ class Tile(DirtySprite):
         self.image = Surface(self.pxsize, SRCALPHA)
         self.rect = Rect(self.pxpos, self.pxsize)
 
-        self.value = 0
-        self.mark = 0
-        self.color = 0
+        self.__value = 0
+        self.__mark = 0
+        self.__color = 0
         self.highlight = False
+        self.locked = False
 
         # self.__surface = Surface(self.pxsize, SRCALPHA)
         self.__font_value = SysFont("Arial", 48)
         self.__font_mark = SysFont("Arial", 14)
         self.__redraw()
 
+    @property
+    def value(self):
+        return self.__value
+
+    @property
+    def mark(self):
+        return self.__mark
+
+    @property
+    def color(self):
+        return self.__color
+
     def set_highlight(self, b: bool):
         self.highlight = b
         self.__redraw()
 
-    def set_value(self, value: int) -> int:
-        old_value = self.value
-        self.value = 0 if value == self.value else value
+    def set_value(self, value: int):
+        self.__value = 0 if value == self.__value else value
         self.__redraw()
-        return old_value
+        return self
 
-    def set_mark(self, value: int) -> int:
-        self.mark ^= 1 << (value - 1)
+    def set_mark(self, value: int):
+        if value:
+            self.__mark ^= 1 << (value - 1)
+        else:
+            self.__mark = 0
         self.__redraw()
-        return value
+        return self
 
-    def set_color(self, index: int) -> int:
-        old_value = self.color
-        self.color = 0 if index == self.color else index
+    def set_color(self, index: int):
+        self.__color = 0 if index == self.__color else index
         self.__redraw()
-        return old_value
+        return self
 
     def update(self):
         pass
 
     def __redraw(self):
         self.dirty = 1
-        self.image.fill(Tile.COLORS[self.color])
+        self.image.fill(Tile.COLORS[self.__color])
 
-        if 0 < self.value < 10:
+        if 0 < self.__value < 10:
             text = self.__font_value.render(
-                str(self.value),
+                str(self.__value),
                 True,
                 (255, 0, 0) if self.highlight else (255, 255, 255)
             )
@@ -78,8 +92,8 @@ class Tile(DirtySprite):
                 self.pxw / 2 - text.get_width() / 2,
                 self.pxh / 2 - text.get_height() / 2
             ))
-        elif self.mark:
-            textstr = ''.join(str(i + 1) for i in range(9) if 1 << i & self.mark)
+        elif self.__mark:
+            textstr = ''.join(str(i + 1) for i in range(9) if 1 << i & self.__mark)
             text = self.__font_mark.render(textstr, True, (255, 255, 255))
             text = smoothscale(text, (text.get_width() * Tile.SIZE / 64, text.get_height() * Tile.SIZE / 64))
             self.image.blit(text, (

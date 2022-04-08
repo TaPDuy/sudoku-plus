@@ -50,24 +50,36 @@ class Rule:
 
 class RuleManager:
 
-    def __init__(self, board: Board, rules: list[Rule] = None):
-        self.rules: list[Rule] = rules or list()
+    def __init__(self, board: Board, rules: set[Rule] = None):
         self.board = board
 
-        self.component_rules = []
-        self.global_rules = []
+        self.component_rules = set()
+        self.global_rules = set()
         self.pos_to_comp_map: dict[tuple, set] = {}
 
-        for rule in self.rules:
+        self.rules: set[Rule] = set()
+        if rules:
+            self.add_rule(rules)
+
+    def add_rule(self, rules: set[Rule]):
+        for rule in rules:
             if isinstance(rule, ComponentRule):
-                self.component_rules.append(rule)
+                self.component_rules.add(rule)
                 for pos in rule.bound_to:
                     if not self.pos_to_comp_map.get(pos):
                         self.pos_to_comp_map[pos] = set()
                     self.pos_to_comp_map[pos].add(rule)
-            else:
-                self.global_rules.append(rule)
-            rule.board = board
+            elif isinstance(rule, GlobalRule):
+                self.global_rules.add(rule)
+            rule.board = self.board
+
+        self.rules = self.component_rules | self.global_rules
+
+    def clear_rule(self):
+        self.rules = set()
+        self.component_rules = set()
+        self.global_rules = set()
+        self.pos_to_comp_map: dict[tuple, set] = {}
 
     def update(self, new_val: int, old_values: dict[tuple[int, int], int]):
         for pos, old_val in old_values.items():

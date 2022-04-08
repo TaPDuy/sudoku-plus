@@ -1,4 +1,4 @@
-from .rule import ComponentRule, GlobalRule, RuleManager
+from .rule import ComponentRule, GlobalRule, RuleManager, Rule
 
 from .killer import killer_sudoku, generate_killer_mesh, KillerRule
 from .arrow import arrow, ArrowRule
