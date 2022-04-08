@@ -8,7 +8,7 @@ from pygame.font import SysFont
 from src.core.gfx import Graphics
 from src.core.utils import MeshGrid
 from . import ComponentRule
-from src.sudoku import Tile
+from src.sudoku.tile import Tile
 
 
 # ----- Data -----
@@ -36,8 +36,10 @@ class KillerRule(ComponentRule):
         return self.sum == self.target
 
     def draw(self, surface: Surface):
-        width = max(self.bound_to, key=lambda x: x[0])[0] - min(self.bound_to, key=lambda x: x[0])[0] + 1
-        height = max(self.bound_to, key=lambda x: x[1])[1] - min(self.bound_to, key=lambda x: x[1])[1] + 1
+        top_left = min(self.bound_to, key=lambda x: x[0])[0], min(self.bound_to, key=lambda x: x[1])[1]
+        ptop_left = top_left[0] * Tile.SIZE, top_left[1] * Tile.SIZE
+        width = max(self.bound_to, key=lambda x: x[0])[0] - top_left[0] + 1
+        height = max(self.bound_to, key=lambda x: x[1])[1] - top_left[1] + 1
 
         mesh_grid = KillerMeshGrid((width << 1, height << 1), ((width << 1) + 1, (height << 1) + 1))
         for x, y in self.bound_to:
@@ -46,6 +48,8 @@ class KillerRule(ComponentRule):
                 (x, y + 1) in self.bound_to,
                 (x + 1, y) in self.bound_to and (x, y + 1) in self.bound_to and (x + 1, y + 1) in self.bound_to
             )
+            x -= top_left[0]
+            y -= top_left[1]
             states_pos = ((x + 1 << 1, (y << 1) + 1), ((x << 1) + 1, y + 1 << 1), (x + 1 << 1, y + 1 << 1))
 
             mesh_grid.add(1, {states_pos[_] for _ in range(3) if conditions[_]} | {((x << 1) + 1, (y << 1) + 1)})
@@ -53,7 +57,7 @@ class KillerRule(ComponentRule):
         surface.blits(
             tuple((
                       KillerRule.killer_sprites[mesh_grid.states[y][x]],
-                      (x * KillerRule.killer_tile_w, y * KillerRule.killer_tile_h)
+                      (x * KillerRule.killer_tile_w + ptop_left[0], y * KillerRule.killer_tile_h + ptop_left[1])
                   ) for y in range(mesh_grid.state_h) for x in range(mesh_grid.state_w))
         )
 
