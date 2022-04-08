@@ -10,7 +10,7 @@ pg.font.init()
 
 class Application:
     TARGET_FPS = 60
-    CLEAR_COLOR = (0, 0, 0)
+    CLEAR_COLOR = (50, 80, 40)
 
     def __init__(self, size: tuple[int, int] = (700, 500)):
         self._clock = pg.time.Clock()

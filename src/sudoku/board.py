@@ -2,7 +2,7 @@ from enum import Enum
 
 import pygame
 from pygame import Surface, SRCALPHA
-from pygame.sprite import DirtySprite, AbstractGroup
+from pygame.sprite import DirtySprite, LayeredDirty
 from pygame.rect import Rect
 
 from src.core.gfx import Graphics
@@ -41,7 +41,7 @@ class BoardInputAction(Action):
 
 class Board(DirtySprite):
 
-    def __init__(self, sprite_groups: AbstractGroup):
+    def __init__(self, sprite_groups: LayeredDirty):
         super().__init__()
 
         # Data properties
@@ -52,6 +52,7 @@ class Board(DirtySprite):
         # Graphics properties
         self.image = Surface(self.pxsize, SRCALPHA)
         self.rect = Rect(self.pxpos, self.pxsize)
+        sprite_groups.add(self, layer=3)
 
         # Children properties
         self.__tiles = [
@@ -60,7 +61,6 @@ class Board(DirtySprite):
             ] for y in range(self.tlh)
         ]
         self.old_conflicts = set()
-        sprite_groups.add(self)
 
         self.selection = SelectionGrid(self.pxpos, self.tlsize, sprite_groups)
         self.multi_select = False

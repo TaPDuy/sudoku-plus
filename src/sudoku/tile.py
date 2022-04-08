@@ -1,6 +1,6 @@
 from pygame import Surface, SRCALPHA
 from pygame.font import SysFont
-from pygame.sprite import DirtySprite, AbstractGroup
+from pygame.sprite import DirtySprite, LayeredDirty
 from pygame.rect import Rect
 from pygame.transform import smoothscale
 
@@ -20,18 +20,25 @@ class Tile(DirtySprite):
         (150, 100, 200, 255)
     )
 
-    def __init__(self, pxpos: tuple[float, float], sprite_groups: AbstractGroup):
-        super().__init__(sprite_groups)
+    def __init__(self, pxpos: tuple[float, float], sprite_groups: LayeredDirty):
+        super().__init__()
 
         # Graphics properties
         self.pxpos = self.pxx, self.pxy = pxpos
         self.pxsize = self.pxw, self.pxh = Tile.SIZE, Tile.SIZE
         self.image = Surface(self.pxsize, SRCALPHA)
         self.rect = Rect(self.pxpos, self.pxsize)
+        sprite_groups.add(self, layer=2)
+
+        # Color
+        self.__color = 0
+        self.color_sprite = DirtySprite()
+        self.color_sprite.image = Surface(self.pxsize, SRCALPHA)
+        self.color_sprite.rect = Rect(self.pxpos, self.pxsize)
+        sprite_groups.add(self.color_sprite, layer=0)
 
         self.__value = 0
         self.__mark = 0
-        self.__color = 0
         self.highlight = False
         self.locked = False
 
@@ -79,7 +86,9 @@ class Tile(DirtySprite):
 
     def __redraw(self):
         self.dirty = 1
-        self.image.fill(Tile.COLORS[self.__color])
+        self.color_sprite.dirty = 1
+        self.color_sprite.image.fill(Tile.COLORS[self.__color])
+        self.image.fill(Tile.COLORS[0])
 
         if 0 < self.__value < 10:
             text = self.__font_value.render(

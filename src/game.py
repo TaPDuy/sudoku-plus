@@ -21,7 +21,19 @@ class Game(Application):
 
         self.board = Board(self.sprites)
 
+        # Rules
         self.rule_manager = RuleManager(self.board)
+
+        under = DirtySprite()
+        under.image = pg.Surface(self.board.image.get_size(), pg.SRCALPHA)
+        under.rect = Rect(self.board.rect)
+
+        above = DirtySprite()
+        above.image = pg.Surface(self.board.image.get_size(), pg.SRCALPHA)
+        above.rect = Rect(self.board.rect)
+
+        self.sprites.add(under, layer=1)
+        self.sprites.add(above, layer=4)
 
         self.input = InputPanel((500, 48), self.ui_manager)
         self.input.assign(0, partial(self.fill_selection, 1))
@@ -43,9 +55,13 @@ class Game(Application):
         # Event handlers
         self.board.on_changed.add_handler(self.rule_manager.update)
 
+        KillerRule.generate_killer_mesh()
         self.load_level(Level({
             SudokuRule(),
-            KnightRule()
+            KnightRule(),
+            KillerRule(10, {(3, 3), (3, 4), (4, 4), (4, 5), (5, 5)}),
+            SurroundRule({1, 4, 5}, (6, 3)),
+            ThermometerRule([(1, 2), (2, 3), (3, 3), (3, 4), (3, 5), (4, 6)])
         }, {(1, 1): 1, (2, 2): 2, (7, 6): 3}))
 
     def load_level(self, level: Level):
@@ -60,13 +76,15 @@ class Game(Application):
         self.board.lock_tile(level.start_values.keys(), True)
 
         # Draw component rules
-        under = DirtySprite(self.sprites)
-        under.image = pg.Surface(self.board.image.get_size(), pg.SRCALPHA)
-        under.rect = Rect(self.board.rect)
-
-        above = DirtySprite(self.sprites)
-        above.image = pg.Surface(self.board.image.get_size(), pg.SRCALPHA)
-        above.rect = Rect(self.board.rect)
+        above = self.sprites.get_sprites_from_layer(4)
+        under = self.sprites.get_sprites_from_layer(1)
+        above[0].image.fill((0, 0, 0, 0))
+        under[0].image.fill((0, 0, 0, 0))
+        for _ in self.rule_manager.component_rules:
+            if isinstance(_, (DotRule, SurroundRule, KillerRule)):
+                _.draw(above[0].image)
+            else:
+                _.draw(under[0].image)
 
     def check_win(self):
         if self.rule_manager.check():
