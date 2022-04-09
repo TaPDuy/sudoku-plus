@@ -7,7 +7,7 @@ from .app import Application
 from .core import ActionManager
 from .sudoku.board import Board, InputMode
 from .sudoku.input import InputPanel
-from .sudoku import Level
+from .sudoku import Level, random_sudoku
 from .sudoku.rules import *
 
 from functools import partial
@@ -63,6 +63,7 @@ class Game(Application):
             SurroundRule({1, 4, 5}, (6, 3)),
             ThermometerRule([(1, 2), (2, 3), (3, 3), (3, 4), (3, 5), (4, 6)])
         }, {(1, 1): 1, (2, 2): 2, (7, 6): 3}))
+        self.load_level(random_sudoku())
 
     def load_level(self, level: Level):
         # Load rules

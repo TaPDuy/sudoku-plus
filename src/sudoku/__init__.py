@@ -1,1 +1,1 @@
-from .level import Level
+from .level import Level, random_sudoku
