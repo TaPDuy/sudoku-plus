@@ -82,7 +82,7 @@ class Board(DirtySprite):
         for y in range(self.tlh):
             for x in range(self.tlw):
                 self.__tiles[y][x].set_value(0).set_mark(0).set_color(0)
-                self.__tiles[y][x].locked = False
+                self.__tiles[y][x].set_lock(False)
 
     def highlight_conflicts(self, conflicts: set):
         for cx, cy in self.old_conflicts.difference(conflicts):
@@ -93,7 +93,7 @@ class Board(DirtySprite):
 
     def lock_tile(self, tiles: list[tuple[int, int]], lock: bool):
         for x, y in tiles:
-            self.__tiles[y][x].locked = lock
+            self.__tiles[y][x].set_lock(lock)
 
     @new_action(BoardInputAction)
     def fill_tiles(self, value: int, mode: InputMode, tiles=None):

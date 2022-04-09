@@ -40,7 +40,7 @@ class Tile(DirtySprite):
         self.__value = 0
         self.__mark = 0
         self.highlight = False
-        self.locked = False
+        self.__locked = False
 
         # self.__surface = Surface(self.pxsize, SRCALPHA)
         self.__font_value = SysFont("Arial", 48)
@@ -58,6 +58,14 @@ class Tile(DirtySprite):
     @property
     def color(self):
         return self.__color
+
+    @property
+    def locked(self):
+        return self.__locked
+
+    def set_lock(self, b: bool):
+        self.__locked = b
+        self.__redraw()
 
     def set_highlight(self, b: bool):
         self.highlight = b
@@ -94,7 +102,7 @@ class Tile(DirtySprite):
             text = self.__font_value.render(
                 str(self.__value),
                 True,
-                (255, 0, 0) if self.highlight else (255, 255, 255)
+                (255, 0, 0) if self.highlight else ((165, 175, 175) if self.__locked else (255, 255, 255))
             )
             text = smoothscale(text, (text.get_width() * Tile.SIZE / 64, text.get_height() * Tile.SIZE / 64))
             self.image.blit(text, (
