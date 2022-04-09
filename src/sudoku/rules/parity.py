@@ -29,7 +29,7 @@ class EvenRule(ParityRule):
     def check(self) -> bool:
         return self.value and self.value % 2 == 0
 
-    def even(self, surface: Surface):
+    def draw(self, surface: Surface):
         bw = Tile.SIZE * (1 - EvenRule.weight) / 2
         Graphics.rect(
             surface,
@@ -46,7 +46,7 @@ class OddRule(ParityRule):
     def check(self) -> bool:
         return self.value % 2 != 0
 
-    def odd(self, surface: Surface):
+    def draw(self, surface: Surface):
         filled_circle(
             surface,
             Tile.SIZE * self.bound_to[0][0] + Tile.SIZE / 2,
