@@ -93,13 +93,17 @@ class SelectionGrid:
         if w == 0:
             stroke_weight = 0
 
+        bw = self.spr_w * w
+
         self.sprite_map[0] = Surface(self.spr_size, SRCALPHA)
+        self.sprite_map[5] = Surface(self.spr_size, SRCALPHA)
+        self.sprite_map[10] = Surface(self.spr_size, SRCALPHA)
 
         surface = Surface(self.spr_size, SRCALPHA)
         Graphics.pie(
             surface,
             0, 0,
-            self.spr_w * w,
+            bw,
             -HALF_PI, 0,
             color, stroke_weight, stroke_color
         )
@@ -109,7 +113,7 @@ class SelectionGrid:
         Graphics.pie(
             surface,
             self.spr_w, 0,
-            self.spr_w * w,
+            bw,
             PI, PI * 1.5,
             color, stroke_weight, stroke_color
         )
@@ -119,13 +123,13 @@ class SelectionGrid:
         Graphics.rect(
             surface,
             (0, 0),
-            (self.spr_w, self.spr_w * w),
+            (self.spr_w, bw),
             color
         )
         Graphics.line(
             surface,
             (0, self.spr_w * w),
-            (self.spr_w, self.spr_w * w),
+            (self.spr_w, bw),
             stroke_weight, stroke_color
         )
         self.sprite_map[3] = surface
@@ -134,49 +138,56 @@ class SelectionGrid:
         Graphics.pie(
             surface,
             self.spr_w, self.spr_w,
-            self.spr_w * w,
+            bw,
             HALF_PI, PI,
             color, stroke_weight, stroke_color
         )
         self.sprite_map[4] = surface
 
         surface = Surface(self.spr_size, SRCALPHA)
-        Graphics.pie(
-            surface,
-            0, 0,
-            self.spr_w * w,
-            -HALF_PI, 0,
-            color, stroke_weight, stroke_color
-        )
-        Graphics.pie(
-            surface,
-            self.spr_w, self.spr_w,
-            self.spr_w * w,
-            HALF_PI, PI,
-            color, stroke_weight, stroke_color
-        )
-        self.sprite_map[5] = surface
-
-        surface = Surface(self.spr_size, SRCALPHA)
         Graphics.rect(
             surface,
-            (self.spr_w * cw, 0),
-            (self.spr_w * w, self.spr_w),
+            (self.spr_w - bw, 0),
+            (bw, self.spr_w),
             color
         )
         Graphics.line(
             surface,
-            (self.spr_w * cw, 0),
-            (self.spr_w * cw, self.spr_w),
+            (self.spr_w - bw, 0),
+            (self.spr_w - bw, self.spr_w),
             stroke_weight, stroke_color
         )
         self.sprite_map[6] = surface
 
         surface = Surface(self.spr_size, SRCALPHA)
+        Graphics.rect(
+            surface,
+            (0, 0),
+            (max(0, self.spr_w - bw * 2), bw),
+            color
+        )
+        Graphics.line(
+            surface,
+            (0, bw),
+            (max(0, self.spr_w - bw * 2), bw),
+            stroke_weight, stroke_color
+        )
+        Graphics.rect(
+            surface,
+            (self.spr_w - bw, min(2 * bw, self.spr_w)),
+            (bw, max(0, self.spr_w - bw * 2)),
+            color
+        )
+        Graphics.line(
+            surface,
+            (self.spr_w - bw, min(2 * bw, self.spr_w)),
+            (self.spr_w - bw, self.spr_w),
+            stroke_weight, stroke_color
+        )
         Graphics.inverse_pie(
             surface,
-            0, self.spr_w,
-            self.spr_w * cw, self.spr_w,
+            max(0, self.spr_w - bw * 2), min(2 * bw, self.spr_w),
+            bw if 2 * bw < self.spr_w else self.spr_w - bw, min(2 * bw, self.spr_w),
             0, HALF_PI,
             color, stroke_weight, stroke_color
         )
@@ -186,7 +197,7 @@ class SelectionGrid:
         Graphics.pie(
             surface,
             0, self.spr_w,
-            self.spr_w * w,
+            bw,
             0, HALF_PI,
             color, stroke_weight, stroke_color
         )
@@ -196,39 +207,46 @@ class SelectionGrid:
         Graphics.rect(
             surface,
             (0, 0),
-            (self.spr_w * w, self.spr_w),
+            (bw, self.spr_w),
             color
         )
         Graphics.line(
             surface,
-            (self.spr_w * w, 0),
-            (self.spr_w * w, self.spr_w),
+            (bw, 0),
+            (bw, self.spr_w),
             stroke_weight, stroke_color
         )
         self.sprite_map[9] = surface
 
         surface = Surface(self.spr_size, SRCALPHA)
-        Graphics.pie(
+        Graphics.rect(
             surface,
-            self.spr_w, 0,
-            self.spr_w * w,
-            PI, PI * 1.5,
-            color, stroke_weight, stroke_color
+            (min(2 * bw, self.spr_w), 0),
+            (max(0, self.spr_w - bw * 2), bw),
+            color
         )
-        Graphics.pie(
+        Graphics.line(
             surface,
-            0, self.spr_w,
-            self.spr_w * w,
-            0, HALF_PI,
-            color, stroke_weight, stroke_color
+            (min(2 * bw, self.spr_w), bw),
+            (self.spr_w, bw),
+            stroke_weight, stroke_color
         )
-        self.sprite_map[10] = surface
-
-        surface = Surface(self.spr_size, SRCALPHA)
+        Graphics.rect(
+            surface,
+            (0, min(2 * bw, self.spr_w)),
+            (bw, max(0, self.spr_w - bw * 2)),
+            color
+        )
+        Graphics.line(
+            surface,
+            (bw, min(2 * bw, self.spr_w)),
+            (bw, self.spr_w),
+            stroke_weight, stroke_color
+        )
         Graphics.inverse_pie(
             surface,
-            self.spr_w, self.spr_w,
-            self.spr_w * cw, self.spr_w,
+            min(2 * bw, self.spr_w), min(2 * bw, self.spr_w),
+            bw if 2 * bw < self.spr_w else self.spr_w - bw, min(2 * bw, self.spr_w),
             HALF_PI, PI,
             color, stroke_weight, stroke_color
         )
@@ -237,33 +255,81 @@ class SelectionGrid:
         surface = Surface(self.spr_size, SRCALPHA)
         Graphics.rect(
             surface,
-            (0, self.spr_w * cw),
-            (self.spr_w, self.spr_w * w),
+            (0, self.spr_w - bw),
+            (self.spr_w, bw),
             color
         )
         Graphics.line(
             surface,
-            (0, self.spr_w * cw),
-            (self.spr_w, self.spr_w * cw),
+            (0, self.spr_w - bw),
+            (self.spr_w, self.spr_w - bw),
             stroke_weight, stroke_color
         )
         self.sprite_map[12] = surface
 
         surface = Surface(self.spr_size, SRCALPHA)
+        Graphics.rect(
+            surface,
+            (min(2 * bw, self.spr_w), self.spr_w - bw),
+            (max(0, self.spr_w - bw * 2), bw),
+            color
+        )
+        Graphics.line(
+            surface,
+            (min(2 * bw, self.spr_w), self.spr_w - bw),
+            (self.spr_w, self.spr_w - bw),
+            stroke_weight, stroke_color
+        )
+        Graphics.rect(
+            surface,
+            (0, 0),
+            (bw, max(0, self.spr_w - bw * 2)),
+            color
+        )
+        Graphics.line(
+            surface,
+            (bw, 0),
+            (bw, max(0, self.spr_w - bw * 2)),
+            stroke_weight, stroke_color
+        )
         Graphics.inverse_pie(
             surface,
-            self.spr_w, 0,
-            self.spr_w * cw, self.spr_w,
+            min(2 * bw, self.spr_w), max(0, self.spr_w - bw * 2),
+            bw if 2 * bw < self.spr_w else self.spr_w - bw, min(2 * bw, self.spr_w),
             -PI, -HALF_PI,
             color, stroke_weight, stroke_color
         )
         self.sprite_map[13] = surface
 
         surface = Surface(self.spr_size, SRCALPHA)
+        Graphics.rect(
+            surface,
+            (0, self.spr_w - bw),
+            (max(0, self.spr_w - bw * 2), bw),
+            color
+        )
+        Graphics.line(
+            surface,
+            (0, self.spr_w - bw),
+            (max(0, self.spr_w - bw * 2), self.spr_w - bw),
+            stroke_weight, stroke_color
+        )
+        Graphics.rect(
+            surface,
+            (self.spr_w - bw, 0),
+            (bw, max(0, self.spr_w - bw * 2)),
+            color
+        )
+        Graphics.line(
+            surface,
+            (self.spr_w - bw, 0),
+            (self.spr_w - bw, max(0, self.spr_w - bw * 2)),
+            stroke_weight, stroke_color
+        )
         Graphics.inverse_pie(
             surface,
-            0, 0,
-            self.spr_w * cw, self.spr_w,
+            max(0, self.spr_w - bw * 2), max(0, self.spr_w - bw * 2),
+            bw if 2 * bw < self.spr_w else self.spr_w - bw, min(2 * bw, self.spr_w),
             -HALF_PI, 0,
             color, stroke_weight, stroke_color
         )
