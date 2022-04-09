@@ -33,8 +33,8 @@ class ArrowRule(ComponentRule):
               self.sum_tile[1] * Tile.SIZE + Tile.SIZE / 2
         aaellipse(
             surface,
-            org[0], org[1],
-            Tile.SIZE * 3 / 8, Tile.SIZE * 3 / 8,
+            int(org[0]), int(org[1]),
+            int(Tile.SIZE * 3 / 8), int(Tile.SIZE * 3 / 8),
             ArrowRule.color
         )
 
