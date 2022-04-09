@@ -100,7 +100,7 @@ class RuleManager:
         return conflicts
 
     def check(self) -> bool:
-        return all(map(lambda rule: rule.check(), self.rules))
+        return all(map(lambda rule: rule.check(), self.rules)) and self.board.is_complete()
 
 
 class GlobalRule(Rule):

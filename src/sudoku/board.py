@@ -71,6 +71,13 @@ class Board(DirtySprite):
 
         self.__initdraw()
 
+    def is_complete(self) -> bool:
+        for y in range(self.tlh):
+            for x in range(self.tlw):
+                if self.__tiles[y][x].value == 0:
+                    return False
+        return True
+
     def clear(self):
         for y in range(self.tlh):
             for x in range(self.tlw):
