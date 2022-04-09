@@ -102,7 +102,7 @@ class Tile(DirtySprite):
             text = self.__font_value.render(
                 str(self.__value),
                 True,
-                (255, 0, 0) if self.highlight else ((165, 175, 175) if self.__locked else (255, 255, 255))
+                (255, 0, 0) if self.highlight else ((140, 160, 160) if self.__locked else (255, 255, 255))
             )
             text = smoothscale(text, (text.get_width() * Tile.SIZE / 64, text.get_height() * Tile.SIZE / 64))
             self.image.blit(text, (

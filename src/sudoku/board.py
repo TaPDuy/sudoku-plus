@@ -150,7 +150,8 @@ class Board(DirtySprite):
                 self.image,
                 (0, tly * Tile.SIZE),
                 (self.pxw, tly * Tile.SIZE),
-                1 if tly % 3 else 2
+                1 if tly % 3 else 2,
+                (140, 160, 160)
             )
 
         for tlx in range(self.tlw):
@@ -158,8 +159,9 @@ class Board(DirtySprite):
                 self.image,
                 (tlx * Tile.SIZE, 0),
                 (tlx * Tile.SIZE, self.pxh),
-                1 if tlx % 3 else 2
+                1 if tlx % 3 else 2,
+                (140, 160, 160)
             )
 
-        Graphics.line(self.image, (0, self.pxh - 1), (self.pxw, self.pxh - 1), 2)
-        Graphics.line(self.image, (self.pxw - 1, 0), (self.pxw - 1, self.pxh), 2)
+        Graphics.line(self.image, (0, self.pxh - 1), (self.pxw, self.pxh - 1), 2, (140, 160, 160))
+        Graphics.line(self.image, (self.pxw - 1, 0), (self.pxw - 1, self.pxh), 2, (140, 160, 160))
