@@ -59,11 +59,18 @@ class Game(Application):
         self.load_level(Level({
             SudokuRule(),
             KnightRule(),
-            KillerRule(10, {(3, 3), (3, 4), (4, 4), (4, 5), (5, 5)}),
-            SurroundRule({1, 4, 5}, (6, 3)),
-            ThermometerRule([(1, 2), (2, 3), (3, 3), (3, 4), (3, 5), (4, 6)])
-        }, {(1, 1): 1, (2, 2): 2, (7, 6): 3}))
-        self.load_level(random_sudoku())
+            KingRule(),
+            KillerRule(26, {(4, 1), (4, 2), (4, 3), (3, 3), (5, 3), (5, 4)}),
+            KillerRule(10, {(8, 2), (8, 3)}),
+            PalindromeRule([(0, 4), (1, 4), (2, 4), (3, 5), (4, 6), (3, 6), (2, 6)]),
+            ArrowRule((4, 4), [(5, 4), (6, 3)]),
+            ArrowRule((1, 6), [(2, 6), (1, 7), (1, 8)]),
+            ThermometerRule([(0, 2), (1, 1), (2, 0), (3, 0)]),
+            EvenRule((5, 8)), EvenRule((6, 4)), EvenRule((8, 6)),
+            OddRule((0, 1)), OddRule((1, 5)), OddRule((7, 4)),
+            BlackDotRule((6, 7), 2), BlackDotRule((2, 6), 0), BlackDotRule((2, 5), 1),
+            SurroundRule({8, 6, 1, 3}, (3, 5))
+        }, {(0, 0): 4, (8, 8): 5, (6, 5): 2, (6, 0): 1, (0, 7): 6, (1, 3): 3, (5, 5): 7, (3, 7): 9, (5, 2): 3}))
 
     def load_level(self, level: Level):
         # Load rules
