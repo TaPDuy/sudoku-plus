@@ -49,8 +49,8 @@ class OddRule(ParityRule):
     def draw(self, surface: Surface):
         filled_circle(
             surface,
-            Tile.SIZE * self.bound_to[0][0] + Tile.SIZE / 2,
-            Tile.SIZE * self.bound_to[0][1] + Tile.SIZE / 2,
+            int(Tile.SIZE * self.bound_to[0][0] + Tile.SIZE / 2),
+            int(Tile.SIZE * self.bound_to[0][1] + Tile.SIZE / 2),
             int(Tile.SIZE * OddRule.weight / 2),
             OddRule.color
         )
