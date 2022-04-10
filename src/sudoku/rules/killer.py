@@ -33,7 +33,7 @@ class KillerRule(ComponentRule):
         self.sum = self.sum - old_val + new_val
 
     def check(self) -> bool:
-        return self.sum == self.target
+        return self.sum == self.target and len(self.conflicts) == 0
 
     def draw(self, surface: Surface):
         top_left = min(self.bound_to, key=lambda x: x[0])[0], min(self.bound_to, key=lambda x: x[1])[1]
