@@ -1,8 +1,8 @@
+import pygame as pg
+import pygame_gui as pgui
 from pygame.rect import Rect
 from pygame_gui import UIManager
 from pygame_gui.elements import UIButton
-
-from .board import InputMode
 
 
 class InputPanel:
@@ -73,7 +73,6 @@ class InputPanel:
             InputPanel.BUTTON_SIZE
         ), "check", manager))
 
-        self.force_mode = InputMode.INPUT_MODE_VALUE
         self.toggle_highlight_button(InputPanel.BUTTON_VALUE)
         self.functions = {}
 
@@ -90,7 +89,21 @@ class InputPanel:
         if self.functions.get(index):
             self.functions[index]()
 
-    def button_pressed(self, evt):
-        for i in range(InputPanel.BUTTONS_NUM):
-            if evt.ui_element == self.buttons[i]:
-                self.trigger_button(i)
+    def process_events(self, evt):
+        match evt.type:
+            case pg.KEYDOWN:
+                match evt.key:
+                    case pg.K_1 | pg.K_2 | pg.K_3 | pg.K_4 | pg.K_5 | pg.K_6 | pg.K_7 | pg.K_8 | pg.K_9:
+                        self.toggle_highlight_button(evt.key - pg.K_1)
+                    case pg.K_KP1 | pg.K_KP2 | pg.K_KP3 | pg.K_KP4 | pg.K_KP5 | pg.K_KP6 | pg.K_KP7 | pg.K_KP8 | pg.K_KP9:
+                        self.toggle_highlight_button(evt.key - pg.K_KP1)
+            case pg.KEYUP:
+                match evt.key:
+                    case pg.K_1 | pg.K_2 | pg.K_3 | pg.K_4 | pg.K_5 | pg.K_6 | pg.K_7 | pg.K_8 | pg.K_9:
+                        self.toggle_highlight_button(evt.key - pg.K_1)
+                    case pg.K_KP1 | pg.K_KP2 | pg.K_KP3 | pg.K_KP4 | pg.K_KP5 | pg.K_KP6 | pg.K_KP7 | pg.K_KP8 | pg.K_KP9:
+                        self.toggle_highlight_button(evt.key - pg.K_KP1)
+            case pgui.UI_BUTTON_PRESSED:
+                for btn in self.buttons:
+                    if evt.ui_element == btn:
+                        self.trigger_button(self.buttons.index(btn))

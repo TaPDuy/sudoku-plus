@@ -48,6 +48,7 @@ class Board(DirtySprite):
         self.pxpos = self.pxx, self.pxy = pos
         self.tlsize = self.tlw, self.tlh = 9, 9
         self.pxsize = self.pxw, self.pxh = Tile.SIZE * self.tlw, Tile.SIZE * self.tlh
+        self.force_mode = InputMode.INPUT_MODE_VALUE
 
         # Graphics properties
         self.image = Surface(self.pxsize, SRCALPHA)
@@ -95,6 +96,13 @@ class Board(DirtySprite):
         for x, y in tiles:
             self.__tiles[y][x].set_lock(lock)
 
+    def fill_selection(self, value):
+        mode = InputMode((pg.key.get_mods() & pg.KMOD_SHIFT) | (bool(pg.key.get_mods() & pg.KMOD_CTRL) << 1) or self.force_mode.value)
+        mode = self.force_mode if mode == 3 else mode
+
+        if mode == InputMode.INPUT_MODE_VALUE or value != 0:
+            self.fill_tiles(value, mode)
+
     @new_action(BoardInputAction)
     def fill_tiles(self, value: int, mode: InputMode, tiles=None):
         tiles = tiles or self.selection.selected
@@ -118,25 +126,26 @@ class Board(DirtySprite):
 
         return self, mode, old_values, value
 
-    def mouse_button_down(self):
-        if not self.rect.collidepoint(pg.mouse.get_pos()):
-            return
-
-        if not pg.key.get_mods() & pg.KMOD_SHIFT:
-            self.selection.clear()
-
-        self.multi_select = True
-        self.should_select = not self.selection.is_selected(get_tile_pos(pg.mouse.get_pos()))
-
-    def mouse_button_up(self):
-        self.multi_select = False
-
-    def process_event(self, evt):
+    def process_events(self, evt):
         match evt.type:
             case pg.MOUSEBUTTONDOWN:
-                self.mouse_button_down()
+                if not self.rect.collidepoint(pg.mouse.get_pos()):
+                    return
+                if not pg.key.get_mods() & pg.KMOD_SHIFT:
+                    self.selection.clear()
+
+                self.multi_select = True
+                self.should_select = not self.selection.is_selected(get_tile_pos(pg.mouse.get_pos()))
             case pg.MOUSEBUTTONUP:
-                self.mouse_button_up()
+                self.multi_select = False
+            case pg.KEYDOWN:
+                match evt.key:
+                    case pg.K_BACKSPACE:
+                        self.fill_selection(0)
+                    case pg.K_1 | pg.K_2 | pg.K_3 | pg.K_4 | pg.K_5 | pg.K_6 | pg.K_7 | pg.K_8 | pg.K_9:
+                        self.fill_selection(evt.key - pg.K_1 + 1)
+                    case pg.K_KP1 | pg.K_KP2 | pg.K_KP3 | pg.K_KP4 | pg.K_KP5 | pg.K_KP6 | pg.K_KP7 | pg.K_KP8 | pg.K_KP9:
+                        self.fill_selection(evt.key - pg.K_KP1 + 1)
 
     def update(self):
         mpos = pg.mouse.get_pos()
