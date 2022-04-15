@@ -1,6 +1,6 @@
 from enum import Enum
 
-import pygame
+import pygame as pg
 from pygame import Surface, SRCALPHA
 from pygame.sprite import DirtySprite, LayeredDirty
 from pygame.rect import Rect
@@ -119,21 +119,28 @@ class Board(DirtySprite):
         return self, mode, old_values, value
 
     def mouse_button_down(self):
-        if not self.rect.collidepoint(pygame.mouse.get_pos()):
+        if not self.rect.collidepoint(pg.mouse.get_pos()):
             return
 
-        if not pygame.key.get_mods() & pygame.KMOD_SHIFT:
+        if not pg.key.get_mods() & pg.KMOD_SHIFT:
             self.selection.clear()
 
         self.multi_select = True
-        self.should_select = not self.selection.is_selected(get_tile_pos(pygame.mouse.get_pos()))
+        self.should_select = not self.selection.is_selected(get_tile_pos(pg.mouse.get_pos()))
 
     def mouse_button_up(self):
         self.multi_select = False
 
+    def process_event(self, evt):
+        match evt.type:
+            case pg.MOUSEBUTTONDOWN:
+                self.mouse_button_down()
+            case pg.MOUSEBUTTONUP:
+                self.mouse_button_up()
+
     def update(self):
-        mpos = pygame.mouse.get_pos()
-        if self.multi_select and self.rect.collidepoint(pygame.mouse.get_pos()):
+        mpos = pg.mouse.get_pos()
+        if self.multi_select and self.rect.collidepoint(pg.mouse.get_pos()):
             if self.should_select:
                 self.selection.select(get_tile_pos((mpos[0] - self.pxx, mpos[1] - self.pxy)))
             else:

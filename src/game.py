@@ -140,12 +140,10 @@ class Game(Application):
                         self.input.toggle_highlight_button(evt.key - pg.K_1)
                     case pg.K_KP1 | pg.K_KP2 | pg.K_KP3 | pg.K_KP4 | pg.K_KP5 | pg.K_KP6 | pg.K_KP7 | pg.K_KP8 | pg.K_KP9:
                         self.input.toggle_highlight_button(evt.key - pg.K_KP1)
-            case pg.MOUSEBUTTONDOWN:
-                self.board.mouse_button_down()
-            case pg.MOUSEBUTTONUP:
-                self.board.mouse_button_up()
             case pgui.UI_BUTTON_PRESSED:
                 self.input.button_pressed(evt)
+
+        self.board.process_event(evt)
 
     def _update(self, dt):
         self.sprites.update()
