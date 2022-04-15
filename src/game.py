@@ -19,7 +19,7 @@ class Game(Application):
         super().__init__()
         self.sprites = LayeredDirty()
 
-        self.board = Board(self.sprites)
+        self.board = Board((32, 32), self.sprites)
 
         # Rules
         self.rule_manager = RuleManager(self.board)

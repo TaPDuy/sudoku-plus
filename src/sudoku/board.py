@@ -41,11 +41,11 @@ class BoardInputAction(Action):
 
 class Board(DirtySprite):
 
-    def __init__(self, sprite_groups: LayeredDirty):
+    def __init__(self, pos: tuple[float, float], sprite_groups: LayeredDirty):
         super().__init__()
 
         # Data properties
-        self.pxpos = self.pxx, self.pxy = 32, 32
+        self.pxpos = self.pxx, self.pxy = pos
         self.tlsize = self.tlw, self.tlh = 9, 9
         self.pxsize = self.pxw, self.pxh = Tile.SIZE * self.tlw, Tile.SIZE * self.tlh
 
