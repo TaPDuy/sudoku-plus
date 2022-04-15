@@ -35,6 +35,42 @@ class KillerRule(ComponentRule):
     def check(self) -> bool:
         return self.sum == self.target and len(self.conflicts) == 0
 
+    def get_properties(self) -> dict[str, str]:
+        return {
+            "target_sum": "Sum",
+            "bound_to": "Cage tiles"
+        }
+
+    def get_properties_value(self, property_id: str) -> object | None:
+        match property_id:
+            case "target_sum":
+                return self.target
+            case "bound_to":
+                return self.bound_to
+
+    def get_properties_value_string(self, property_id: str) -> str:
+        match property_id:
+            case "target_sum":
+                return str(self.target)
+            case "bound_to":
+                return ", ".join(str(_) for _ in self.bound_to)
+
+    def set_properties(self, property_id: str, value):
+        match property_id:
+            case "target_sum":
+                if type(value) is not int:
+                    raise ValueError("Cage sum must be int.")
+
+                self.target = value
+            case "bound_to":
+                value = set(value)
+                if any(type(_) is not tuple or len(_) != 2 for _ in value):
+                    raise ValueError("Cage tiles must be tuple of 2D position.")
+                if len(value) <= 0 or len(value) > 9:
+                    raise ValueError("Number of cage tiles must be from 1-9.")
+
+                self.bound_to = value
+
     def draw(self, surface: Surface):
         top_left = min(self.bound_to, key=lambda x: x[0])[0], min(self.bound_to, key=lambda x: x[1])[1]
         ptop_left = top_left[0] * Tile.SIZE, top_left[1] * Tile.SIZE

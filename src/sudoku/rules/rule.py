@@ -123,3 +123,15 @@ class ComponentRule(Rule):
 
     def draw(self, surface: Surface):
         pass
+
+    def get_properties(self) -> dict[str, str]:
+        return {}
+
+    def get_properties_value(self, property_id: str) -> object | None:
+        return None
+
+    def get_properties_value_string(self, property_id: str) -> str:
+        return ""
+
+    def set_properties(self, property_id: str, value):
+        pass
