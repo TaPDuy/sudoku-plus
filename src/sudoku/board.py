@@ -8,8 +8,7 @@ from pygame.rect import Rect
 from src.core.gfx import Graphics
 from .tile import Tile
 from .selection import SelectionGrid
-from ..core.event import Event
-from src.core import new_action, Action
+from src.core import new_action, Action, Event, EventData
 
 
 def get_tile_pos(pxpos: tuple[float, float]) -> tuple[int, int]:
@@ -122,7 +121,7 @@ class Board(DirtySprite):
                     self.__tiles[y][x].set_color(value)
 
         if mode == InputMode.INPUT_MODE_VALUE:
-            self.on_changed(value, old_values)
+            self.on_changed(EventData({'new_val': value, 'old_values': old_values}))
 
         return self, mode, old_values, value
 
