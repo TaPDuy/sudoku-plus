@@ -76,5 +76,7 @@ class PropertiesPanel(UIPanel):
                                 self.current_rule.set_properties(property_id, self.process_input(_in.get_text()))
                             except ValueError as e:
                                 self.message_board.set_text(str(e))
+                            else:
+                                self.message_board.set_text("Updated rule successfully!")
                     else:
                         pass
