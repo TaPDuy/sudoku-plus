@@ -22,7 +22,7 @@ class KillerRule(ComponentRule):
     gap_len: float = 4.0
     stroke_weight: int = 1
 
-    def __init__(self, target_sum: int, bound_to: set):
+    def __init__(self, target_sum: int = 0, bound_to: set = None):
         super().__init__(bound_to)
 
         self.sum = 0
@@ -53,7 +53,7 @@ class KillerRule(ComponentRule):
             case "target_sum":
                 return str(self.target)
             case "bound_to":
-                return ", ".join(str(_) for _ in self.bound_to)
+                return ", ".join(str(_) for _ in self.bound_to) if self.bound_to else ""
 
     def set_properties(self, property_id: str, value):
         match property_id:
@@ -63,6 +63,8 @@ class KillerRule(ComponentRule):
 
                 self.target = value
             case "bound_to":
+                if type(value) not in (list, set, tuple):
+                    raise ValueError("Cage tiles must be tuple of 2D position.")
                 value = set(value)
                 if any(type(_) is not tuple or len(_) != 2 for _ in value):
                     raise ValueError("Cage tiles must be tuple of 2D position.")
