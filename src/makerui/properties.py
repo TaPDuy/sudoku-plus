@@ -6,6 +6,7 @@ from pygame_gui.elements import UIPanel, UILabel, UITextEntryLine, UIButton, UIT
 from pygame_gui.core.interfaces import IUIManagerInterface
 
 from src.sudoku.rules import ComponentRule
+from src.core import Event
 
 
 class PropertiesPanel(UIPanel):
@@ -20,6 +21,9 @@ class PropertiesPanel(UIPanel):
 
         self.labels = {}
         self.inputs = {}
+
+        # Events
+        self.on_applied = Event()
 
     def set_rule(self, rule: ComponentRule):
         self.current_rule = rule
@@ -78,5 +82,6 @@ class PropertiesPanel(UIPanel):
                                 self.message_board.set_text(str(e))
                             else:
                                 self.message_board.set_text("Updated rule successfully!")
+                                self.on_applied()
                     else:
                         pass

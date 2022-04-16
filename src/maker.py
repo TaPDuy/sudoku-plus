@@ -25,32 +25,32 @@ class LevelMaker(Application):
         # Ruleset
         KillerRule.generate_killer_mesh()
 
-        under = DirtySprite()
-        under.image = pg.Surface(self.board.image.get_size(), pg.SRCALPHA)
-        under.rect = Rect(self.board.rect)
+        self.under = DirtySprite()
+        self.under.image = pg.Surface(self.board.image.get_size(), pg.SRCALPHA)
+        self.under.rect = Rect(self.board.rect)
 
-        above = DirtySprite()
-        above.image = pg.Surface(self.board.image.get_size(), pg.SRCALPHA)
-        above.rect = Rect(self.board.rect)
+        self.above = DirtySprite()
+        self.above.image = pg.Surface(self.board.image.get_size(), pg.SRCALPHA)
+        self.above.rect = Rect(self.board.rect)
 
-        self.sprites.add(under, layer=1)
-        self.sprites.add(above, layer=4)
+        self.sprites.add(self.under, layer=1)
+        self.sprites.add(self.above, layer=4)
 
         # Event handlers
         self.rule_list.on_rule_selected.add_handler(self.properties_panel.set_rule)
-        self.rule_list.on_rule_selected.add_handler(self.redraw_board)
+        self.properties_panel.on_applied.add_handler(self.redraw_board)
 
     def redraw_board(self):
-        above = self.sprites.get_sprites_from_layer(4)
-        under = self.sprites.get_sprites_from_layer(1)
-        above[0].image.fill((0, 0, 0, 0))
-        under[0].image.fill((0, 0, 0, 0))
+        self.above.image.fill((0, 0, 0, 0))
+        self.under.image.fill((0, 0, 0, 0))
         for _ in self.rule_list.selected_rules:
             if isinstance(_, ComponentRule):
                 if isinstance(_, (DotRule, SurroundRule, KillerRule)):
-                    _.draw(above[0].image)
+                    _.draw(self.above.image)
                 else:
-                    _.draw(under[0].image)
+                    _.draw(self.under.image)
+        self.above.dirty = 1
+        self.under.dirty = 1
 
     def _process_events(self, evt):
         match evt.type:

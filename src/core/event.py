@@ -21,7 +21,7 @@ class Event:
     def remove_handler(self, handler: Callable):
         self.__handlers.remove(handler)
 
-    def __call__(self, data: EventData):
+    def __call__(self, data: EventData = EventData({})):
         for handler in self.__handlers:
             handler(*[data[arg] for arg in inspect.signature(handler).parameters.keys()])
 
