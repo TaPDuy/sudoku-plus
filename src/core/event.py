@@ -1,4 +1,13 @@
 from typing import Callable
+import inspect
+
+
+class EventData:
+    def __init__(self, data: dict[str, object]):
+        self.__data = data
+
+    def __getitem__(self, name):
+        return self.__data[name]
 
 
 class Event:
@@ -12,6 +21,7 @@ class Event:
     def remove_handler(self, handler: Callable):
         self.__handlers.remove(handler)
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, data: EventData):
         for handler in self.__handlers:
-            handler(*args, **kwargs)
+            handler(*[data[arg] for arg in inspect.signature(handler).parameters.keys()])
+

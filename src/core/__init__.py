@@ -1,2 +1,2 @@
 from .action import ActionManager, new_action, Action
-from .event import Event
+from .event import Event, EventData

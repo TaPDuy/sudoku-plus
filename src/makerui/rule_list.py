@@ -12,7 +12,7 @@ from src.sudoku.rules import (
     ThermometerRule, PalindromeRule,
     EvenRule, OddRule, BlackDotRule, WhiteDotRule, SurroundRule
 )
-from src.core import Event
+from src.core import Event, EventData
 
 
 class RuleListPanel(UIPanel):
@@ -55,4 +55,4 @@ class RuleListPanel(UIPanel):
                         break
 
                 if index != -1:
-                    self.on_rule_selected(self.selected_rules[index])
+                    self.on_rule_selected(EventData({'rule': self.selected_rules[index]}))
