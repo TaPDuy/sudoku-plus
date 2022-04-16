@@ -22,8 +22,10 @@ class KillerRule(ComponentRule):
     gap_len: float = 4.0
     stroke_weight: int = 1
 
-    def __init__(self, target_sum: int = 0, bound_to: set = None):
+    def __init__(self, target_sum: int = 1, bound_to: set = None):
         super().__init__(bound_to)
+        if not bound_to:
+            self.bound_to = {(0, 0)}
 
         self.sum = 0
         self.target = target_sum
@@ -60,6 +62,8 @@ class KillerRule(ComponentRule):
             case "target_sum":
                 if type(value) is not int:
                     raise ValueError("Cage sum must be int.")
+                if value <= 0:
+                    raise ValueError("Cage sum must be larger than 0.")
 
                 self.target = value
             case "bound_to":
