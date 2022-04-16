@@ -18,15 +18,23 @@ class PropertiesPanel(UIPanel):
         self.message = ""
         self.message_board = UITextBox(f"<p>{self.message}</p>", Rect(0, 0, 200, 100), self.ui_manager, container=self)
 
+        self.labels = {}
         self.inputs = {}
 
     def set_rule(self, rule: ComponentRule):
         self.current_rule = rule
+
+        for _ in self.labels.values():
+            _.kill()
+        self.labels = {}
+
+        for _ in self.inputs.values():
+            _.kill()
         self.inputs = {}
 
         i = 0
         for property_id, name in rule.get_properties().items():
-            UILabel(Rect(0, i * 60, 200, 30), name, self.ui_manager, self)
+            self.labels[property_id] = UILabel(Rect(0, i * 60, 200, 30), name, self.ui_manager, self)
             self.inputs[property_id] = UITextEntryLine(Rect(0, i * 60 + 20, 200, 30), self.ui_manager, self)
             self.inputs[property_id].set_text(rule.get_properties_value_string(property_id))
             i += 1
@@ -35,28 +43,28 @@ class PropertiesPanel(UIPanel):
         self.message_board.set_relative_position((0, i * 60 + 30))
 
     def validate(self) -> bool:
-        pattern = re.compile(r"((\((\d+(,\s*)*)+\)|\d+)(,\s*)*)+")
+        pattern = re.compile(r"^((\((\d+(,\s*)*)+\)|\d+)(,\s*)*)+$")
         for _in in self.inputs.values():
-            if not re.fullmatch(pattern, _in.get_text()):
+            if not re.match(pattern, _in.get_text()):
                 return False
         return True
 
     def process_input(self, input_str: str) -> tuple | int:
         if input_str.isnumeric():
             return int(input_str)
-        if re.fullmatch(r"\([^()]+\)", input_str):
+        if re.match(r"^\([^()]+\)$", input_str):
             return tuple(int(_.group()) for _ in re.finditer(r"\d+", input_str)),
         return self.__process_input_recursive(input_str)
 
     def __process_input_recursive(self, input_str: str) -> tuple | int:
         if input_str.isnumeric():
             return int(input_str)
-        if re.fullmatch(r"\([^()]+\)", input_str):
+        if re.fullmatch(r"^\([^()]+\)$", input_str):
             input_str = input_str[1:-1]
 
         splits_pat = re.compile(r"\((\d+(,\s*)*)+\)|\d+")
         splits = re.finditer(splits_pat, input_str)
-        return tuple(self.process_input(_.group()) for _ in splits)
+        return tuple(self.__process_input_recursive(_.group()) for _ in splits)
 
     def process_event(self, evt):
         match evt.type:
