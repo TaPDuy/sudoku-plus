@@ -9,6 +9,7 @@ from src.core.gfx import Graphics
 from src.core.utils import MeshGrid
 from . import ComponentRule
 from src.sudoku.tile import Tile
+from src.core import PropertiesError
 
 
 # ----- Data -----
@@ -57,25 +58,24 @@ class KillerRule(ComponentRule):
             case "bound_to":
                 return ", ".join(str(_) for _ in self.bound_to) if self.bound_to else ""
 
-    def set_properties(self, property_id: str, value):
-        match property_id:
-            case "target_sum":
-                if type(value) is not int:
-                    raise ValueError("Cage sum must be int.")
-                if value <= 0:
-                    raise ValueError("Cage sum must be larger than 0.")
+    def set_properties(self, *data):
+        target_sum, bound_to = data
 
-                self.target = value
-            case "bound_to":
-                if type(value) not in (list, set, tuple):
-                    raise ValueError("Cage tiles must be tuple of 2D position.")
-                value = set(value)
-                if any(type(_) is not tuple or len(_) != 2 for _ in value):
-                    raise ValueError("Cage tiles must be tuple of 2D position.")
-                if len(value) <= 0 or len(value) > 9:
-                    raise ValueError("Number of cage tiles must be from 1-9.")
+        if type(target_sum) is not int:
+            raise PropertiesError("Cage sum must be int.")
+        if target_sum <= 0:
+            raise PropertiesError("Cage sum must be larger than 0.")
 
-                self.bound_to = value
+        if type(bound_to) not in (list, set, tuple):
+            raise PropertiesError("Cage tiles must be tuple of 2D position.")
+        bound_to = set(bound_to)
+        if any(type(_) is not tuple or len(_) != 2 for _ in bound_to):
+            raise PropertiesError("Cage tiles must be tuple of 2D position.")
+        if len(bound_to) <= 0 or len(bound_to) > 9:
+            raise PropertiesError("Number of cage tiles must be from 1-9.")
+
+        self.target = target_sum
+        self.bound_to = bound_to
 
     def draw(self, surface: Surface):
         top_left = min(self.bound_to, key=lambda x: x[0])[0], min(self.bound_to, key=lambda x: x[1])[1]

@@ -133,5 +133,5 @@ class ComponentRule(Rule):
     def get_properties_value_string(self, property_id: str) -> str:
         return ""
 
-    def set_properties(self, property_id: str, value):
+    def set_properties(self, *data):
         pass
