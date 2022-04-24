@@ -25,7 +25,11 @@ class PropertiesPanel(UIPanel):
         # Events
         self.on_applied = Event()
 
-    def set_rule(self, rule: ComponentRule):
+    def set_rule(self, rule):
+        if not isinstance(rule, ComponentRule):
+            self.message_board.set_text("Global rules have no properties.")
+            return
+
         self.current_rule = rule
 
         for _ in self.labels.values():
