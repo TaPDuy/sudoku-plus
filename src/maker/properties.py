@@ -22,6 +22,12 @@ class Properties:
         self.name = name
 
 
+POS_REGEX = r"\(\s*\d+\s*,\s*\d+\s*\)"
+INT_LIST_PATTERN = re.compile(r"^(\d+\s*,\s*)*\d+$")
+POS_PATTERN = re.compile(fr"^{POS_REGEX}$")
+POS_LIST_PATTERN = re.compile(fr"^(({POS_REGEX})\s*,\s*)*({POS_REGEX})$")
+
+
 class PropertiesInput(UIPanel):
     def __init__(self, rect: Rect, manager: IUIManagerInterface, container=None, label: str = "", type: PropertiesType=PropertiesType.INT):
         super().__init__(rect, 0, manager, container=container)
@@ -36,30 +42,40 @@ class PropertiesInput(UIPanel):
         return self.input.get_text()
 
     def set_data(self, data):
-        pass
+        data_str = ""
+        match self.type:
+            case PropertiesType.INT | PropertiesType.POS:
+                data_str = str(data)
+            case PropertiesType.INT_LIST | PropertiesType.POS_LIST:
+                data_str = ", ".join(str(_) for _ in data)
+        self.set_text(data_str)
 
     def get_data(self) -> tuple | int:
-        if not self.validate():
-            raise PropertiesError("Invalid inputs!")
+        input_str = self.input.get_text().strip()
+
+        # Validate
+        match self.type:
+            case PropertiesType.INT:
+                if not input_str.isnumeric():
+                    raise PropertiesError(f"{self.label.text} should be integer.")
+            case PropertiesType.INT_LIST:
+                if not re.match(INT_LIST_PATTERN, input_str):
+                    raise PropertiesError(f"{self.label.text} should be a list of integers.")
+            case PropertiesType.POS:
+                if not re.match(POS_PATTERN, input_str):
+                    raise PropertiesError(f"{self.label.text} should be a 2D position.")
+            case PropertiesType.POS_LIST:
+                if not re.match(POS_LIST_PATTERN, input_str):
+                    raise PropertiesError(f"{self.label.text} should be a list of 2D positions.")
+
         return self.process_input(self.input.get_text())
 
-    def validate(self) -> bool:
-        pattern = re.compile(r"^((\((\d+(,\s*)*)+\)|\d+)(,\s*)*)+$")
-        return bool(re.match(pattern, self.input.get_text()))
-
     def process_input(self, input_str: str) -> tuple | int:
-        if input_str.isnumeric():
+        if self.type == PropertiesType.INT:
             return int(input_str)
-        if re.match(r"^\([^()]+\)$", input_str):
-            return tuple(int(_.group()) for _ in re.finditer(r"\d+", input_str)),
-        return self.__process_input_recursive(input_str)
-
-    def __process_input_recursive(self, input_str: str) -> tuple | int:
-        if input_str.isnumeric():
-            return int(input_str)
-        if re.fullmatch(r"^\([^()]+\)$", input_str):
-            input_str = input_str[1:-1]
-
-        splits_pat = re.compile(r"\((\d+(,\s*)*)+\)|\d+")
-        splits = re.finditer(splits_pat, input_str)
-        return tuple(self.__process_input_recursive(_.group()) for _ in splits)
+        else:
+            splits = re.findall(r"\d+", input_str)
+            if self.type == PropertiesType.POS_LIST:
+                return tuple((int(splits[i]), int(splits[i + 1])) for i in range(0, len(splits), 2))
+            else:
+                return tuple(int(num) for num in splits)

@@ -1,5 +1,6 @@
 from pygame import Surface
 from src.sudoku.board import Board
+from src.maker.properties import Properties
 
 
 class Rule:
@@ -125,7 +126,7 @@ class ComponentRule(Rule):
         pass
 
     def get_properties(self) -> list[Properties]:
-        return {}
+        return []
 
     def get_properties_value(self, property_id: str) -> object | None:
         return None
