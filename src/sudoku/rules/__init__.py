@@ -1,11 +1,9 @@
-from .rule import ComponentRule, GlobalRule, RuleManager, Rule
+from .global_rules import *
 
 from .killer import KillerRule
-from .arrow import ArrowRule
-from .thermometer import ThermometerRule
-from .palindrome import PalindromeRule
-from .parity import EvenRule, OddRule, ParityRule
-from .dots import WhiteDotRule, BlackDotRule, DotRule
+from .dots import DotRule, WhiteDotRule, BlackDotRule
 from .surround import SurroundRule
-
-from .global_rules import *
+from .parity import ParityRule, OddRule, EvenRule
+from .palindrome import PalindromeRule
+from .thermometer import ThermometerRule
+from .arrow import ArrowRule

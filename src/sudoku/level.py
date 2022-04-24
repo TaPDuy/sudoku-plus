@@ -1,7 +1,8 @@
 import random
 import numpy as np
 
-from .rules import Rule, SudokuRule
+from .rules.rule import Rule
+from .rules.global_rules import SudokuRule
 
 
 class Level:

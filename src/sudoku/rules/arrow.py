@@ -3,9 +3,9 @@ from pygame.gfxdraw import aaellipse
 
 import numpy as np
 
-from . import ComponentRule
-from src.core.gfx import Graphics
-from src.sudoku.tile import Tile
+from .rule import ComponentRule
+from core.gfx.graphics import Graphics
+from sudoku.tile import Tile
 
 
 # ----- Data -----

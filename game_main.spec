@@ -4,7 +4,7 @@
 block_cipher = None
 
 
-a = Analysis(['game_main.py'],
+a = Analysis(['src/game_main.py'],
              pathex=[],
              binaries=[],
              datas=[],

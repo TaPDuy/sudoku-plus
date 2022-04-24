@@ -5,14 +5,14 @@ from pygame_gui.elements import UIPanel, UIDropDownMenu, UIButton, UISelectionLi
 
 from bidict import bidict
 
-from src.sudoku.rules import (
+from sudoku.rules import (
     SudokuRule, ColumnRule, RowRule, BoxRule,
     DiagonalRule, MainDiagonalRule, AntiDiagonalRule,
     KnightRule, KingRule, KillerRule, ArrowRule,
     ThermometerRule, PalindromeRule,
     EvenRule, OddRule, BlackDotRule, WhiteDotRule, SurroundRule
 )
-from src.core import Event, EventData
+from core.event import Event, EventData
 
 
 class RuleListPanel(UIPanel):

@@ -1,4 +1,4 @@
-from . import GlobalRule
+from src.sudoku.rules.rule import GlobalRule
 
 
 class ColumnRule(GlobalRule):

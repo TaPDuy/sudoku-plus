@@ -1,4 +1,4 @@
-from src import LevelMaker
+from maker.maker import LevelMaker
 
 
 def main():

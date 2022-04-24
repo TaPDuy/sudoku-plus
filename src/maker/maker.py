@@ -1,7 +1,11 @@
-from . import Application
-from .makerui import PropertiesPanel, RuleListPanel
-from .sudoku import Board
-from .sudoku.rules import ComponentRule, DotRule, SurroundRule, KillerRule
+from core.app import Application
+from sudoku.board import Board
+from sudoku.rules.rule import ComponentRule
+from sudoku.rules.killer import KillerRule
+from sudoku.rules.dots import DotRule
+from sudoku.rules.surround import SurroundRule
+from .ui.rule_list import RuleListPanel
+from .ui.properties import PropertiesPanel
 
 import pygame as pg
 from pygame.sprite import LayeredDirty, DirtySprite

@@ -2,12 +2,15 @@ import pygame as pg
 from pygame.rect import Rect, RectType
 from pygame.sprite import LayeredDirty, DirtySprite
 
-from .app import Application
-from .core import ActionManager
-from .sudoku.board import Board, InputMode
-from .sudoku.input import InputPanel
-from .sudoku import Level, random_sudoku
-from .sudoku.rules import *
+from core.app import Application
+from core.action import ActionManager
+from sudoku.board import Board, InputMode
+from sudoku.input import InputPanel
+from sudoku.level import Level
+from sudoku.rules.rule import RuleManager
+from sudoku.rules.killer import KillerRule
+from sudoku.rules.dots import DotRule
+from sudoku.rules.surround import SurroundRule
 
 from functools import partial
 

@@ -124,7 +124,7 @@ class ComponentRule(Rule):
     def draw(self, surface: Surface):
         pass
 
-    def get_properties(self) -> dict[str, str]:
+    def get_properties(self) -> list[Properties]:
         return {}
 
     def get_properties_value(self, property_id: str) -> object | None:

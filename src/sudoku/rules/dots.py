@@ -1,7 +1,7 @@
 from pygame import Surface
 from pygame.gfxdraw import filled_circle, aacircle
 
-from . import ComponentRule
+from .rule import ComponentRule
 from src.sudoku.tile import Tile
 
 

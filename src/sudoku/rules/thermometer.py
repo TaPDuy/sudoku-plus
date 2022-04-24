@@ -2,10 +2,10 @@ from pygame import Surface
 
 import numpy as np
 
-from . import ComponentRule
-from src.core.utils import TWO_PI
-from src.core.gfx import Graphics
-from src.sudoku.tile import Tile
+from .rule import ComponentRule
+from core.utils.constants import TWO_PI
+from core.gfx.graphics import Graphics
+from sudoku.tile import Tile
 
 
 # ----- Data -----

@@ -1,4 +1,4 @@
-from src import Game
+from sudoku.game import Game
 
 
 def main():

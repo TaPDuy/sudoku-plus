@@ -5,11 +5,12 @@ import numpy as np
 from pygame import Surface, SRCALPHA
 from pygame.font import SysFont
 
-from src.core.gfx import Graphics
-from src.core.utils import MeshGrid
-from . import ComponentRule
-from src.sudoku.tile import Tile
-from src.core import PropertiesError
+from core.gfx.graphics import Graphics
+from core.utils.mesh import MeshGrid
+from .rule import ComponentRule
+from sudoku.tile import Tile
+from core.exception import PropertiesError
+from maker.properties import Properties, PropertiesType
 
 
 # ----- Data -----
@@ -38,25 +39,11 @@ class KillerRule(ComponentRule):
     def check(self) -> bool:
         return self.sum == self.target and len(self.conflicts) == 0
 
-    def get_properties(self) -> dict[str, str]:
-        return {
-            "target_sum": "Sum",
-            "bound_to": "Cage tiles"
-        }
-
-    def get_properties_value(self, property_id: str) -> object | None:
-        match property_id:
-            case "target_sum":
-                return self.target
-            case "bound_to":
-                return self.bound_to
-
-    def get_properties_value_string(self, property_id: str) -> str:
-        match property_id:
-            case "target_sum":
-                return str(self.target)
-            case "bound_to":
-                return ", ".join(str(_) for _ in self.bound_to) if self.bound_to else ""
+    def get_properties(self) -> list[Properties]:
+        return [
+            Properties("Target sum", PropertiesType.INT, self.target),
+            Properties("Cage tiles", PropertiesType.POS_LIST, self.bound_to)
+        ]
 
     def set_properties(self, *data):
         target_sum, bound_to = data

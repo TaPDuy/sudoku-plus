@@ -4,7 +4,7 @@
 block_cipher = None
 
 
-a = Analysis(['maker_main.py'],
+a = Analysis(['src/maker_main.py'],
              pathex=[],
              binaries=[],
              datas=[],

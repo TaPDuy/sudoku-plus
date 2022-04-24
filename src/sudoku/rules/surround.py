@@ -2,8 +2,9 @@ from pygame import Surface
 from pygame.font import SysFont
 from pygame.gfxdraw import filled_circle
 
-from . import ComponentRule
-from src.sudoku.tile import Tile
+from .rule import ComponentRule
+from sudoku.tile import Tile
+from core.exception import PropertiesError
 
 
 # ----- Data -----
@@ -24,6 +25,35 @@ class SurroundRule(ComponentRule):
 
         # For drawing
         self.pos = (tile[0] + 1, tile[1] + 1)
+
+    def get_properties(self) -> dict[str, str]:
+        return {
+            "values": "Values",
+            "top_left": "Top left tile"
+        }
+
+    def get_properties_value(self, property_id: str) -> object | None:
+        match property_id:
+            case "values":
+                return self.values
+            case "top_left":
+                return self.bound_to[0]
+
+    def get_properties_value_string(self, property_id: str) -> str:
+        match property_id:
+            case "values":
+                return ", ".join(str(_) for _ in self.values) if self.values else ""
+            case "top_left":
+                return str(self.bound_to[0])
+
+    def set_properties(self, *data):
+        values, tile = data
+
+        self.values = values
+        self.bound_to = [
+            tile, (tile[0] + 1, tile[1]),
+            (tile[0], tile[1] + 1), (tile[0] + 1, tile[1] + 1)
+        ]
 
     def update(self, pos: tuple[int, int], new_val: int, old_val: int):
         if old_val:

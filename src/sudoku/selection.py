@@ -6,8 +6,9 @@ import numpy as np
 
 from functools import cache
 
-from src.core.gfx.graphics import Graphics
-from src.core.utils import HALF_PI, PI, MeshGrid
+from core.gfx.graphics import Graphics
+from core.utils.constants import HALF_PI, PI
+from core.utils.mesh import MeshGrid
 from .tile import Tile
 
 

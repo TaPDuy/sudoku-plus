@@ -5,10 +5,11 @@ from pygame import Surface, SRCALPHA
 from pygame.sprite import DirtySprite, LayeredDirty
 from pygame.rect import Rect
 
-from src.core.gfx import Graphics
+from core.gfx.graphics import Graphics
 from .tile import Tile
 from .selection import SelectionGrid
-from src.core import new_action, Action, Event, EventData
+from core.action import new_action, Action
+from core.event import Event, EventData
 
 
 def get_tile_pos(pxpos: tuple[float, float]) -> tuple[int, int]:
