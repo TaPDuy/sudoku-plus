@@ -33,6 +33,22 @@ class Level:
     def set_start_value(self, pos: tuple[int, int], value: int):
         self.__initial[pos] = value
 
+    def __str__(self):
+        return f"""
+        [
+            ruleset=[
+                {self.__rules}
+            ],
+            initial={self.__initial}
+        ]
+        """
+
+    def __repr__(self):
+        return f"""
+        class='{self.__class__}', 
+        data={self.__str__()}
+        """
+
 
 SEEDS = (
     "___bf_g_a|fh__g__i_|ai___de__|hb_a___d_|__df_bi__|_e___c_bh|__ic___gd|_d__e__cf|g_c_ah___",
