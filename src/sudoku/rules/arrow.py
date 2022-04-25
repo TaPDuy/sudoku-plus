@@ -6,15 +6,18 @@ import numpy as np
 from .rule import ComponentRule
 from core.gfx.graphics import Graphics
 from sudoku.tile import Tile
-from maker.properties import Properties
+from maker.properties import Properties, PropertiesType, PropertiesError
 
 
 # ----- Data -----
 class ArrowRule(ComponentRule):
     color = (255, 255, 255)
 
-    def __init__(self, bound_to: list[tuple[int, int]]):
+    def __init__(self, bound_to: list[tuple[int, int]] = None):
         super().__init__(bound_to)
+        if not bound_to:
+            self.bound_to = [(0, 0), (1, 0)]
+
         self.target = 0
         self.sum = 0
 
@@ -28,10 +31,33 @@ class ArrowRule(ComponentRule):
         return self.sum == self.target != 0
 
     def get_properties(self) -> list[Properties]:
-        pass
+        return [
+            Properties("Path tiles", PropertiesType.POS_LIST, self.bound_to)
+        ]
 
     def set_properties(self, *data):
-        pass
+        bound_to = list(dict.fromkeys(data[0]))
+
+        # Validate data
+        n_tiles = len(bound_to)
+        if n_tiles < 2:
+            raise PropertiesError("Number of tiles must be 2 or more.")
+
+        x, y = bound_to[0]
+        if x < 0 or y < 0 or x > 8 or y > 8:
+            raise PropertiesError("Tiles must be within the board.")
+
+        for i in range(n_tiles - 1):
+            x1, y1 = bound_to[i]
+            x2, y2 = bound_to[i + 1]
+
+            if x2 < 0 or y2 < 0 or x2 > 8 or y2 > 8:
+                raise PropertiesError("Tiles must be within the board.")
+
+            if (abs(x2 - x1), abs(y2 - y1)) not in ((0, 1), (1, 0), (1, 1)):
+                raise PropertiesError("Tiles must be next to each other and form a path (in order).")
+
+        self.bound_to = bound_to
 
     def draw(self, surface: Surface):
         org = self.bound_to[0][0] * Tile.SIZE + Tile.SIZE / 2, \

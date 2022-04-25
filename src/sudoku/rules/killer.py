@@ -47,19 +47,23 @@ class KillerRule(ComponentRule):
 
     def set_properties(self, *data):
         target_sum, bound_to = data
-
-        if type(target_sum) is not int:
-            raise PropertiesError("Cage sum must be int.")
-        if target_sum <= 0:
-            raise PropertiesError("Cage sum must be larger than 0.")
-
-        if type(bound_to) not in (list, set, tuple):
-            raise PropertiesError("Cage tiles must be tuple of 2D position.")
         bound_to = set(bound_to)
-        if any(type(_) is not tuple or len(_) != 2 for _ in bound_to):
-            raise PropertiesError("Cage tiles must be tuple of 2D position.")
-        if len(bound_to) <= 0 or len(bound_to) > 9:
-            raise PropertiesError("Number of cage tiles must be from 1-9.")
+
+        # Validate data
+        n_tiles = len(bound_to)
+        if n_tiles < 1 or n_tiles > 9:
+            raise PropertiesError("Number of cage tiles must be in range [1, 9].")
+
+        mn, mx = sum(i for i in range(1, n_tiles + 1)), sum(9 - i for i in range(n_tiles))
+        if target_sum < mn or target_sum > mx:
+            raise PropertiesError(f"Target sum must be in range [{mn}, {mx}].")
+
+        dx, dy = (0, 1, 0, -1), (1, 0, -1, 0)
+        for x, y in bound_to:
+            if x < 0 or y < 0 or x > 8 or y > 8:
+                raise PropertiesError("Cage tiles must be within the board.")
+            if n_tiles > 1 and all((x + dx[_], y + dy[_]) not in bound_to for _ in range(4)):
+                raise PropertiesError("Cage tiles must touch each other's sides.")
 
         self.target = target_sum
         self.bound_to = bound_to

@@ -4,7 +4,7 @@ from pygame.gfxdraw import filled_circle
 
 from .rule import ComponentRule
 from sudoku.tile import Tile
-from core.exception import PropertiesError
+from maker.properties import Properties, PropertiesType, PropertiesError
 
 
 # ----- Data -----
@@ -13,47 +13,41 @@ class SurroundRule(ComponentRule):
     color = (255, 255, 255)
     text_color = (0, 0, 0)
 
-    def __init__(self, values: set[int], tile: tuple[int, int]):
+    def __init__(self, values: set[int] = None, tile: tuple[int, int] = (0, 0)):
         """values: Values that need to appear at least once (1 - 4 values)
         tile: The top left tile's position of the 2x2 grid"""
         super().__init__([
             tile, (tile[0] + 1, tile[1]),
             (tile[0], tile[1] + 1), (tile[0] + 1, tile[1] + 1)
         ])
+        self.target = values or {1, 2, 3, 4}
         self.values = list()
-        self.target = values
 
         # For drawing
         self.pos = (tile[0] + 1, tile[1] + 1)
 
-    def get_properties(self) -> dict[str, str]:
-        return {
-            "values": "Values",
-            "top_left": "Top left tile"
-        }
-
-    def get_properties_value(self, property_id: str) -> object | None:
-        match property_id:
-            case "values":
-                return self.values
-            case "top_left":
-                return self.bound_to[0]
-
-    def get_properties_value_string(self, property_id: str) -> str:
-        match property_id:
-            case "values":
-                return ", ".join(str(_) for _ in self.values) if self.values else ""
-            case "top_left":
-                return str(self.bound_to[0])
+    def get_properties(self) -> list[Properties]:
+        return [
+            Properties("Values", PropertiesType.INT_LIST, self.target),
+            Properties("Top left tile", PropertiesType.POS, self.bound_to[0])
+        ]
 
     def set_properties(self, *data):
         values, tile = data
 
-        self.values = values
+        values = set(values)
+        if len(values) < 1 or len(values) > 4:
+            raise PropertiesError("Number of values must be in range [1, 4].")
+        x, y = tile
+        if x < 0 or y < 0 or x > 7 or y > 7:
+            raise PropertiesError("Tiles surrounding the component must be within the board.")
+
         self.bound_to = [
             tile, (tile[0] + 1, tile[1]),
             (tile[0], tile[1] + 1), (tile[0] + 1, tile[1] + 1)
         ]
+        self.pos = self.bound_to[-1]
+        self.target = values
 
     def update(self, pos: tuple[int, int], new_val: int, old_val: int):
         if old_val:

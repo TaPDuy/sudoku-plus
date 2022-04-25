@@ -3,16 +3,14 @@ from pygame.gfxdraw import filled_circle, aacircle
 
 from .rule import ComponentRule
 from src.sudoku.tile import Tile
+from maker.properties import Properties, PropertiesType, PropertiesError
 
 
 # ----- Data -----
 class DotRule(ComponentRule):
 
-    def __init__(self, tile: tuple[int, int], edge: int):
-        """tile: Position of the tile the dot is on\n
-        edge: Index of tile's edges (0: North, 1: East, 2: South, 3: West)"""
-        super().__init__([tile, (tile[0] + (0, 1, 0, -1)[edge], tile[1] + (-1, 0, 1, 0)[edge])])
-        self.edge = edge
+    def __init__(self, tile1: tuple[int, int] = (0, 0), tile2: tuple[int, int] = (1, 0)):
+        super().__init__([tile1, tile2])
         self.values = [0, 0]
 
     def __new__(cls, *args, **kwargs):
@@ -22,6 +20,27 @@ class DotRule(ComponentRule):
 
     def update(self, pos: tuple[int, int], new_val: int, old_val: int):
         self.values[self.bound_to.index(pos)] = new_val
+
+    def get_properties(self) -> list[Properties]:
+        return [
+            Properties("Tile 1", PropertiesType.POS, self.bound_to[0]),
+            Properties("Tile 2", PropertiesType.POS, self.bound_to[1])
+        ]
+
+    def set_properties(self, *data):
+        tile1, tile2 = data
+
+        # Validate data
+        x1, y1 = tile1
+        if x1 < 0 or y1 < 0 or x1 > 8 or y1 > 8:
+            raise PropertiesError("Tile 1 must be within the board.")
+        x2, y2 = tile2
+        if x2 < 0 or y2 < 0 or x2 > 8 or y2 > 8:
+            raise PropertiesError("Tile 2 must be within the board.")
+        if abs(x2 - x1) + abs(y2 - y1) != 1:
+            raise PropertiesError("Tile 1 and 2 must be orthogonally next to each other.")
+
+        self.bound_to = [tile1, tile2]
 
 
 class BlackDotRule(DotRule):
@@ -34,17 +53,16 @@ class BlackDotRule(DotRule):
         return self.values[0] / self.values[1] in (2, .5)
 
     def draw(self, surface: Surface):
-        dx, dy = (Tile.SIZE / 2, Tile.SIZE, Tile.SIZE / 2, 0)[self.edge], \
-                 (0, Tile.SIZE / 2, Tile.SIZE, Tile.SIZE / 2)[self.edge]
+        x, y = (self.bound_to[0][0] + self.bound_to[1][0]) / 2, (self.bound_to[0][1] + self.bound_to[1][1]) / 2
         filled_circle(
             surface,
-            int(self.bound_to[0][0] * Tile.SIZE + dx), int(self.bound_to[0][1] * Tile.SIZE + dy),
+            int((x + .5) * Tile.SIZE), int((y + .5) * Tile.SIZE),
             int(Tile.SIZE / 8),
             BlackDotRule.color
         )
         aacircle(
             surface,
-            int(self.bound_to[0][0] * Tile.SIZE + dx), int(self.bound_to[0][1] * Tile.SIZE + dy),
+            int((x + .5) * Tile.SIZE), int((y + .5) * Tile.SIZE),
             int(Tile.SIZE / 8),
             BlackDotRule.stroke_color
         )
@@ -60,17 +78,16 @@ class WhiteDotRule(DotRule):
         return abs(self.values[0] - self.values[1]) == 1
 
     def draw(self, surface: Surface):
-        dx, dy = (Tile.SIZE / 2, Tile.SIZE, Tile.SIZE / 2, 0)[self.edge], \
-                 (0, Tile.SIZE / 2, Tile.SIZE, Tile.SIZE / 2)[self.edge]
+        x, y = (self.bound_to[0][0] + self.bound_to[1][0]) / 2, (self.bound_to[0][1] + self.bound_to[1][1]) / 2
         filled_circle(
             surface,
-            int(self.bound_to[0][0] * Tile.SIZE + dx), int(self.bound_to[0][1] * Tile.SIZE + dy),
+            int((x + .5) * Tile.SIZE), int((y + .5) * Tile.SIZE),
             int(Tile.SIZE / 8),
             WhiteDotRule.color
         )
         aacircle(
             surface,
-            int(self.bound_to[0][0] * Tile.SIZE + dx), int(self.bound_to[0][1] * Tile.SIZE + dy),
+            int((x + .5) * Tile.SIZE), int((y + .5) * Tile.SIZE),
             int(Tile.SIZE / 8),
             WhiteDotRule.stroke_color
         )

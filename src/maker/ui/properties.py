@@ -25,10 +25,6 @@ class PropertiesPanel(UIPanel):
         self.on_applied = Event()
 
     def set_rule(self, rule):
-        if not isinstance(rule, ComponentRule):
-            self.message_board.set_text("Global rules have no properties.")
-            return
-
         self.current_rule = rule
 
         for _ in self.inputs:
@@ -36,14 +32,19 @@ class PropertiesPanel(UIPanel):
         self.inputs = []
 
         i = 0
-        for properties in rule.get_properties():
-            _input = PropertiesInput(
-                Rect(0, i * 60, 200, 60), self.ui_manager, self,
-                label=properties.name, type=properties.type
-            )
-            _input.set_data(properties.data)
-            self.inputs.append(_input)
-            i += 1
+        if not isinstance(rule, ComponentRule):
+            self.message_board.set_text("Global rules have no properties.")
+            self.apply_btn.hide()
+        else:
+            for properties in rule.get_properties():
+                _input = PropertiesInput(
+                    Rect(0, i * 60, 200, 60), self.ui_manager, self,
+                    label=properties.name, type=properties.type
+                )
+                _input.set_data(properties.data)
+                self.inputs.append(_input)
+                i += 1
+            self.apply_btn.show()
 
         self.apply_btn.set_relative_position((0, i * 60))
         self.message_board.set_relative_position((0, i * 60 + 30))

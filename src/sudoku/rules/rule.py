@@ -128,11 +128,5 @@ class ComponentRule(Rule):
     def get_properties(self) -> list[Properties]:
         return []
 
-    def get_properties_value(self, property_id: str) -> object | None:
-        return None
-
-    def get_properties_value_string(self, property_id: str) -> str:
-        return ""
-
     def set_properties(self, *data):
         pass
