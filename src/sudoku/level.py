@@ -7,14 +7,14 @@ from .rules.global_rules import SudokuRule
 
 class Level:
 
-    def __init__(self, rules: set[Rule], initial: dict[tuple[int, int], int]):
+    def __init__(self, rules: set[Rule] = None, initial: dict[tuple[int, int], int] = None):
         """
         A class that holds all the data needed to load a level.
         :param rules: Ruleset that determines winning conditions
         :param initial: Initial clues - dict[(tile_x, tile_y): value]
         """
-        self.__rules = rules
-        self.__initial = initial
+        self.__rules = rules or set()
+        self.__initial = initial or {}
 
     @property
     def rules(self):
