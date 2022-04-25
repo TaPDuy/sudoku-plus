@@ -1,16 +1,25 @@
+import os
+
 from core.app import Application
-from sudoku.board import Board
+from sudoku.board import Board, InputMode
 from sudoku.rules.rule import ComponentRule
 from sudoku.rules.killer import KillerRule
 from sudoku.rules.dots import DotRule
 from sudoku.rules.surround import SurroundRule
+from sudoku.level import Level
 from .ui.rule_list import RuleListPanel
 from .ui.properties import PropertiesPanel
+from .ui.menu import Menu
 
 import pygame as pg
+import pygame_gui as pgui
 from pygame.sprite import LayeredDirty, DirtySprite
 from pygame.rect import Rect, RectType
 from pygame_gui.elements import UIPanel
+
+import pickle
+import tkinter
+import tkinter.filedialog
 
 
 class LevelMaker(Application):
@@ -18,10 +27,16 @@ class LevelMaker(Application):
     def __init__(self):
         super().__init__((1080, 720))
 
+        self.opened_level_path = ""
+        self.levels_path = os.getcwd() + "/levels"
+        if not os.path.exists(self.levels_path):
+            os.makedirs(self.levels_path)
+
         self.rule_panel = UIPanel(Rect(10, 10, 300, 700), 0, self.ui_manager)
         self.rule_list = RuleListPanel(Rect(0, 0, 200, 300), self.ui_manager, self.rule_panel)
-
         self.properties_panel = PropertiesPanel(Rect(0, 300, 200, 300), self.ui_manager, self.rule_panel)
+
+        self.menu = Menu((400, 650), self.ui_manager)
 
         self.sprites = LayeredDirty()
         self.board = Board((400, 32), self.sprites)
@@ -44,6 +59,65 @@ class LevelMaker(Application):
         self.rule_list.on_rule_selected.add_handler(self.properties_panel.set_rule)
         self.properties_panel.on_applied.add_handler(self.redraw_board)
 
+    def load_level(self, level: Level):
+        self.properties_panel.set_rule(None)
+        self.rule_list.set_rule_list(level.rules)
+
+        self.board.clear()
+        for pos, val in level.start_values.items():
+            self.board.fill_tiles(val, InputMode.INPUT_MODE_VALUE, {pos})
+
+        self.redraw_board()
+
+    def new_level(self):
+        self.opened_level_path = ""
+        self.load_level(Level())
+
+    def save(self):
+        data = Level(set(self.rule_list.selected_rules), self.board.get_numbered_tiles())
+        if not self.opened_level_path:
+            top = tkinter.Tk()
+            top.withdraw()
+            path = tkinter.filedialog.asksaveasfilename(
+                parent=top,
+                initialdir=self.levels_path,
+                initialfile='new_level.dat',
+                title='Save level',
+                defaultextension='dat',
+                filetypes=[("Level files", "*.dat")]
+            )
+            top.destroy()
+
+            if not path:
+                return
+
+            self.opened_level_path = os.path.relpath(path, start=os.getcwd())
+
+        with open(self.opened_level_path, 'wb') as f:
+            pickle.dump(data, f)
+        print(f"Saved to {self.opened_level_path}.")
+
+    def open(self):
+        top = tkinter.Tk()
+        top.withdraw()
+        path = tkinter.filedialog.askopenfilename(
+            parent=top,
+            initialdir=self.levels_path,
+            title='Open level',
+            filetypes=[("Level files", "*.dat")]
+        )
+        top.destroy()
+
+        if not path:
+            return
+
+        self.opened_level_path = os.path.relpath(path, start=os.getcwd())
+        with open(self.opened_level_path, 'rb') as f:
+            level = pickle.load(f)
+            self.load_level(level)
+
+        print(f"Opened from {self.opened_level_path}")
+
     def redraw_board(self):
         self.above.image.fill((0, 0, 0, 0))
         self.under.image.fill((0, 0, 0, 0))
@@ -60,6 +134,13 @@ class LevelMaker(Application):
         match evt.type:
             case pg.WINDOWCLOSE:
                 self.close()
+            case pgui.UI_BUTTON_PRESSED:
+                if evt.ui_element == self.menu.save_btn:
+                    self.save()
+                elif evt.ui_element == self.menu.open_btn:
+                    self.open()
+                elif evt.ui_element == self.menu.new_btn:
+                    self.new_level()
 
         self.board.process_events(evt)
 

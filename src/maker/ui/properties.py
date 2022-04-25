@@ -25,11 +25,16 @@ class PropertiesPanel(UIPanel):
         self.on_applied = Event()
 
     def set_rule(self, rule):
-        self.current_rule = rule
-
         for _ in self.inputs:
             _.kill()
         self.inputs = []
+
+        self.current_rule = rule
+        if not self.current_rule:
+            self.apply_btn.hide()
+            self.message_board.set_text("")
+            self.message_board.set_relative_position((0, 0))
+            return
 
         i = 0
         if not isinstance(rule, ComponentRule):

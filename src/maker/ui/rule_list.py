@@ -41,6 +41,10 @@ class RuleListPanel(UIPanel):
         # Events
         self.on_rule_selected = Event()
 
+    def set_rule_list(self, rules: set):
+        self.selected_rules = list(rules)
+        self.rule_list.set_item_list([RuleListPanel.__RULE_CLASSES.inverse[type(rule)] for rule in self.selected_rules])
+
     def process_event(self, evt):
         match evt.type:
             case pgui.UI_BUTTON_PRESSED:
