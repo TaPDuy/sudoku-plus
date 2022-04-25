@@ -72,6 +72,9 @@ class Board(DirtySprite):
 
         self.__initdraw()
 
+    def get_numbered_tiles(self) -> dict[tuple[int, int], int]:
+        return {(x, y): self.__tiles[y][x].value for y in range(self.tlh) for x in range(self.tlw) if self.__tiles[y][x].value}
+
     def is_complete(self) -> bool:
         for y in range(self.tlh):
             for x in range(self.tlw):
