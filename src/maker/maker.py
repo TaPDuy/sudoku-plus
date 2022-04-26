@@ -18,7 +18,6 @@ from pygame.rect import Rect, RectType
 from pygame_gui.elements import UIPanel
 
 import pickle
-import tkinter
 import tkinter.filedialog
 
 
@@ -76,17 +75,13 @@ class LevelMaker(Application):
     def save(self):
         data = Level(set(self.rule_list.selected_rules), self.board.get_numbered_tiles())
         if not self.opened_level_path:
-            top = tkinter.Tk()
-            top.withdraw()
             path = tkinter.filedialog.asksaveasfilename(
-                parent=top,
                 initialdir=self.levels_path,
                 initialfile='new_level.dat',
                 title='Save level',
                 defaultextension='dat',
                 filetypes=[("Level files", "*.dat")]
             )
-            top.destroy()
 
             if not path:
                 return
@@ -98,15 +93,11 @@ class LevelMaker(Application):
         print(f"Saved to {self.opened_level_path}.")
 
     def open(self):
-        top = tkinter.Tk()
-        top.withdraw()
         path = tkinter.filedialog.askopenfilename(
-            parent=top,
             initialdir=self.levels_path,
             title='Open level',
             filetypes=[("Level files", "*.dat")]
         )
-        top.destroy()
 
         if not path:
             return
