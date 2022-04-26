@@ -4,7 +4,7 @@ from pygame.surface import Surface
 
 import numpy as np
 
-from src.core.utils.constants import *
+from core.utils.constants import *
 
 
 def rotation_matrix(rad: float | np.ndarray):

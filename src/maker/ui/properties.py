@@ -5,8 +5,7 @@ from pygame_gui.core.interfaces import IUIManagerInterface
 
 from sudoku.rules.rule import ComponentRule
 from core.event import Event
-from core.exception import PropertiesError
-from maker.properties import PropertiesInput
+from maker.properties import PropertiesInput, PropertiesError
 
 
 class PropertiesPanel(UIPanel):

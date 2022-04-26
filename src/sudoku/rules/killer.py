@@ -9,8 +9,7 @@ from core.gfx.graphics import Graphics
 from core.utils.mesh import MeshGrid
 from .rule import ComponentRule
 from sudoku.tile import Tile
-from core.exception import PropertiesError
-from maker.properties import Properties, PropertiesType
+from maker.properties import Properties, PropertiesType, PropertiesError
 
 
 # ----- Data -----

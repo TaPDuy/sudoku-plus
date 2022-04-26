@@ -5,14 +5,17 @@ from pygame.rect import Rect
 from pygame_gui.elements import UITextEntryLine, UIPanel, UILabel
 from pygame_gui.core.interfaces import IUIManagerInterface
 
-from core.exception import PropertiesError
-
 
 class PropertiesType(Enum):
     INT = 0
     INT_LIST = 1
     POS = 2
     POS_LIST = 3
+
+
+class PropertiesError(Exception):
+    """Raised when the edited rule invalidates the entered properties."""
+    pass
 
 
 class Properties:

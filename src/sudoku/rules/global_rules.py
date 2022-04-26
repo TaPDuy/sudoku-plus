@@ -1,4 +1,4 @@
-from src.sudoku.rules.rule import GlobalRule
+from sudoku.rules.rule import GlobalRule
 
 
 class ColumnRule(GlobalRule):

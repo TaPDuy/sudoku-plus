@@ -4,8 +4,8 @@
 block_cipher = None
 
 
-a = Analysis(['src/maker_main.py'],
-             pathex=[],
+a = Analysis(['src\\maker_main.py'],
+             pathex=['venv\Lib\site-packages'],
              binaries=[],
              datas=[],
              hiddenimports=[],
@@ -20,15 +20,25 @@ a = Analysis(['src/maker_main.py'],
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 
-exe = EXE(
-    pyz,
-    a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    name='Level Maker',
-    debug=False,
-    strip=False,
-    upx=True,
-    console=True
-)
+exe = EXE(pyz,
+          a.scripts, 
+          [],
+          exclude_binaries=True,
+          name='Level Maker',
+          debug=False,
+          bootloader_ignore_signals=False,
+          strip=False,
+          upx=True,
+          console=True,
+          disable_windowed_traceback=False,
+          target_arch=None,
+          codesign_identity=None,
+          entitlements_file=None )
+coll = COLLECT(exe,
+               a.binaries,
+               a.zipfiles,
+               a.datas, 
+               strip=False,
+               upx=True,
+               upx_exclude=[],
+               name='maker_main')

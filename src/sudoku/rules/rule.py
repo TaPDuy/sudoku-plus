@@ -1,6 +1,6 @@
 from pygame import Surface
-from src.sudoku.board import Board
-from src.maker.properties import Properties
+from sudoku.board import Board
+from maker.properties import Properties
 
 
 class Rule:
