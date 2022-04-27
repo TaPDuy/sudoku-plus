@@ -38,6 +38,10 @@ class SurroundRule(ComponentRule):
         values = set(values)
         if len(values) < 1 or len(values) > 4:
             raise PropertiesError("Number of values must be in range [1, 4].")
+        for val in values:
+            if val < 1 or val > 9:
+                raise PropertiesError("Value must in the range [1, 9]")
+
         x, y = tile
         if x < 0 or y < 0 or x > 7 or y > 7:
             raise PropertiesError("Tiles surrounding the component must be within the board.")
