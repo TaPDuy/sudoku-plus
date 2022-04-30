@@ -37,31 +37,6 @@ class Level:
     def start_values(self):
         return self.__start_values
 
-    # def add_rule(self, rules: set[Rule] | Rule):
-    #     if isinstance(rules, set):
-    #         self.__rules |= rules
-    #     else:
-    #         self.__rules.add(rules)
-    #
-    # def set_start_value(self, pos: tuple[int, int], value: int):
-    #     self.__initial[pos] = value
-
-    # def __str__(self):
-    #     return f"""
-    #     [
-    #         ruleset=[
-    #             {self.ruleset}
-    #         ],
-    #         initial={self.start_values}
-    #     ]
-    #     """
-    #
-    # def __repr__(self):
-    #     return f"""
-    #     class='{self.__class__}',
-    #     data={self.__str__()}
-    #     """
-
 
 class LevelList(UIPanel):
 
@@ -98,16 +73,19 @@ class LevelList(UIPanel):
     def process_event(self, evt):
         match evt.type:
             case pgui.UI_BUTTON_PRESSED:
-                if evt.ui_element == self.load_btn:
+                match evt.ui_element:
+                    case self.load_btn:
 
-                    index = -1
-                    for item in self.level_list.item_list:
-                        if item['selected']:
-                            index = self.level_list.item_list.index(item)
-                            break
+                        index = -1
+                        for item in self.level_list.item_list:
+                            if item['selected']:
+                                index = self.level_list.item_list.index(item)
+                                break
 
-                    if index != -1:
-                        self.on_load_requested(EventData({"level": self.levels[index]}))
+                        if index != -1:
+                            self.on_load_requested(EventData({"level": self.levels[index]}))
+                    case self.new_btn:
+                        self.on_load_requested(EventData({"level": random_sudoku()}))
 
 
 SEEDS = (
