@@ -32,11 +32,10 @@ class KillerRule(ComponentRule):
         self.target = target_sum
 
     def update(self, pos: tuple[int, int], new_val: int, old_val: int):
-        super()._check_conflict(pos, new_val, old_val)
         self.sum = self.sum - old_val + new_val
 
     def check(self) -> bool:
-        return self.sum == self.target and len(self.conflicts) == 0
+        return self.sum == self.target
 
     def get_properties(self) -> list[Properties]:
         return [

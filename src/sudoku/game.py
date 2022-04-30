@@ -57,8 +57,6 @@ class Game(Application):
         KillerRule.generate_killer_mesh()
 
     def load_level(self, level: Level):
-        print(id(level))
-
         # Load rules
         self.rule_manager.clear_rule()
         self.rule_manager.add_rule(level.ruleset)
