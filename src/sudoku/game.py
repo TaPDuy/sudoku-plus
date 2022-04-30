@@ -57,15 +57,17 @@ class Game(Application):
         KillerRule.generate_killer_mesh()
 
     def load_level(self, level: Level):
+        print(id(level))
+
         # Load rules
         self.rule_manager.clear_rule()
-        self.rule_manager.add_rule(level.rules)
+        self.rule_manager.add_rule(level.ruleset)
 
         # Load initial values
         self.board.clear()
         for pos, val in level.start_values.items():
             self.board.fill_tiles(val, InputMode.INPUT_MODE_VALUE, [pos])
-        self.board.lock_tile(level.start_values.keys(), True)
+        self.board.lock_tile(list(level.start_values.keys()), True)
 
         # Draw component rules
         above = self.sprites.get_sprites_from_layer(4)

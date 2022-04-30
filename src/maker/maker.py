@@ -15,7 +15,7 @@ import pygame as pg
 import pygame_gui as pgui
 from pygame.sprite import LayeredDirty, DirtySprite
 from pygame.rect import Rect, RectType
-from pygame_gui.elements import UIPanel
+from pygame_gui.elements import UIPanel, UITextEntryLine
 
 import pickle
 import tkinter.filedialog
@@ -31,9 +31,10 @@ class LevelMaker(Application):
         if not os.path.exists(self.levels_path):
             os.makedirs(self.levels_path)
 
-        self.rule_panel = UIPanel(Rect(10, 10, 300, 700), 0, self.ui_manager)
+        self.rule_panel = UIPanel(Rect(10, 10, 300, 800), 0, self.ui_manager)
         self.rule_list = RuleListPanel(Rect(0, 0, 200, 300), self.ui_manager, self.rule_panel)
         self.properties_panel = PropertiesPanel(Rect(0, 300, 200, 300), self.ui_manager, self.rule_panel)
+        self.name = UITextEntryLine(Rect(0, 600, 300, 30), self.ui_manager, self.rule_panel)
 
         self.menu = Menu((400, 650), self.ui_manager)
 
@@ -59,8 +60,10 @@ class LevelMaker(Application):
         self.properties_panel.on_applied.add_handler(self.redraw_board)
 
     def load_level(self, level: Level):
+        self.name.set_text(level.name)
+
         self.properties_panel.set_rule(None)
-        self.rule_list.set_rule_list(level.rules)
+        self.rule_list.set_rule_list(level.ruleset)
 
         self.board.clear()
         for pos, val in level.start_values.items():
@@ -73,7 +76,7 @@ class LevelMaker(Application):
         self.load_level(Level())
 
     def save(self):
-        data = Level(set(self.rule_list.selected_rules), self.board.get_numbered_tiles())
+        data = Level(self.name.get_text(), set(self.rule_list.selected_rules), self.board.get_numbered_tiles())
         if not self.opened_level_path:
             path = tkinter.filedialog.asksaveasfilename(
                 initialdir=self.levels_path,

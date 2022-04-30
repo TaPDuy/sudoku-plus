@@ -15,55 +15,59 @@ from core.event import Event, EventData
 
 class Level:
 
-    def __init__(self, rules: set[Rule] = None, initial: dict[tuple[int, int], int] = None):
+    def __init__(self, name="Untitled level", ruleset: set[Rule] = None, start_values: dict[tuple[int, int], int] = None):
         """
         A class that holds all the data needed to load a level.
-        :param rules: Ruleset that determines winning conditions
-        :param initial: Initial clues - dict[(tile_x, tile_y): value]
+        :param ruleset: Ruleset that determines winning conditions
+        :param start_values: Initial clues - dict[(tile_x, tile_y): value]
         """
-        self.__rules = rules or set()
-        self.__initial = initial or {}
+        self.__name = name
+        self.__ruleset = ruleset or set()
+        self.__start_values = start_values or {}
 
     @property
-    def rules(self):
-        return self.__rules
+    def name(self):
+        return self.__name
+
+    @property
+    def ruleset(self):
+        return self.__ruleset
 
     @property
     def start_values(self):
-        return self.__initial
+        return self.__start_values
 
-    def add_rule(self, rules: set[Rule] | Rule):
-        if isinstance(rules, set):
-            self.__rules |= rules
-        else:
-            self.__rules.add(rules)
+    # def add_rule(self, rules: set[Rule] | Rule):
+    #     if isinstance(rules, set):
+    #         self.__rules |= rules
+    #     else:
+    #         self.__rules.add(rules)
+    #
+    # def set_start_value(self, pos: tuple[int, int], value: int):
+    #     self.__initial[pos] = value
 
-    def set_start_value(self, pos: tuple[int, int], value: int):
-        self.__initial[pos] = value
-
-    def __str__(self):
-        return f"""
-        [
-            ruleset=[
-                {self.__rules}
-            ],
-            initial={self.__initial}
-        ]
-        """
-
-    def __repr__(self):
-        return f"""
-        class='{self.__class__}', 
-        data={self.__str__()}
-        """
+    # def __str__(self):
+    #     return f"""
+    #     [
+    #         ruleset=[
+    #             {self.ruleset}
+    #         ],
+    #         initial={self.start_values}
+    #     ]
+    #     """
+    #
+    # def __repr__(self):
+    #     return f"""
+    #     class='{self.__class__}',
+    #     data={self.__str__()}
+    #     """
 
 
 class LevelList(UIPanel):
 
     def __init__(self, relative_rect: Rect, manager: IUIManagerInterface, container=None):
         super().__init__(relative_rect, 0, manager, container=container)
-        self.levelnames = []
-        self.levels = []
+        self.levels = ()
         self.level_list = UISelectionList(
             Rect(0, 0, self.relative_rect.w, self.relative_rect.h - 30),
             [], manager, container=self
@@ -82,22 +86,24 @@ class LevelList(UIPanel):
 
     def load_levels(self):
         filenames = [_ for _ in os.listdir("levels") if _.endswith('.dat')]
+
+        lvls = []
         for name in filenames:
             with open("levels/" + name, 'rb') as f:
-                self.levelnames += [name]
-                self.levels += [pickle.load(f)]
-                self.level_list.set_item_list(self.levelnames)
+                lvls += [pickle.load(f)]
+
+        self.levels = tuple(lvls)
+        self.level_list.set_item_list([_.name for _ in self.levels])
 
     def process_event(self, evt):
         match evt.type:
             case pgui.UI_BUTTON_PRESSED:
                 if evt.ui_element == self.load_btn:
-                    select = self.level_list.get_single_selection()
 
                     index = -1
-                    for name in self.levelnames:
-                        if name == select:
-                            index = self.levelnames.index(name)
+                    for item in self.level_list.item_list:
+                        if item['selected']:
+                            index = self.level_list.item_list.index(item)
                             break
 
                     if index != -1:
@@ -130,6 +136,7 @@ def random_sudoku() -> Level:
         chars = np.flip(chars, random.randint(0, 1))
 
     return Level(
+        "Random level",
         {SudokuRule()},
         {(x, y): charmap[chars[y][x]] for y in range(9) for x in range(9) if chars[y][x] != '_'}
     )
