@@ -1,8 +1,16 @@
+import os
 import random
 import numpy as np
+import pickle
+
+import pygame_gui as pgui
+from pygame import Rect
+from pygame_gui.core.interfaces import IUIManagerInterface
+from pygame_gui.elements import UIPanel, UISelectionList, UIButton
 
 from .rules.rule import Rule
 from .rules.global_rules import SudokuRule
+from core.event import Event, EventData
 
 
 class Level:
@@ -48,6 +56,52 @@ class Level:
         class='{self.__class__}', 
         data={self.__str__()}
         """
+
+
+class LevelList(UIPanel):
+
+    def __init__(self, relative_rect: Rect, manager: IUIManagerInterface, container=None):
+        super().__init__(relative_rect, 0, manager, container=container)
+        self.levelnames = []
+        self.levels = []
+        self.level_list = UISelectionList(
+            Rect(0, 0, self.relative_rect.w, self.relative_rect.h - 30),
+            [], manager, container=self
+        )
+        self.load_btn = UIButton(
+            Rect(self.level_list.relative_rect.bottomleft, (self.relative_rect.w / 2, 30)),
+            "Load", manager, self
+        )
+        self.new_btn = UIButton(
+            Rect(self.load_btn.relative_rect.topright, (self.relative_rect.w / 2, 30)),
+            "New", manager, self
+        )
+
+        # Events
+        self.on_load_requested = Event()
+
+    def load_levels(self):
+        filenames = [_ for _ in os.listdir("levels") if _.endswith('.dat')]
+        for name in filenames:
+            with open("levels/" + name, 'rb') as f:
+                self.levelnames += [name]
+                self.levels += [pickle.load(f)]
+                self.level_list.set_item_list(self.levelnames)
+
+    def process_event(self, evt):
+        match evt.type:
+            case pgui.UI_BUTTON_PRESSED:
+                if evt.ui_element == self.load_btn:
+                    select = self.level_list.get_single_selection()
+
+                    index = -1
+                    for name in self.levelnames:
+                        if name == select:
+                            index = self.levelnames.index(name)
+                            break
+
+                    if index != -1:
+                        self.on_load_requested(EventData({"level": self.levels[index]}))
 
 
 SEEDS = (

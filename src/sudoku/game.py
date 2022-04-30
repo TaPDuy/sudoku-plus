@@ -6,7 +6,7 @@ from core.app import Application
 from core.action import ActionManager
 from sudoku.board import Board, InputMode
 from sudoku.input import InputPanel
-from sudoku.level import Level
+from sudoku.level import Level, LevelList
 from sudoku.rules.rule import RuleManager
 from sudoku.rules.killer import KillerRule
 from sudoku.rules.dots import DotRule
@@ -47,7 +47,11 @@ class Game(Application):
         self.input.assign(InputPanel.BUTTON_REDO, ActionManager.redo)
         self.input.assign(InputPanel.BUTTON_CHECK, self.check_win)
 
+        self.level_list = LevelList(Rect(500, 250, 175, 200), self.ui_manager)
+        self.level_list.load_levels()
+
         # Event handlers
+        self.level_list.on_load_requested.add_handler(self.load_level)
         self.board.on_changed.add_handler(self.rule_manager.update)
 
         KillerRule.generate_killer_mesh()
