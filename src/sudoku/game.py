@@ -11,6 +11,7 @@ from sudoku.rules.rule import RuleManager
 from sudoku.rules.killer import KillerRule
 from sudoku.rules.dots import DotRule
 from sudoku.rules.surround import SurroundRule
+from core.audio import BgmPlayer
 
 from functools import partial
 
@@ -18,7 +19,7 @@ from functools import partial
 class Game(Application):
 
     def __init__(self):
-        super().__init__()
+        super().__init__((1080, 720))
         self.sprites = LayeredDirty()
 
         self.board = Board((32, 32), self.sprites)
@@ -49,6 +50,10 @@ class Game(Application):
 
         self.level_list = LevelList(Rect(500, 250, 175, 200), self.ui_manager)
         self.level_list.load_levels()
+
+        self.player = BgmPlayer(Rect(500, 500, 200, 150), self.ui_manager)
+        self.player.load_bgm()
+        self.player.play()
 
         # Event handlers
         self.level_list.on_load_requested.add_handler(self.load_level)
