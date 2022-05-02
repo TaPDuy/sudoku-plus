@@ -38,7 +38,7 @@ class KillerRule(ComponentRule):
         self.sum = self.sum - old_val + new_val
 
     def check(self) -> bool:
-        return self.sum == self.target
+        return self.sum == self.target if self.target else True
 
     def get_properties(self) -> list[Properties]:
         return [
@@ -56,8 +56,8 @@ class KillerRule(ComponentRule):
             raise PropertiesError("Number of cage tiles must be in range [1, 9].")
 
         mn, mx = sum(i for i in range(1, n_tiles + 1)), sum(9 - i for i in range(n_tiles))
-        if target_sum < mn or target_sum > mx:
-            raise PropertiesError(f"Target sum must be in range [{mn}, {mx}].")
+        if (target_sum < mn or target_sum > mx) and target_sum != 0:
+            raise PropertiesError(f"Target sum must be either in range [{mn}, {mx}] or 0.")
 
         dx, dy = (0, 1, 0, -1), (1, 0, -1, 0)
         for x, y in bound_to:
@@ -95,13 +95,14 @@ class KillerRule(ComponentRule):
                   ) for y in range(mesh_grid.state_h) for x in range(mesh_grid.state_w))
         )
 
-        sum_tile = min(self.bound_to)
-        text = KillerRule.font.render(str(self.target), True, KillerRule.color)
-        # text = smoothscale(text, (text.get_width() * Tile.SIZE / 64, text.get_height() * Tile.SIZE / 64))
-        surface.blit(text, (
-            (sum_tile[0] + 0.125) * KillerRule.killer_tile_w * 2,
-            (sum_tile[1] + 0.125) * KillerRule.killer_tile_h * 2
-        ))
+        if self.target:
+            sum_tile = min(self.bound_to)
+            text = KillerRule.font.render(str(self.target), True, KillerRule.color)
+            # text = smoothscale(text, (text.get_width() * Tile.SIZE / 64, text.get_height() * Tile.SIZE / 64))
+            surface.blit(text, (
+                (sum_tile[0] + 0.125) * KillerRule.killer_tile_w * 2,
+                (sum_tile[1] + 0.125) * KillerRule.killer_tile_h * 2
+            ))
 
     @staticmethod
     def generate_killer_mesh():
