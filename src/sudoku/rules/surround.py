@@ -9,6 +9,8 @@ from maker.properties import Properties, PropertiesType, PropertiesError
 
 # ----- Data -----
 class SurroundRule(ComponentRule):
+    DESCRIPTIONS = "Each number in the white circle must appear at least once in the four surrounding cells."
+
     font = SysFont("Arial", 10)
     color = (255, 255, 255)
     text_color = (0, 0, 0)

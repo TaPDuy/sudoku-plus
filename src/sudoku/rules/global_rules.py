@@ -2,24 +2,28 @@ from sudoku.rules.rule import GlobalRule
 
 
 class ColumnRule(GlobalRule):
+    DESCRIPTIONS = "Each column cannot contain the same digit."
 
     def conflict(self, p1: tuple[int, int], p2: tuple[int, int]) -> bool:
         return p1[0] == p2[0]
 
 
 class RowRule(GlobalRule):
+    DESCRIPTIONS = "Each row cannot contain the same digit."
 
     def conflict(self, p1: tuple[int, int], p2: tuple[int, int]) -> bool:
         return p1[1] == p2[1]
 
 
 class BoxRule(GlobalRule):
+    DESCRIPTIONS = "Each 3x3 box cannot contain the same digit."
 
     def conflict(self, p1: tuple[int, int], p2: tuple[int, int]) -> bool:
         return p1[0] // 3 == p2[0] // 3 and p1[1] // 3 == p2[1] // 3
 
 
 class SudokuRule(GlobalRule):
+    DESCRIPTIONS = "Normal sudoku rules apply."
 
     def __init__(self):
         super().__init__()
@@ -32,18 +36,21 @@ class SudokuRule(GlobalRule):
 
 
 class MainDiagonalRule(GlobalRule):
+    DESCRIPTIONS = "Main diagonal cannot contain the same digit."
 
     def conflict(self, p1: tuple[int, int], p2: tuple[int, int]) -> bool:
         return p1[0] == p1[1] and p2[0] == p2[1]
 
 
 class AntiDiagonalRule(GlobalRule):
+    DESCRIPTIONS = "Anti diagonal cannot contain the same digit."
 
     def conflict(self, p1: tuple[int, int], p2: tuple[int, int]) -> bool:
         return p1[0] + p1[1] == p2[0] + p2[1] == 8
 
 
 class DiagonalRule(GlobalRule):
+    DESCRIPTIONS = "Each diagonal cannot contain the same digit."
 
     def __init__(self):
         super().__init__()
@@ -54,6 +61,7 @@ class DiagonalRule(GlobalRule):
 
 
 class KnightRule(GlobalRule):
+    DESCRIPTIONS = "Cells separated by a knight's move (in chess) cannot contain the same digit."
 
     def conflict(self, p1: tuple[int, int], p2: tuple[int, int]) -> bool:
         return (p1[0] - p2[0], p1[1] - p2[1]) in (
@@ -63,6 +71,7 @@ class KnightRule(GlobalRule):
 
 
 class KingRule(GlobalRule):
+    DESCRIPTIONS = "Cells separated by a king's move (in chess) cannot contain the same digit"
 
     def conflict(self, p1: tuple[int, int], p2: tuple[int, int]) -> bool:
         return (p1[0] - p2[0], p1[1] - p2[1]) in (

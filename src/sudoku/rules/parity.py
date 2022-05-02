@@ -39,6 +39,8 @@ class ParityRule(ComponentRule):
 
 
 class EvenRule(ParityRule):
+    DESCRIPTIONS = "Grey squares show even digits."
+
     weight = .75
     color = (150, 150, 150)
 
@@ -56,6 +58,8 @@ class EvenRule(ParityRule):
 
 
 class OddRule(ParityRule):
+    DESCRIPTIONS = "Grey circles show odd digits."
+
     weight = .75
     color = (150, 150, 150)
 

@@ -1,12 +1,13 @@
 import pygame as pg
 from pygame.rect import Rect, RectType
 from pygame.sprite import LayeredDirty, DirtySprite
+from pygame_gui.elements import UITextBox
 
 from core.app import Application
 from core.action import ActionManager
 from sudoku.board import Board, InputMode
 from sudoku.input import InputPanel
-from sudoku.level import Level, LevelList
+from sudoku.level import Level, LevelList, random_sudoku
 from sudoku.rules.rule import RuleManager
 from sudoku.rules.killer import KillerRule
 from sudoku.rules.dots import DotRule
@@ -56,16 +57,23 @@ class Game(Application):
         self.player.load_bgm()
         self.player.play()
 
+        self.rule_desc = UITextBox("", Rect(50, 500, 400, 200), self.ui_manager)
+
         # Event handlers
         self.level_list.on_load_requested.add_handler(self.load_level)
         self.board.on_changed.add_handler(self.rule_manager.update)
 
         KillerRule.generate_killer_mesh()
 
+        self.load_level(random_sudoku())
+
     def load_level(self, level: Level):
         # Load rules
         self.rule_manager.clear_rule()
         self.rule_manager.add_rule(level.ruleset)
+
+        types = {type(rule) for rule in level.ruleset}
+        self.rule_desc.set_text("--- Ruleset ---<br>" + "<br>".join(" - " + _.DESCRIPTIONS for _ in types))
 
         # Load initial values
         self.board.clear()

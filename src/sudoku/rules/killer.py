@@ -14,6 +14,9 @@ from maker.properties import Properties, PropertiesType, PropertiesError
 
 # ----- Data -----
 class KillerRule(ComponentRule):
+    DESCRIPTIONS = "In cages, digits must sum to the small clue in the top left corner of the cage. Digits cannot " \
+                   "repeat within a cage."
+
     killer_tile_size = killer_tile_w, killer_tile_h = Tile.SIZE / 2, Tile.SIZE / 2
     killer_sprites = {}
     font = SysFont("Arial", 10)

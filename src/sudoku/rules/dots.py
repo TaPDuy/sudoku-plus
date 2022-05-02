@@ -44,6 +44,8 @@ class DotRule(ComponentRule):
 
 
 class BlackDotRule(DotRule):
+    DESCRIPTIONS = "Cells separated by a black dot must contain digits in a ratio of 1:2."
+
     color = (0, 0, 0)
     stroke_color = (255, 255, 255)
 
@@ -69,6 +71,8 @@ class BlackDotRule(DotRule):
 
 
 class WhiteDotRule(DotRule):
+    DESCRIPTIONS = "Cells separated by a white dot must contain consecutive digits."
+
     color = (255, 255, 255)
     stroke_color = (0, 0, 0)
 

@@ -11,6 +11,8 @@ from maker.properties import Properties, PropertiesType, PropertiesError
 
 # ----- Data -----
 class ThermometerRule(ComponentRule):
+    DESCRIPTIONS = "Digits along thermometers must increase from the bulb end."
+
     color = (150, 150, 150)
 
     def __init__(self, bound_to: list[tuple[int, int]] = None):

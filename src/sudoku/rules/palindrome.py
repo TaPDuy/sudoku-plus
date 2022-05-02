@@ -10,6 +10,8 @@ from maker.properties import Properties, PropertiesType, PropertiesError
 
 # ----- Data -----
 class PalindromeRule(ComponentRule):
+    DESCRIPTIONS = "Digits along the lines are palindromes."
+
     color = (100, 100, 100)
 
     def __init__(self, bound_to: list[tuple[int, int]] = None):

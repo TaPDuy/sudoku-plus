@@ -11,6 +11,8 @@ from maker.properties import Properties, PropertiesType, PropertiesError
 
 # ----- Data -----
 class ArrowRule(ComponentRule):
+    DESCRIPTIONS = "Digits along an arrow must sum to the digit in that arrow's circle."
+
     color = (255, 255, 255)
 
     def __init__(self, bound_to: list[tuple[int, int]] = None):
