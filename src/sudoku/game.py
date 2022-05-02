@@ -22,7 +22,7 @@ class Game(Application):
         super().__init__((1080, 720))
         self.sprites = LayeredDirty()
 
-        self.board = Board((32, 32), self.sprites)
+        self.board = Board((32, 32), self.sprites, self.ui_manager)
 
         # Rules
         self.rule_manager = RuleManager(self.board)
@@ -47,6 +47,7 @@ class Game(Application):
         self.input.assign(InputPanel.BUTTON_UNDO, ActionManager.undo)
         self.input.assign(InputPanel.BUTTON_REDO, ActionManager.redo)
         self.input.assign(InputPanel.BUTTON_CHECK, self.check_win)
+        self.board.set_focusable_areas(self.board.rect, self.input.rect)
 
         self.level_list = LevelList(Rect(500, 250, 175, 200), self.ui_manager)
         self.level_list.load_levels()

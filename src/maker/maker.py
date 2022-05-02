@@ -39,7 +39,7 @@ class LevelMaker(Application):
         self.menu = Menu((400, 650), self.ui_manager)
 
         self.sprites = LayeredDirty()
-        self.board = Board((400, 32), self.sprites)
+        self.board = Board((400, 32), self.sprites, self.ui_manager)
 
         # Ruleset
         KillerRule.generate_killer_mesh()
@@ -58,6 +58,8 @@ class LevelMaker(Application):
         # Event handlers
         self.rule_list.on_rule_selected.add_handler(self.properties_panel.set_rule)
         self.properties_panel.on_applied.add_handler(self.redraw_board)
+
+        self.new_level()
 
     def load_level(self, level: Level):
         self.name.set_text(level.name)

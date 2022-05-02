@@ -4,6 +4,7 @@ import pygame as pg
 from pygame import Surface, SRCALPHA
 from pygame.sprite import DirtySprite, LayeredDirty
 from pygame.rect import Rect
+from pygame_gui.core.interfaces import IUIManagerInterface
 
 from core.gfx.graphics import Graphics
 from .tile import Tile
@@ -41,8 +42,9 @@ class BoardInputAction(Action):
 
 class Board(DirtySprite):
 
-    def __init__(self, pos: tuple[float, float], sprite_groups: LayeredDirty):
+    def __init__(self, pos: tuple[float, float], sprite_groups: LayeredDirty, manager: IUIManagerInterface):
         super().__init__()
+        self.manager = manager
 
         # Data properties
         self.pxpos = self.pxx, self.pxy = pos
@@ -66,6 +68,9 @@ class Board(DirtySprite):
         self.selection = SelectionGrid(self.pxpos, self.tlsize, sprite_groups)
         self.multi_select = False
         self.should_select = False
+
+        self.focusable: list[Rect] = [self.rect]
+        self.is_focused = False
 
         # Events
         self.on_changed = Event()
@@ -129,19 +134,32 @@ class Board(DirtySprite):
 
         return self, mode, old_values, value
 
+    def set_focusable_areas(self, *rects):
+        self.focusable = list(rects)
+
     def process_events(self, evt):
         match evt.type:
             case pg.MOUSEBUTTONDOWN:
-                if not self.rect.collidepoint(pg.mouse.get_pos()):
+                mouse_pos = pg.mouse.get_pos()
+                self.is_focused = any(rect.collidepoint(*mouse_pos) for rect in self.focusable)
+
+                if self.is_focused:
+                    self.manager.set_focus_set(set())
+                else:
+                    self.selection.clear()
+
+                if not self.rect.collidepoint(mouse_pos):
                     return
                 if not pg.key.get_mods() & pg.KMOD_SHIFT:
                     self.selection.clear()
 
                 self.multi_select = True
-                self.should_select = not self.selection.is_selected(get_tile_pos(pg.mouse.get_pos()))
+                self.should_select = not self.selection.is_selected(get_tile_pos(mouse_pos))
             case pg.MOUSEBUTTONUP:
                 self.multi_select = False
             case pg.KEYDOWN:
+                if not self.is_focused:
+                    return
                 match evt.key:
                     case pg.K_BACKSPACE:
                         self.fill_selection(0)
