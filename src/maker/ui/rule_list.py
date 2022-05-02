@@ -10,7 +10,7 @@ from sudoku.rules import (
     DiagonalRule, MainDiagonalRule, AntiDiagonalRule,
     KnightRule, KingRule, KillerRule, ArrowRule,
     ThermometerRule, PalindromeRule,
-    EvenRule, OddRule, BlackDotRule, WhiteDotRule, SurroundRule
+    EvenRule, OddRule, BlackDotRule, WhiteDotRule, SurroundRule, GlobalRule
 )
 from core.event import Event, EventData
 
@@ -53,8 +53,16 @@ class RuleListPanel(UIPanel):
         match evt.type:
             case pgui.UI_BUTTON_PRESSED:
                 if evt.ui_element == self.add_button:
-                    self.selected_rules.append(RuleListPanel.__RULE_CLASSES[self.rule_drop_down.selected_option]())
-                    self.rule_list.set_item_list([RuleListPanel.__RULE_CLASSES.inverse[type(rule)] for rule in self.selected_rules])
+                    select = self.rule_drop_down.selected_option
+                    existed = issubclass(RuleListPanel.__RULE_CLASSES[select], GlobalRule) and select in [
+                        RuleListPanel.__RULE_CLASSES.inverse[type(rule)] for rule in self.selected_rules
+                    ]
+
+                    if not existed:
+                        self.selected_rules.append(RuleListPanel.__RULE_CLASSES[select]())
+                        self.rule_list.set_item_list([
+                            RuleListPanel.__RULE_CLASSES.inverse[type(rule)] for rule in self.selected_rules
+                        ])
                 if evt.ui_element == self.remove_button:
                     index = -1
                     for item in self.rule_list.item_list:
