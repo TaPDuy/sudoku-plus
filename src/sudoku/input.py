@@ -1,11 +1,11 @@
 import pygame as pg
 import pygame_gui as pgui
 from pygame.rect import Rect
-from pygame_gui import UIManager
-from pygame_gui.elements import UIButton
+from pygame_gui.core.interfaces import IUIManagerInterface
+from pygame_gui.elements import UIButton, UIPanel
 
 
-class InputPanel:
+class InputPanel(UIPanel):
     BUTTON_SIZE = 48
 
     BUTTONS_NUM = 16
@@ -19,59 +19,43 @@ class InputPanel:
     BUTTON_RESET = 14
     BUTTON_CHECK = 15
 
-    def __init__(self, apos: tuple[float, float], manager: UIManager):
-        self.apos = self.ax, self.ay = apos
+    def __init__(self, apos: tuple[float, float], manager: IUIManagerInterface, container=None):
+        super().__init__(Rect(apos, (InputPanel.BUTTON_SIZE * 4, InputPanel.BUTTON_SIZE * 4)), 0, manager, container=container)
 
         self.buttons = [UIButton(Rect(
-            self.ax + x * InputPanel.BUTTON_SIZE,
-            self.ay + (2 - y) * InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE
-        ), str(x + y * 3 + 1), manager) for y in range(3) for x in range(3)]
+            x * InputPanel.BUTTON_SIZE, (2 - y) * InputPanel.BUTTON_SIZE,
+            InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE
+        ), str(x + y * 3 + 1), manager, self) for y in range(3) for x in range(3)]
 
         self.buttons.append(UIButton(Rect(
-            self.ax + 3 * InputPanel.BUTTON_SIZE,
-            self.ay,
-            InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE
-        ), "value", manager))
+            3 * InputPanel.BUTTON_SIZE, 0,
+            InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE
+        ), "value", manager, self))
         self.buttons.append(UIButton(Rect(
-            self.ax + 3 * InputPanel.BUTTON_SIZE,
-            self.ay + InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE
-        ), "mark", manager))
+            3 * InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE,
+            InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE
+        ), "mark", manager, self))
         self.buttons.append(UIButton(Rect(
-            self.ax + 3 * InputPanel.BUTTON_SIZE,
-            self.ay + 2 * InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE
-        ), "color", manager))
+            3 * InputPanel.BUTTON_SIZE, 2 * InputPanel.BUTTON_SIZE,
+            InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE
+        ), "color", manager, self))
 
         self.buttons.append(UIButton(Rect(
-            self.ax,
-            self.ay + 3 * InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE
-        ), "undo", manager))
+            0, 3 * InputPanel.BUTTON_SIZE,
+            InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE
+        ), "undo", manager, self))
         self.buttons.append(UIButton(Rect(
-            self.ax + InputPanel.BUTTON_SIZE,
-            self.ay + 3 * InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE
-        ), "redo", manager))
+            InputPanel.BUTTON_SIZE, 3 * InputPanel.BUTTON_SIZE,
+            InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE
+        ), "redo", manager, self))
         self.buttons.append(UIButton(Rect(
-            self.ax + 2 * InputPanel.BUTTON_SIZE,
-            self.ay + 3 * InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE
-        ), "reset", manager))
+            2 * InputPanel.BUTTON_SIZE, 3 * InputPanel.BUTTON_SIZE,
+            InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE
+        ), "reset", manager, self))
         self.buttons.append(UIButton(Rect(
-            self.ax + 3 * InputPanel.BUTTON_SIZE,
-            self.ay + 3 * InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE
-        ), "check", manager))
+            3 * InputPanel.BUTTON_SIZE, 3 * InputPanel.BUTTON_SIZE,
+            InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE
+        ), "check", manager, self))
 
         self.toggle_highlight_button(InputPanel.BUTTON_VALUE)
         self.functions = {}
