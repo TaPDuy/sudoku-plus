@@ -56,12 +56,22 @@ class RuleManager:
 
     def update(self, new_val: int, old_values: dict[tuple[int, int], int]):
         for pos, old_val in old_values.items():
-            for rule in self.global_rules:
-                self._update_conflict(pos, 0 if new_val == old_val else new_val, old_val, rule)
+            tmp_new = 0 if new_val == old_val else new_val
+
+            if old_val:
+                self.value_to_tile_map[old_val].remove(pos)
+
+            for rule in self.rules:
+                self._update_conflict(pos, tmp_new, old_val, rule)
+
+            if tmp_new:
+                if not self.value_to_tile_map.get(new_val):
+                    self.value_to_tile_map[new_val] = set()
+                self.value_to_tile_map[tmp_new].add(pos)
 
             if self.pos_to_comp_map.get(pos):
                 for rule in self.pos_to_comp_map[pos]:
-                    rule.update(pos, 0 if new_val == old_val else new_val, old_val)
+                    rule.update(pos, tmp_new, old_val)
 
         self.board.highlight_conflicts(self.get_conflicts())
 
@@ -76,8 +86,6 @@ class RuleManager:
 
                 self.conflicts.pop(pos)
 
-            self.value_to_tile_map[old_val].remove(pos)
-
         if new_val:
             if not self.value_to_tile_map.get(new_val):
                 self.value_to_tile_map[new_val] = set()
@@ -91,8 +99,6 @@ class RuleManager:
 
                     self.conflicts[pos].add(valpos)
                     self.conflicts[valpos].add(pos)
-
-            self.value_to_tile_map[new_val].add(pos)
 
     def get_conflicts(self) -> set:
         return set(self.conflicts)
@@ -111,9 +117,6 @@ class ComponentRule(Rule):
 
     def __init__(self, bound_to):
         self.bound_to = bound_to
-
-    def conflict(self, p1: tuple[int, int], p2: tuple[int, int]) -> bool:
-        return p1 in self.bound_to and p2 in self.bound_to
 
     def draw(self, surface: Surface):
         pass
