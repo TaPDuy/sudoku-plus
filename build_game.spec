@@ -8,7 +8,7 @@ game_a = Analysis(
 	['src\\game_main.py'],
 	pathex=['venv\Lib\site-packages'],
 	binaries=[],
-	datas=[('levels\\*.dat', 'levels')],
+	datas=[('levels\\*.dat', 'levels'), ('bgm\\*.mp3', 'bgm')],
 	hiddenimports=[],
 	hookspath=[],
 	hooksconfig={},
