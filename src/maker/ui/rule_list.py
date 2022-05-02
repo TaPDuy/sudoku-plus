@@ -35,6 +35,10 @@ class RuleListPanel(UIPanel):
             Rect(self.rule_drop_down.relative_rect.topright, (20, 20)), "+",
             self.ui_manager, container=self
         )
+        self.remove_button = UIButton(
+            Rect(self.add_button.relative_rect.bottomleft, (20, 20)), "-",
+            self.ui_manager, container=self
+        )
         self.rule_list = UISelectionList(Rect(10, 40, 150, 100), [], self.ui_manager, container=self)
         self.selected_rules = []
 
@@ -51,12 +55,23 @@ class RuleListPanel(UIPanel):
                 if evt.ui_element == self.add_button:
                     self.selected_rules.append(RuleListPanel.__RULE_CLASSES[self.rule_drop_down.selected_option]())
                     self.rule_list.set_item_list([RuleListPanel.__RULE_CLASSES.inverse[type(rule)] for rule in self.selected_rules])
-            case pgui.UI_SELECTION_LIST_NEW_SELECTION:
-                index = -1
-                for item in self.rule_list.item_list:
-                    if item['selected']:
-                        index = self.rule_list.item_list.index(item)
-                        break
+                if evt.ui_element == self.remove_button:
+                    index = -1
+                    for item in self.rule_list.item_list:
+                        if item['selected']:
+                            index = self.rule_list.item_list.index(item)
+                            break
 
-                if index != -1:
-                    self.on_rule_selected(EventData({'rule': self.selected_rules[index]}))
+                    self.selected_rules.pop(index)
+                    self.rule_list.set_item_list([RuleListPanel.__RULE_CLASSES.inverse[type(rule)] for rule in self.selected_rules])
+
+            case pgui.UI_SELECTION_LIST_NEW_SELECTION:
+                if evt.ui_element == self.rule_list:
+                    index = -1
+                    for item in self.rule_list.item_list:
+                        if item['selected']:
+                            index = self.rule_list.item_list.index(item)
+                            break
+
+                    if index != -1:
+                        self.on_rule_selected(EventData({'rule': self.selected_rules[index]}))
