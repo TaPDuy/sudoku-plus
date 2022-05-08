@@ -4,7 +4,6 @@ import numpy as np
 
 from .rule import ComponentRule
 from core.gfx.graphics import Graphics
-from sudoku.tile import Tile
 from maker.properties import Properties, PropertiesType, PropertiesError
 
 
@@ -60,7 +59,7 @@ class PalindromeRule(ComponentRule):
 
         self.bound_to = bound_to
 
-    def draw(self, surface: Surface):
+    def draw(self, surface: Surface, tile_size: tuple[float, float]):
         Graphics.smooth_lines(surface, [
-            (x * Tile.SIZE + Tile.SIZE / 2, y * Tile.SIZE + Tile.SIZE / 2) for x, y in self.bound_to
-        ], Tile.SIZE / 4, PalindromeRule.color)
+            ((x + .5) * tile_size[0], (y + .5) * tile_size[1]) for x, y in self.bound_to
+        ], tile_size[0] / 4, PalindromeRule.color)
