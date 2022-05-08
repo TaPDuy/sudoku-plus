@@ -3,7 +3,6 @@ from pygame.gfxdraw import filled_circle
 
 from .rule import ComponentRule
 from core.gfx.graphics import Graphics
-from sudoku.tile import Tile
 from maker.properties import Properties, PropertiesType, PropertiesError
 
 
@@ -47,12 +46,12 @@ class EvenRule(ParityRule):
     def check(self) -> bool:
         return self.value and self.value % 2 == 0
 
-    def draw(self, surface: Surface):
-        bw = Tile.SIZE * (1 - EvenRule.weight) / 2
+    def draw(self, surface: Surface, tile_size: tuple[float, float]):
+        bw = tile_size[0] * (1 - EvenRule.weight) / 2
         Graphics.rect(
             surface,
-            (Tile.SIZE * self.bound_to[0][0] + bw, Tile.SIZE * self.bound_to[0][1] + bw),
-            (Tile.SIZE * EvenRule.weight, Tile.SIZE * EvenRule.weight),
+            (tile_size[0] * self.bound_to[0][0] + bw, tile_size[1] * self.bound_to[0][1] + bw),
+            (tile_size[0] * EvenRule.weight, tile_size[1] * EvenRule.weight),
             EvenRule.color
         )
 
@@ -66,11 +65,11 @@ class OddRule(ParityRule):
     def check(self) -> bool:
         return self.value % 2 != 0
 
-    def draw(self, surface: Surface):
+    def draw(self, surface: Surface, tile_size: tuple[float, float]):
         filled_circle(
             surface,
-            int(Tile.SIZE * self.bound_to[0][0] + Tile.SIZE / 2),
-            int(Tile.SIZE * self.bound_to[0][1] + Tile.SIZE / 2),
-            int(Tile.SIZE * OddRule.weight / 2),
+            int((self.bound_to[0][0] + .5) * tile_size[0]),
+            int((self.bound_to[0][1] + .5) * tile_size[1]),
+            int(tile_size[0] * OddRule.weight / 2),
             OddRule.color
         )
