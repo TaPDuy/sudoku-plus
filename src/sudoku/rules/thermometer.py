@@ -5,7 +5,6 @@ import numpy as np
 from .rule import ComponentRule
 from core.utils.constants import TWO_PI
 from core.gfx.graphics import Graphics
-from sudoku.tile import Tile
 from maker.properties import Properties, PropertiesType, PropertiesError
 
 
@@ -62,9 +61,9 @@ class ThermometerRule(ComponentRule):
 
         self.bound_to = bound_to
 
-    def draw(self, surface: Surface):
-        org = self.bound_to[0][0] * Tile.SIZE + Tile.SIZE / 2, self.bound_to[0][1] * Tile.SIZE + Tile.SIZE / 2
-        Graphics.pie(surface, org[0], org[1], Tile.SIZE * 3 / 8, 0, TWO_PI, ThermometerRule.color, 0)
+    def draw(self, surface: Surface, tile_size: tuple[float, float]):
+        org = (self.bound_to[0][0] + .5) * tile_size[0], (self.bound_to[0][1] + .5) * tile_size[1]
+        Graphics.pie(surface, org[0], org[1], tile_size[0] * 3 / 8, 0, TWO_PI, ThermometerRule.color, 0)
         Graphics.smooth_lines(surface, [
-            (x * Tile.SIZE + Tile.SIZE / 2, y * Tile.SIZE + Tile.SIZE / 2) for x, y in self.bound_to
-        ], Tile.SIZE * 3 / 8, ThermometerRule.color)
+            ((x + .5) * tile_size[0], (y + .5) * tile_size[1]) for x, y in self.bound_to
+        ], tile_size[0] * 3 / 8, ThermometerRule.color)
