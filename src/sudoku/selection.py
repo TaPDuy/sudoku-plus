@@ -9,7 +9,6 @@ from functools import cache
 from core.gfx.graphics import Graphics
 from core.utils.constants import HALF_PI, PI
 from core.utils.mesh import MeshGrid
-from .tile import Tile
 
 
 class SelectionGrid:
@@ -19,6 +18,7 @@ class SelectionGrid:
             self,
             apos: tuple[float, float],
             tlsize: tuple[int, int],
+            tile_size: tuple[float, float],
             sprite_groups: LayeredDirty
     ):
         self.apos = self.ax, self.ay = apos
@@ -26,7 +26,7 @@ class SelectionGrid:
         self.selected = set()
 
         # Sprites
-        self.spr_size = self.spr_w, self.spr_h = (Tile.SIZE / 2, Tile.SIZE / 2)
+        self.spr_size = self.spr_w, self.spr_h = (tile_size[0] / 2, tile_size[1] / 2)
         self.spr_grid_size = self.spr_grid_w, self.spr_grid_h = (self.tlw + 1) << 1, (self.tlh + 1) << 1
         self.spr_grid_apos = self.spr_grid_ax, self.spr_grid_ay = self.ax - self.spr_w, self.ay - self.spr_h
         self.spr_grid = [[SelectionTile(

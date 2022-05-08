@@ -13,10 +13,6 @@ from core.action import new_action, Action
 from core.event import Event, EventData
 
 
-def get_tile_pos(pxpos: tuple[float, float]) -> tuple[int, int]:
-    return pxpos[0] // Tile.SIZE, pxpos[1] // Tile.SIZE
-
-
 class InputMode(Enum):
     INPUT_MODE_VALUE = 0
     INPUT_MODE_MARK = 1
@@ -42,14 +38,15 @@ class BoardInputAction(Action):
 
 class Board(DirtySprite):
 
-    def __init__(self, pos: tuple[float, float], sprite_groups: LayeredDirty, manager: IUIManagerInterface):
+    def __init__(self, pxpos: tuple[float, float], pxsize: tuple[float, float], sprite_groups: LayeredDirty, manager: IUIManagerInterface):
         super().__init__()
         self.manager = manager
 
         # Data properties
-        self.pxpos = self.pxx, self.pxy = pos
+        self.pxpos = self.pxx, self.pxy = pxpos
         self.tlsize = self.tlw, self.tlh = 9, 9
-        self.pxsize = self.pxw, self.pxh = Tile.SIZE * self.tlw, Tile.SIZE * self.tlh
+        self.pxsize = self.pxw, self.pxh = pxsize
+        self.tile_size = self.pxw / self.tlw, self.pxh / self.tlh
         self.force_mode = InputMode.INPUT_MODE_VALUE
 
         # Graphics properties
@@ -58,14 +55,14 @@ class Board(DirtySprite):
         sprite_groups.add(self, layer=3)
 
         # Children properties
-        self.__tiles = [
-            [
-                Tile((self.pxx + x * Tile.SIZE, self.pxy + y * Tile.SIZE), sprite_groups) for x in range(self.tlw)
-            ] for y in range(self.tlh)
-        ]
+        self.__tiles = [[Tile(
+            (self.pxx + x * self.tile_size[0], self.pxy + y * self.tile_size[1]),
+            self.tile_size,
+            sprite_groups
+        ) for x in range(self.tlw)] for y in range(self.tlh)]
         self.old_conflicts = set()
 
-        self.selection = SelectionGrid(self.pxpos, self.tlsize, sprite_groups)
+        self.selection = SelectionGrid(self.pxpos, self.tlsize, self.tile_size, sprite_groups)
         self.multi_select = False
         self.should_select = False
 
@@ -76,6 +73,9 @@ class Board(DirtySprite):
         self.on_changed = Event()
 
         self.__initdraw()
+
+    def get_tile_pos(self, pxpos: tuple[float, float]) -> tuple[int, int]:
+        return int(pxpos[0] / self.tile_size[0]), int(pxpos[1] / self.tile_size[1])
 
     def get_numbered_tiles(self) -> dict[tuple[int, int], int]:
         return {(x, y): self.__tiles[y][x].value for y in range(self.tlh) for x in range(self.tlw) if self.__tiles[y][x].value}
@@ -154,7 +154,7 @@ class Board(DirtySprite):
                     self.selection.clear()
 
                 self.multi_select = True
-                self.should_select = not self.selection.is_selected(get_tile_pos(mouse_pos))
+                self.should_select = not self.selection.is_selected(self.get_tile_pos(mouse_pos))
             case pg.MOUSEBUTTONUP:
                 self.multi_select = False
             case pg.KEYDOWN:
@@ -172,9 +172,9 @@ class Board(DirtySprite):
         mpos = pg.mouse.get_pos()
         if self.multi_select and self.rect.collidepoint(pg.mouse.get_pos()):
             if self.should_select:
-                self.selection.select(get_tile_pos((mpos[0] - self.pxx, mpos[1] - self.pxy)))
+                self.selection.select(self.get_tile_pos((mpos[0] - self.pxx, mpos[1] - self.pxy)))
             else:
-                self.selection.unselect(get_tile_pos((mpos[0] - self.pxx, mpos[1] - self.pxy)))
+                self.selection.unselect(self.get_tile_pos((mpos[0] - self.pxx, mpos[1] - self.pxy)))
 
     def __initdraw(self):
         """Draw initial sprite"""
@@ -185,8 +185,8 @@ class Board(DirtySprite):
         for tly in range(self.tlh):
             Graphics.line(
                 self.image,
-                (0, tly * Tile.SIZE),
-                (self.pxw, tly * Tile.SIZE),
+                (0, tly * self.tile_size[1]),
+                (self.pxw, tly * self.tile_size[1]),
                 1 if tly % 3 else 2,
                 (140, 160, 160)
             )
@@ -194,8 +194,8 @@ class Board(DirtySprite):
         for tlx in range(self.tlw):
             Graphics.line(
                 self.image,
-                (tlx * Tile.SIZE, 0),
-                (tlx * Tile.SIZE, self.pxh),
+                (tlx * self.tile_size[0], 0),
+                (tlx * self.tile_size[0], self.pxh),
                 1 if tlx % 3 else 2,
                 (140, 160, 160)
             )

@@ -20,12 +20,12 @@ class Tile(DirtySprite):
         (150, 100, 200, 255)
     )
 
-    def __init__(self, pxpos: tuple[float, float], sprite_groups: LayeredDirty):
+    def __init__(self, pxpos: tuple[float, float], pxsize: tuple[float, float], sprite_groups: LayeredDirty):
         super().__init__()
 
         # Graphics properties
         self.pxpos = self.pxx, self.pxy = pxpos
-        self.pxsize = self.pxw, self.pxh = Tile.SIZE, Tile.SIZE
+        self.pxsize = self.pxw, self.pxh = pxsize
         self.image = Surface(self.pxsize, SRCALPHA)
         self.rect = Rect(self.pxpos, self.pxsize)
         sprite_groups.add(self, layer=2)
@@ -104,7 +104,7 @@ class Tile(DirtySprite):
                 True,
                 (255, 0, 0) if self.highlight else ((140, 160, 160) if self.__locked else (255, 255, 255))
             )
-            text = smoothscale(text, (text.get_width() * Tile.SIZE / 64, text.get_height() * Tile.SIZE / 64))
+            text = smoothscale(text, (text.get_width() * self.pxsize[0] / 64, text.get_height() * self.pxsize[1] / 64))
             self.image.blit(text, (
                 self.pxw / 2 - text.get_width() / 2,
                 self.pxh / 2 - text.get_height() / 2
@@ -112,7 +112,7 @@ class Tile(DirtySprite):
         elif self.__mark:
             textstr = ''.join(str(i + 1) for i in range(9) if 1 << i & self.__mark)
             text = self.__font_mark.render(textstr, True, (255, 255, 255))
-            text = smoothscale(text, (text.get_width() * Tile.SIZE / 64, text.get_height() * Tile.SIZE / 64))
+            text = smoothscale(text, (text.get_width() * self.pxsize[0] / 64, text.get_height() * self.pxsize[1] / 64))
             self.image.blit(text, (
                 self.pxw / 2 - text.get_width() / 2,
                 self.pxh / 2 - text.get_height() / 2
