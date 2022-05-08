@@ -3,7 +3,6 @@ from pygame.font import SysFont
 from pygame.gfxdraw import filled_circle
 
 from .rule import ComponentRule
-from sudoku.tile import Tile
 from maker.properties import Properties, PropertiesType, PropertiesError
 
 
@@ -66,9 +65,9 @@ class SurroundRule(ComponentRule):
             return False
         return set(self.values) & self.target == self.target
 
-    def draw(self, surface: Surface):
-        pos = self.pos[0] * Tile.SIZE, self.pos[1] * Tile.SIZE
-        filled_circle(surface, int(pos[0]), int(pos[1]), int(Tile.SIZE / 4), SurroundRule.color)
+    def draw(self, surface: Surface, tile_size: tuple[float, float]):
+        pos = self.pos[0] * tile_size[0], self.pos[1] * tile_size[1]
+        filled_circle(surface, int(pos[0]), int(pos[1]), int(tile_size[0] / 4), SurroundRule.color)
 
         texts = [SurroundRule.font.render(str(_), True, SurroundRule.text_color) for _ in self.target]
         disp = ((1, 1), (0, 1), (0, 0), (1, 0))
