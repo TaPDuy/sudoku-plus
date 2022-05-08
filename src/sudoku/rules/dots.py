@@ -2,7 +2,6 @@ from pygame import Surface
 from pygame.gfxdraw import filled_circle, aacircle
 
 from .rule import ComponentRule
-from sudoku.tile import Tile
 from maker.properties import Properties, PropertiesType, PropertiesError
 
 
@@ -54,18 +53,18 @@ class BlackDotRule(DotRule):
             return False
         return self.values[0] / self.values[1] in (2, .5)
 
-    def draw(self, surface: Surface):
+    def draw(self, surface: Surface, tile_size: tuple[float, float]):
         x, y = (self.bound_to[0][0] + self.bound_to[1][0]) / 2, (self.bound_to[0][1] + self.bound_to[1][1]) / 2
         filled_circle(
             surface,
-            int((x + .5) * Tile.SIZE), int((y + .5) * Tile.SIZE),
-            int(Tile.SIZE / 8),
+            int((x + .5) * tile_size[0]), int((y + .5) * tile_size[1]),
+            int(tile_size[0] / 8),
             BlackDotRule.color
         )
         aacircle(
             surface,
-            int((x + .5) * Tile.SIZE), int((y + .5) * Tile.SIZE),
-            int(Tile.SIZE / 8),
+            int((x + .5) * tile_size[0]), int((y + .5) * tile_size[1]),
+            int(tile_size[0] / 8),
             BlackDotRule.stroke_color
         )
 
@@ -81,17 +80,17 @@ class WhiteDotRule(DotRule):
             return False
         return abs(self.values[0] - self.values[1]) == 1
 
-    def draw(self, surface: Surface):
+    def draw(self, surface: Surface, tile_size: tuple[float, float]):
         x, y = (self.bound_to[0][0] + self.bound_to[1][0]) / 2, (self.bound_to[0][1] + self.bound_to[1][1]) / 2
         filled_circle(
             surface,
-            int((x + .5) * Tile.SIZE), int((y + .5) * Tile.SIZE),
-            int(Tile.SIZE / 8),
+            int((x + .5) * tile_size[0]), int((y + .5) * tile_size[1]),
+            int(tile_size[0] / 8),
             WhiteDotRule.color
         )
         aacircle(
             surface,
-            int((x + .5) * Tile.SIZE), int((y + .5) * Tile.SIZE),
-            int(Tile.SIZE / 8),
+            int((x + .5) * tile_size[0]), int((y + .5) * tile_size[1]),
+            int(tile_size[0] / 8),
             WhiteDotRule.stroke_color
         )
