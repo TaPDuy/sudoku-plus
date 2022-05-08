@@ -44,6 +44,8 @@ class RuleListPanel(UIPanel):
 
         # Events
         self.on_rule_selected = Event()
+        self.on_rule_added = Event()
+        self.on_rule_removed = Event()
 
     def set_rule_list(self, rules: set):
         self.selected_rules = list(rules)
@@ -59,7 +61,9 @@ class RuleListPanel(UIPanel):
                     ]
 
                     if not existed:
-                        self.selected_rules.append(RuleListPanel.__RULE_CLASSES[select]())
+                        rule = RuleListPanel.__RULE_CLASSES[select]()
+                        self.selected_rules.append(rule)
+                        self.on_rule_added(EventData({"rules": rule}))
                         self.rule_list.set_item_list([
                             RuleListPanel.__RULE_CLASSES.inverse[type(rule)] for rule in self.selected_rules
                         ])
@@ -70,7 +74,7 @@ class RuleListPanel(UIPanel):
                             index = self.rule_list.item_list.index(item)
                             break
 
-                    self.selected_rules.pop(index)
+                    self.on_rule_removed(EventData({"rules": self.selected_rules.pop(index)}))
                     self.rule_list.set_item_list([RuleListPanel.__RULE_CLASSES.inverse[type(rule)] for rule in self.selected_rules])
 
             case pgui.UI_SELECTION_LIST_NEW_SELECTION:

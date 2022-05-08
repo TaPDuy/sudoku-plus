@@ -2,6 +2,8 @@ from pygame import Surface
 from sudoku.board import Board
 from maker.properties import Properties
 
+from core.event import Event
+
 
 class Rule:
 
@@ -32,19 +34,47 @@ class RuleManager:
         self.conflicts: dict[tuple, set] = {}
         self.value_to_tile_map: dict[int, set] = {}
 
-    def add_rule(self, rules: set[Rule]):
+        # Events
+        self.on_rule_added = Event()
+        self.on_rule_removed = Event()
+
+    def add_rule(self, rules: set[Rule] | Rule):
+        rules = rules if type(rules) is set else {rules}
+
         for rule in rules:
             if isinstance(rule, ComponentRule):
                 self.component_rules.add(rule)
+
                 for pos in rule.bound_to:
                     if not self.pos_to_comp_map.get(pos):
                         self.pos_to_comp_map[pos] = set()
                     self.pos_to_comp_map[pos].add(rule)
+
             elif isinstance(rule, GlobalRule):
                 self.global_rules.add(rule)
-            # rule.board = self.board
 
         self.rules = self.component_rules | self.global_rules
+        self.on_rule_added()
+
+    def remove_rule(self, rules: set[Rule] | Rule):
+        rules = rules if type(rules) is set else {rules}
+        for rule in rules:
+            if rule not in self.rules:
+                continue
+
+            if isinstance(rule, ComponentRule):
+                self.component_rules.remove(rule)
+
+                for pos in rule.bound_to:
+                    self.pos_to_comp_map[pos].remove(rule)
+                    if not len(self.pos_to_comp_map[pos]):
+                        self.pos_to_comp_map.pop(pos)
+
+            elif isinstance(rule, GlobalRule):
+                self.global_rules.remove(rule)
+
+            self.rules.remove(rule)
+        self.on_rule_removed()
 
     def clear_rule(self):
         self.rules = set()

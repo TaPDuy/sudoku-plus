@@ -44,12 +44,20 @@ class LevelMaker(Application):
 
         # Event handlers
         self.rule_list.on_rule_selected.add_handler(self.properties_panel.set_rule)
+        self.rule_list.on_rule_added.add_handler(self.board.rule_manager.add_rule)
+        self.rule_list.on_rule_removed.add_handler(self.board.rule_manager.remove_rule)
+
         self.properties_panel.on_applied.add_handler(self.board.redraw_rules)
+        self.board.rule_manager.on_rule_added.add_handler(self.board.redraw_rules)
+        self.board.rule_manager.on_rule_removed.add_handler(self.board.redraw_rules)
 
         self.new_level()
 
     def load_level(self, level: Level):
         self.name.set_text(level.name)
+
+        self.board.rule_manager.clear_rule()
+        self.board.rule_manager.add_rule(level.ruleset)
 
         self.properties_panel.set_rule(None)
         self.rule_list.set_rule_list(level.ruleset)
