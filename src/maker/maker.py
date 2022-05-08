@@ -1,7 +1,7 @@
 import os
 
 from core.app import Application
-from sudoku.board import Board, InputMode
+from sudoku.board import InputMode
 from sudoku.rules.rule import ComponentRule
 from sudoku.rules.killer import KillerRule
 from sudoku.rules.dots import DotRule
@@ -10,10 +10,11 @@ from sudoku.level import Level
 from .ui.rule_list import RuleListPanel
 from .ui.properties import PropertiesPanel
 from .ui.menu import Menu
+from sudoku.boardui import BoardUI
 
 import pygame as pg
 import pygame_gui as pgui
-from pygame.sprite import LayeredDirty, DirtySprite
+from pygame.sprite import LayeredDirty
 from pygame.rect import Rect, RectType
 from pygame_gui.elements import UIPanel, UITextEntryLine
 
@@ -39,21 +40,10 @@ class LevelMaker(Application):
         self.menu = Menu((400, 650), self.ui_manager)
 
         self.sprites = LayeredDirty()
-        self.board = Board((400, 32), self.sprites, self.ui_manager)
-
-        # Ruleset
-        KillerRule.generate_killer_mesh()
-
-        self.under = DirtySprite()
-        self.under.image = pg.Surface(self.board.image.get_size(), pg.SRCALPHA)
-        self.under.rect = Rect(self.board.rect)
-
-        self.above = DirtySprite()
-        self.above.image = pg.Surface(self.board.image.get_size(), pg.SRCALPHA)
-        self.above.rect = Rect(self.board.rect)
-
-        self.sprites.add(self.under, layer=1)
-        self.sprites.add(self.above, layer=4)
+        self.board = BoardUI(
+            (400, 50), 500, 48,
+            self.sprites, self.ui_manager
+        )
 
         # Event handlers
         self.rule_list.on_rule_selected.add_handler(self.properties_panel.set_rule)
@@ -67,9 +57,9 @@ class LevelMaker(Application):
         self.properties_panel.set_rule(None)
         self.rule_list.set_rule_list(level.ruleset)
 
-        self.board.clear()
+        self.board.grid.clear()
         for pos, val in level.start_values.items():
-            self.board.fill_tiles(val, InputMode.INPUT_MODE_VALUE, {pos})
+            self.board.grid.fill_tiles(val, InputMode.INPUT_MODE_VALUE, {pos})
 
         self.redraw_board()
 
@@ -78,7 +68,7 @@ class LevelMaker(Application):
         self.load_level(Level())
 
     def save(self):
-        data = Level(self.name.get_text(), set(self.rule_list.selected_rules), self.board.get_numbered_tiles())
+        data = Level(self.name.get_text(), set(self.rule_list.selected_rules), self.board.grid.get_numbered_tiles())
         if not self.opened_level_path:
             path = tkinter.filedialog.asksaveasfilename(
                 initialdir=self.levels_path,
@@ -115,16 +105,16 @@ class LevelMaker(Application):
         print(f"Opened from {self.opened_level_path}")
 
     def redraw_board(self):
-        self.above.image.fill((0, 0, 0, 0))
-        self.under.image.fill((0, 0, 0, 0))
+        above = self.sprites.get_sprites_from_layer(4)
+        under = self.sprites.get_sprites_from_layer(1)
+        above[0].image.fill((0, 0, 0, 0))
+        under[0].image.fill((0, 0, 0, 0))
         for _ in self.rule_list.selected_rules:
             if isinstance(_, ComponentRule):
                 if isinstance(_, (DotRule, SurroundRule, KillerRule)):
-                    _.draw(self.above.image)
+                    _.draw(above[0].image, self.board.tile_size)
                 else:
-                    _.draw(self.under.image)
-        self.above.dirty = 1
-        self.under.dirty = 1
+                    _.draw(under[0].image, self.board.tile_size)
 
     def _process_events(self, evt):
         match evt.type:
@@ -138,7 +128,7 @@ class LevelMaker(Application):
                 elif evt.ui_element == self.menu.new_btn:
                     self.new_level()
 
-        self.board.process_events(evt)
+        self.board.grid.process_events(evt)
 
     def _update(self, dt):
         self.sprites.update()

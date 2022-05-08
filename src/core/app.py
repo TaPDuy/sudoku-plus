@@ -14,6 +14,7 @@ class Application:
 
     def __init__(self, size: tuple[int, int] = (700, 500)):
         self._clock = pg.time.Clock()
+        self.size = self.width, self.height = size
         self._screen = pg.display.set_mode(size)
         self._font = pg.font.SysFont("Consolas", 14)
 
