@@ -6,8 +6,6 @@ from pygame_gui.elements import UIButton, UIPanel
 
 
 class InputPanel(UIPanel):
-    BUTTON_SIZE = 48
-
     BUTTONS_NUM = 16
 
     BUTTON_VALUE = 9
@@ -19,42 +17,48 @@ class InputPanel(UIPanel):
     BUTTON_RESET = 14
     BUTTON_CHECK = 15
 
-    def __init__(self, apos: tuple[float, float], manager: IUIManagerInterface, container=None):
-        super().__init__(Rect(apos, (InputPanel.BUTTON_SIZE * 4, InputPanel.BUTTON_SIZE * 4)), 0, manager, container=container)
+    def __init__(self, rect: Rect, gap: tuple[float, float], manager: IUIManagerInterface, container=None):
+        super().__init__(rect, 0, manager, container=container)
+
+        self.gap = self.vgap, self.hgap = gap
+        self.button_box_size = (rect.w / 4, rect.h / 4)
+        self.button_size = (rect.w / 4 - 2 * self.hgap, rect.h / 4 - 2 * self.vgap)
 
         self.buttons = [UIButton(Rect(
-            x * InputPanel.BUTTON_SIZE, (2 - y) * InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE
+            (
+                x * self.button_box_size[0] + self.hgap,
+                (2 - y) * self.button_box_size[1] + self.vgap
+            ), self.button_size
         ), str(x + y * 3 + 1), manager, self) for y in range(3) for x in range(3)]
 
         self.buttons.append(UIButton(Rect(
-            3 * InputPanel.BUTTON_SIZE, 0,
-            InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE
+            (3 * self.button_box_size[0] + self.hgap, 0),
+            self.button_size
         ), "value", manager, self))
         self.buttons.append(UIButton(Rect(
-            3 * InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE
+            (3 * self.button_box_size[0] + self.hgap, self.button_box_size[1] + self.vgap),
+            self.button_size
         ), "mark", manager, self))
         self.buttons.append(UIButton(Rect(
-            3 * InputPanel.BUTTON_SIZE, 2 * InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE
+            (3 * self.button_box_size[0] + self.hgap, 2 * self.button_box_size[1] + self.vgap),
+            self.button_size
         ), "color", manager, self))
 
         self.buttons.append(UIButton(Rect(
-            0, 3 * InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE
+            (0, 3 * self.button_box_size[1] + self.vgap),
+            self.button_size
         ), "undo", manager, self))
         self.buttons.append(UIButton(Rect(
-            InputPanel.BUTTON_SIZE, 3 * InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE
+            (self.button_box_size[0] + self.hgap, 3 * self.button_box_size[1] + self.vgap),
+            self.button_size
         ), "redo", manager, self))
         self.buttons.append(UIButton(Rect(
-            2 * InputPanel.BUTTON_SIZE, 3 * InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE
+            (2 * self.button_box_size[0] + self.hgap, 3 * self.button_box_size[1] + self.vgap),
+            self.button_size
         ), "reset", manager, self))
         self.buttons.append(UIButton(Rect(
-            3 * InputPanel.BUTTON_SIZE, 3 * InputPanel.BUTTON_SIZE,
-            InputPanel.BUTTON_SIZE, InputPanel.BUTTON_SIZE
+            (3 * self.button_box_size[0] + self.hgap, 3 * self.button_box_size[1] + self.vgap),
+            self.button_size
         ), "check", manager, self))
 
         self.toggle_highlight_button(InputPanel.BUTTON_VALUE)
