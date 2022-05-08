@@ -5,7 +5,6 @@ import numpy as np
 
 from .rule import ComponentRule
 from core.gfx.graphics import Graphics
-from sudoku.tile import Tile
 from maker.properties import Properties, PropertiesType, PropertiesError
 
 
@@ -61,23 +60,21 @@ class ArrowRule(ComponentRule):
 
         self.bound_to = bound_to
 
-    def draw(self, surface: Surface):
-        org = self.bound_to[0][0] * Tile.SIZE + Tile.SIZE / 2, \
-              self.bound_to[0][1] * Tile.SIZE + Tile.SIZE / 2
+    def draw(self, surface: Surface, tile_size: tuple[float, float]):
+        org = (self.bound_to[0][0] + .5) * tile_size[0], (self.bound_to[0][1] + .5) * tile_size[1]
         aaellipse(
             surface,
             int(org[0]), int(org[1]),
-            int(Tile.SIZE * 3 / 8), int(Tile.SIZE * 3 / 8),
+            int(tile_size[0] * 3 / 8), int(tile_size[1] * 3 / 8),
             ArrowRule.color
         )
 
-        tile1 = self.bound_to[1][0] * Tile.SIZE + Tile.SIZE / 2, \
-                self.bound_to[1][1] * Tile.SIZE + Tile.SIZE / 2
+        tile1 = (self.bound_to[1][0] + .5) * tile_size[0], (self.bound_to[1][1] + .5) * tile_size[1]
         vec = np.asarray(tile1) - np.asarray(org)
         unit = vec / np.linalg.norm(vec)
         Graphics.arrow_lines(
             surface,
-            [org + Tile.SIZE * 3 / 8 * unit] + [(
-                x * Tile.SIZE + Tile.SIZE / 2, y * Tile.SIZE + Tile.SIZE / 2
+            [org + tile_size[0] * 3 / 8 * unit] + [(
+                (x + .5) * tile_size[0], (y + .5) * tile_size[1]
             ) for x, y in self.bound_to[1:]]
         )
