@@ -118,7 +118,7 @@ class ComponentRule(Rule):
     def __init__(self, bound_to):
         self.bound_to = bound_to
 
-    def draw(self, surface: Surface):
+    def draw(self, surface: Surface, tile_size: tuple[float, float]):
         pass
 
     def get_properties(self) -> list[Properties]:
