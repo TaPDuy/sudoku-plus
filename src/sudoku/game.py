@@ -10,9 +10,6 @@ from sudoku.board import InputMode
 from sudoku.boardui import BoardUI
 from sudoku.input import InputPanel
 from sudoku.level import Level, LevelList, random_sudoku
-from sudoku.rules.killer import KillerRule
-from sudoku.rules.dots import DotRule
-from sudoku.rules.surround import SurroundRule
 from core.audio import BgmPlayer
 
 from functools import partial
@@ -98,15 +95,7 @@ class Game(Application):
         self.board.grid.lock_tile(list(level.start_values.keys()), True)
 
         # Draw component rules
-        above = self.sprites.get_sprites_from_layer(4)
-        under = self.sprites.get_sprites_from_layer(1)
-        above[0].image.fill((0, 0, 0, 0))
-        under[0].image.fill((0, 0, 0, 0))
-        for _ in self.board.rule_manager.component_rules:
-            if isinstance(_, (DotRule, SurroundRule, KillerRule)):
-                _.draw(above[0].image, self.board.tile_size)
-            else:
-                _.draw(under[0].image, self.board.tile_size)
+        self.board.redraw_rules()
 
     def check_win(self):
         if self.board.rule_manager.check():

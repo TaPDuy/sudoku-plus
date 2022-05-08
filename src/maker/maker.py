@@ -2,10 +2,6 @@ import os
 
 from core.app import Application
 from sudoku.board import InputMode
-from sudoku.rules.rule import ComponentRule
-from sudoku.rules.killer import KillerRule
-from sudoku.rules.dots import DotRule
-from sudoku.rules.surround import SurroundRule
 from sudoku.level import Level
 from .ui.rule_list import RuleListPanel
 from .ui.properties import PropertiesPanel
@@ -32,6 +28,8 @@ class LevelMaker(Application):
         if not os.path.exists(self.levels_path):
             os.makedirs(self.levels_path)
 
+        self.sprites = LayeredDirty()
+
         self.rule_panel = UIPanel(Rect(10, 10, 300, 800), 0, self.ui_manager)
         self.rule_list = RuleListPanel(Rect(0, 0, 200, 300), self.ui_manager, self.rule_panel)
         self.properties_panel = PropertiesPanel(Rect(0, 300, 200, 300), self.ui_manager, self.rule_panel)
@@ -39,7 +37,6 @@ class LevelMaker(Application):
 
         self.menu = Menu((400, 650), self.ui_manager)
 
-        self.sprites = LayeredDirty()
         self.board = BoardUI(
             (400, 50), 500, 48,
             self.sprites, self.ui_manager
@@ -47,7 +44,7 @@ class LevelMaker(Application):
 
         # Event handlers
         self.rule_list.on_rule_selected.add_handler(self.properties_panel.set_rule)
-        self.properties_panel.on_applied.add_handler(self.redraw_board)
+        self.properties_panel.on_applied.add_handler(self.board.redraw_rules)
 
         self.new_level()
 
@@ -61,7 +58,7 @@ class LevelMaker(Application):
         for pos, val in level.start_values.items():
             self.board.grid.fill_tiles(val, InputMode.INPUT_MODE_VALUE, {pos})
 
-        self.redraw_board()
+        self.board.redraw_rules()
 
     def new_level(self):
         self.opened_level_path = ""
@@ -103,18 +100,6 @@ class LevelMaker(Application):
             self.load_level(level)
 
         print(f"Opened from {self.opened_level_path}")
-
-    def redraw_board(self):
-        above = self.sprites.get_sprites_from_layer(4)
-        under = self.sprites.get_sprites_from_layer(1)
-        above[0].image.fill((0, 0, 0, 0))
-        under[0].image.fill((0, 0, 0, 0))
-        for _ in self.rule_list.selected_rules:
-            if isinstance(_, ComponentRule):
-                if isinstance(_, (DotRule, SurroundRule, KillerRule)):
-                    _.draw(above[0].image, self.board.tile_size)
-                else:
-                    _.draw(under[0].image, self.board.tile_size)
 
     def _process_events(self, evt):
         match evt.type:

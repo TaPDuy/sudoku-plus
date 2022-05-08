@@ -7,6 +7,8 @@ from pygame_gui.core.interfaces import IUIManagerInterface
 from .board import Board
 from .rules.rule import RuleManager
 from .rules.killer import KillerRule
+from .rules.surround import SurroundRule
+from .rules.dots import DotRule
 
 
 class BoardUI:
@@ -30,16 +32,27 @@ class BoardUI:
 
         KillerRule.generate_killer_mesh(self.tile_size)
 
-        under = DirtySprite()
-        under.image = Surface(self.grid.image.get_size(), SRCALPHA)
-        under.rect = Rect(self.grid.rect)
+        self.rule_layer_under = DirtySprite()
+        self.rule_layer_under.image = Surface(self.grid.image.get_size(), SRCALPHA)
+        self.rule_layer_under.rect = Rect(self.grid.rect)
 
-        above = DirtySprite()
-        above.image = Surface(self.grid.image.get_size(), SRCALPHA)
-        above.rect = Rect(self.grid.rect)
+        self.rule_layer_above = DirtySprite()
+        self.rule_layer_above.image = Surface(self.grid.image.get_size(), SRCALPHA)
+        self.rule_layer_above.rect = Rect(self.grid.rect)
 
-        sprite_groups.add(under, layer=1)
-        sprite_groups.add(above, layer=4)
+        sprite_groups.add(self.rule_layer_under, layer=1)
+        sprite_groups.add(self.rule_layer_above, layer=4)
 
         # Event handlers
         self.grid.on_changed.add_handler(self.rule_manager.update)
+
+    def redraw_rules(self):
+        self.rule_layer_under.image.fill((0, 0, 0, 0))
+        self.rule_layer_above.image.fill((0, 0, 0, 0))
+        for _ in self.rule_manager.component_rules:
+            if isinstance(_, (DotRule, SurroundRule, KillerRule)):
+                _.draw(self.rule_layer_above.image, self.tile_size)
+            else:
+                _.draw(self.rule_layer_under.image, self.tile_size)
+        self.rule_layer_above.dirty = 1
+        self.rule_layer_under.dirty = 1
