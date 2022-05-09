@@ -55,19 +55,25 @@ class Title:
 class BoardUI:
 
     def __init__(self, pxpos: tuple[float, float], pxsize: float, padding: float, sprite_groups: LayeredDirty, manager: IUIManagerInterface, container: IContainerLikeInterface = None, title_height=20):
-        self.pxpos = self.pxx, self.pxy = pxpos
+        # Properties
+        self.rect = self.relative_rect = Rect(pxpos, (pxsize, pxsize))
         if container:
             container_rect = container.get_container().get_rect()
-            self.pxpos = self.pxx, self.pxy = container_rect.x + self.pxx, container_rect.y + self.pxy
+            self.rect = Rect(
+                (container_rect.x + self.rect.left, container_rect.y + self.rect.top),
+                self.rect.size
+            )
 
-        self.pxsize = self.pxw, self.pxh = pxsize, pxsize
         self.padding = padding
 
-        px_grid_size = self.pxw - padding * 2, self.pxh - padding * 2
+        px_grid_size = self.rect.w - padding * 2, self.rect.h - padding * 2
         self.tile_size = self.tlw, self.tlh = px_grid_size[0] / 9, px_grid_size[1] / 9
 
         # Components
-        self.grid = Board((self.pxx + padding, self.pxy + padding), px_grid_size, sprite_groups, manager)
+        self.grid = Board(
+            (self.rect.left + padding, self.rect.top + padding),
+            px_grid_size, sprite_groups, manager
+        )
         self.title = Title(" ", Rect(
             (self.grid.pxx, self.grid.pxy - title_height),
             (px_grid_size[0], title_height)
