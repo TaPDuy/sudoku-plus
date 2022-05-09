@@ -42,24 +42,23 @@ class Game(Application):
         self.load_level(random_sudoku())
 
     def init_components(self):
-        main_panel_size = min(self.size)
-        self.main_panel = UIContainer(Rect(
-            self.width / 2 - main_panel_size / 2,
-            self.height / 2 - main_panel_size / 2,
-            main_panel_size, main_panel_size
-        ), self.ui_manager)
-
-        self.game_panel = UIContainer(Rect(
-            0, 0, main_panel_size * 2 / 3, main_panel_size
-        ), self.ui_manager, container=self.main_panel)
+        ratio = self.width / self.height
+        main_rect = Rect(
+            0, .5 * self.height - 3 / 8 * self.width,
+            self.width, .75 * self.width
+        ) if ratio < 4 / 3 else Rect(
+            .5 * self.width - 2 / 3 * self.height, 0,
+            4 / 3 * self.height, self.height
+        )
+        self.main_panel = UIContainer(main_rect, self.ui_manager)
 
         self.board = BoardUI(
-            (0, 0), self.game_panel.relative_rect.width, 48,
-            self.sprites, self.ui_manager, self.game_panel
+            (0, 0), main_rect.height, main_rect.height / 11,
+            self.sprites, self.ui_manager, self.main_panel
         )
 
         self.side_panel = UIContainer(Rect(
-            main_panel_size * 2 / 3, 0, main_panel_size / 3, main_panel_size
+            self.board.relative_rect.topright, (main_rect.height / 3, main_rect.height)
         ), self.ui_manager, container=self.main_panel)
 
         self.input = InputPanel(Rect(
@@ -77,7 +76,7 @@ class Game(Application):
 
         self.rule_desc = UITextBox("", Rect(
             self.input.relative_rect.bottomleft,
-            (self.side_panel.relative_rect.width, self.side_panel.relative_rect.width)
+            (self.side_panel.relative_rect.width, main_rect.height - self.input.relative_rect.height)
         ), self.ui_manager, container=self.side_panel)
 
     def load_level(self, level: Level):
