@@ -1,5 +1,7 @@
 from pygame.rect import Rect
 from pygame import Surface, SRCALPHA
+from pygame.font import SysFont, Font
+from pygame.transform import smoothscale
 from pygame.sprite import LayeredDirty, DirtySprite
 from pygame_gui.core import IContainerLikeInterface
 from pygame_gui.core.interfaces import IUIManagerInterface
@@ -11,9 +13,48 @@ from .rules.surround import SurroundRule
 from .rules.dots import DotRule
 
 
+class Title:
+
+    def __init__(self, text: str, rect: Rect, sprite_groups: LayeredDirty, align_top=True):
+        self.rect = rect
+        self.align_top = align_top
+
+        self.__color = (255, 255, 255)
+        self.__font = SysFont("Arial", 64)
+        self.__base_sprite = self.__font.render(text, True, self.__color)
+
+        self.__text_sprite = DirtySprite(sprite_groups)
+        self.__redraw()
+
+    def set_font(self, font: Font):
+        self.__font = font
+        self.__redraw()
+
+    def set_color(self, color: tuple[int, int, int]):
+        self.__color = color
+        self.__redraw()
+
+    def set_text(self, text: str):
+        self.__base_sprite = self.__font.render(text, True, self.__color)
+        self.__redraw()
+
+    def __redraw(self):
+        self.__text_sprite.dirty = 1
+
+        height = min(
+            self.rect.h,
+            self.__base_sprite.get_height() * self.rect.w / self.__base_sprite.get_width()
+        )
+        self.__text_sprite.rect = Rect(
+            (self.rect.left, self.rect.top if self.align_top else self.rect.bottom - height),
+            (self.__base_sprite.get_width() * height / self.__base_sprite.get_height(), height)
+        )
+        self.__text_sprite.image = smoothscale(self.__base_sprite, self.__text_sprite.rect.size)
+
+
 class BoardUI:
 
-    def __init__(self, pxpos: tuple[float, float], pxsize: float, padding: float, sprite_groups: LayeredDirty, manager: IUIManagerInterface, container: IContainerLikeInterface = None):
+    def __init__(self, pxpos: tuple[float, float], pxsize: float, padding: float, sprite_groups: LayeredDirty, manager: IUIManagerInterface, container: IContainerLikeInterface = None, title_height=20):
         self.pxpos = self.pxx, self.pxy = pxpos
         if container:
             container_rect = container.get_container().get_rect()
@@ -27,6 +68,10 @@ class BoardUI:
 
         # Components
         self.grid = Board((self.pxx + padding, self.pxy + padding), px_grid_size, sprite_groups, manager)
+        self.title = Title(" ", Rect(
+            (self.grid.pxx, self.grid.pxy - title_height),
+            (px_grid_size[0], title_height)
+        ), sprite_groups, False)
 
         self.rule_manager = RuleManager(self.grid)
 
@@ -45,6 +90,11 @@ class BoardUI:
 
         # Event handlers
         self.grid.on_changed.add_handler(self.rule_manager.update)
+
+    def set_title(self, title: str):
+        if not len(title):
+            title = " "
+        self.title.set_text(title.upper())
 
     def redraw_rules(self):
         self.rule_layer_under.image.fill((0, 0, 0, 0))

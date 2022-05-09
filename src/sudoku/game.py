@@ -95,6 +95,7 @@ class Game(Application):
         self.board.grid.lock_tile(list(level.start_values.keys()), True)
 
         # Draw component rules
+        self.board.set_title(level.name)
         self.board.redraw_rules()
 
     def check_win(self):
