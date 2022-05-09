@@ -1,7 +1,7 @@
 import pygame_gui as pgui
 from pygame import Rect
 from pygame_gui.core.interfaces import IUIManagerInterface
-from pygame_gui.elements import UIPanel, UIDropDownMenu, UIButton, UISelectionList
+from pygame_gui.elements import UIPanel, UIDropDownMenu, UIButton, UISelectionList, UILabel
 
 from bidict import bidict
 
@@ -26,21 +26,43 @@ class RuleListPanel(UIPanel):
     })
 
     def __init__(self, relative_rect: Rect, manager: IUIManagerInterface, container=None):
-        super().__init__(relative_rect, 0, manager, container=container)
-        self.rule_drop_down = UIDropDownMenu(
-            list(RuleListPanel.__RULE_CLASSES.keys()), "Sudoku",
-            Rect(10, 10, 150, 20), self.ui_manager, container=self
+        super().__init__(
+            relative_rect, 0, manager, container=container,
+            margins={'left': 0, 'right': 0, 'top': 0, 'bottom': 0}
         )
-        self.add_button = UIButton(
-            Rect(self.rule_drop_down.relative_rect.topright, (20, 20)), "+",
-            self.ui_manager, container=self
-        )
-        self.remove_button = UIButton(
-            Rect(self.add_button.relative_rect.bottomleft, (20, 20)), "-",
-            self.ui_manager, container=self
-        )
-        self.rule_list = UISelectionList(Rect(10, 40, 150, 100), [], self.ui_manager, container=self)
+
         self.selected_rules = []
+
+        self.pad = 10
+        self.label_w, self.label_h = self.relative_rect.w, 20
+        self.btn_w, self.btn_h = (self.relative_rect.w - 3 * self.pad) / 2, 30
+        self.max_list_height = 300
+
+        self.label_1 = UILabel(Rect(0, self.pad, self.label_w, self.label_h), "Select rule", manager, self)
+        self.rule_drop_down = UIDropDownMenu(list(RuleListPanel.__RULE_CLASSES.keys()), "Sudoku", Rect(
+            self.pad, self.label_1.relative_rect.bottom + self.pad,
+            self.relative_rect.w - 2 * self.pad, self.label_h
+        ), self.ui_manager, self)
+
+        self.add_button = UIButton(Rect(
+            self.pad, self.rule_drop_down.relative_rect.bottom + self.pad,
+            self.btn_w, self.btn_h
+        ), "Add", self.ui_manager, self)
+        self.remove_button = UIButton(Rect(
+            self.btn_w + 2 * self.pad, self.rule_drop_down.relative_rect.bottom + self.pad,
+            self.btn_w, self.btn_h
+        ), "Remove", self.ui_manager, self)
+
+        self.label_2 = UILabel(Rect(
+            0, self.add_button.relative_rect.bottom + self.pad,
+            self.label_w, self.label_h
+        ), "Rule list", manager, self)
+
+        self.rule_list = UISelectionList(Rect(
+            self.pad, self.label_2.relative_rect.bottom + self.pad,
+            self.relative_rect.w - 2 * self.pad,
+            min(self.max_list_height, self.relative_rect.height - self.label_2.relative_rect.bottom - 2 * self.pad)
+        ), [], self.ui_manager, container=self)
 
         # Events
         self.on_rule_selected = Event()
