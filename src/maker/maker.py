@@ -12,7 +12,7 @@ import pygame as pg
 import pygame_gui as pgui
 from pygame.sprite import LayeredDirty
 from pygame.rect import Rect, RectType
-from pygame_gui.elements import UIPanel, UITextEntryLine
+from pygame_gui.elements import UIPanel, UITextEntryLine, UILabel
 
 import pickle
 import tkinter.filedialog
@@ -30,19 +30,67 @@ class LevelMaker(Application):
 
         self.sprites = LayeredDirty()
 
-        self.rule_panel = UIPanel(Rect(10, 10, 300, 800), 0, self.ui_manager)
-        self.rule_list = RuleListPanel(Rect(0, 0, 200, 300), self.ui_manager, self.rule_panel)
-        self.properties_panel = PropertiesPanel(Rect(0, 300, 200, 300), self.ui_manager, self.rule_panel)
-        self.name = UITextEntryLine(Rect(0, 600, 300, 30), self.ui_manager, self.rule_panel)
+        self.left_panel = None
+        self.menu = None
+        self.rule_list = None
 
-        self.menu = Menu((400, 650), self.ui_manager)
+        self.right_panel = None
+        self.name = None
+        self.properties_panel = None
 
+        self.board = None
+        self.init_components()
+        self.assign_event_handlers()
+
+        self.new_level()
+
+    def init_components(self):
+        ratio = self.width / self.height
+        board_size = self.height if ratio > 5 / 3 else .6 * self.width
         self.board = BoardUI(
-            (400, 50), 500, 48,
-            self.sprites, self.ui_manager
+            (self.width / 2 - board_size / 2, self.height / 2 - board_size / 2),
+            board_size, board_size / 11, self.sprites, self.ui_manager
         )
 
-        # Event handlers
+        self.left_panel = UIPanel(
+            Rect(0, 0, board_size / 3, self.height), 0, self.ui_manager,
+            margins={'left': 0, 'right': 0, 'top': 0, 'bottom': 0}
+        )
+        self.menu = Menu(Rect(0, 0, self.left_panel.relative_rect.w, 30), self.ui_manager, self.left_panel)
+        self.rule_list = RuleListPanel(Rect(
+            self.menu.relative_rect.bottomleft,
+            (self.left_panel.relative_rect.w, self.left_panel.relative_rect.h - self.menu.relative_rect.h)
+        ), self.ui_manager, self.left_panel)
+
+        self.right_panel = UIPanel(
+            Rect(self.width - board_size / 3, 0, board_size / 3, self.height), 0, self.ui_manager,
+            margins={'left': 0, 'right': 0, 'top': 0, 'bottom': 0}
+        )
+
+        pad = 10
+        label_1 = UILabel(
+            Rect(0, pad, self.right_panel.relative_rect.w, 20),
+            "Level name", self.ui_manager, self.right_panel
+        )
+        self.name = UITextEntryLine(Rect(
+            pad, label_1.relative_rect.bottom + pad,
+            self.right_panel.relative_rect.w - 2 * pad, 30
+        ), self.ui_manager, self.right_panel)
+
+        label_2 = UILabel(
+            Rect(
+                0, self.name.relative_rect.bottom + pad,
+                self.right_panel.relative_rect.w, 20
+            ),
+            "Rule properties", self.ui_manager, self.right_panel
+        )
+        self.properties_panel = PropertiesPanel(Rect(
+            0, label_2.relative_rect.bottom,
+            self.left_panel.relative_rect.w,
+            self.left_panel.relative_rect.h - label_2.relative_rect.bottom
+        ), self.ui_manager, self.right_panel)
+
+    def assign_event_handlers(self):
         self.rule_list.on_rule_selected.add_handler(self.properties_panel.set_rule)
         self.rule_list.on_rule_added.add_handler(self.board.rule_manager.add_rule)
         self.rule_list.on_rule_removed.add_handler(self.board.rule_manager.remove_rule)
@@ -50,8 +98,6 @@ class LevelMaker(Application):
         self.properties_panel.on_applied.add_handler(self.board.redraw_rules)
         self.board.rule_manager.on_rule_added.add_handler(self.board.redraw_rules)
         self.board.rule_manager.on_rule_removed.add_handler(self.board.redraw_rules)
-
-        self.new_level()
 
     def load_level(self, level: Level):
         self.name.set_text(level.name)
