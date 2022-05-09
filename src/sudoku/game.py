@@ -104,9 +104,9 @@ class Game(Application):
             print("Something's wrong...")
 
     def select_input_mode(self, index):
-        self.input.toggle_highlight_button(self.board.force_mode.value + InputPanel.BUTTON_VALUE)
+        self.input.toggle_highlight_button(self.board.grid.force_mode.value + InputPanel.BUTTON_VALUE)
         self.input.toggle_highlight_button(index)
-        self.board.force_mode = InputMode(index - InputPanel.BUTTON_VALUE)
+        self.board.grid.force_mode = InputMode(index - InputPanel.BUTTON_VALUE)
 
     def _process_events(self, evt):
         match evt.type:
