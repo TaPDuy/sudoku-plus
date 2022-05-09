@@ -54,7 +54,7 @@ class Game(Application):
 
         self.board = BoardUI(
             (0, 0), main_rect.height, main_rect.height / 11,
-            self.sprites, self.ui_manager, self.main_panel
+            self.sprites, self.ui_manager, self.main_panel, main_rect.height / 22
         )
 
         self.side_panel = UIContainer(Rect(
