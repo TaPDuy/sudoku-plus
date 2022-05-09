@@ -11,14 +11,36 @@ from maker.properties import PropertiesInput, PropertiesError
 class PropertiesPanel(UIPanel):
 
     def __init__(self, relative_rect: Rect, manager: IUIManagerInterface, container=None):
-        super().__init__(relative_rect, 0, manager, container=container)
+        super().__init__(
+            relative_rect, 0, manager, container=container,
+            margins={'left': 0, 'right': 0, 'top': 0, 'bottom': 0}
+        )
+
         self.current_rule = None
-        self.apply_btn = UIButton(Rect(0, 0, 100, 30), "Apply", self.ui_manager, self)
-
         self.message = ""
-        self.message_board = UITextBox(f"<p>{self.message}</p>", Rect(0, 0, 200, 100), self.ui_manager, container=self)
-
         self.inputs = []
+
+        self.pad = 10
+        self.input_height = 60
+        self.label_w, self.label_h = self.relative_rect.w, 20
+        self.max_msg_height = 500
+
+        self.apply_btn = UIButton(Rect(
+            self.pad, self.pad, self.relative_rect.w - 2 * self.pad, 30
+        ), "Apply", self.ui_manager, self)
+
+        self.message_board = UITextBox(
+            f"<p>{self.message}</p>",
+            Rect(
+                self.pad, self.apply_btn.relative_rect.bottom + self.pad,
+                self.relative_rect.w - 2 * self.pad,
+                min(
+                    self.max_msg_height,
+                    self.relative_rect.height - self.apply_btn.relative_rect.bottom - 2 * self.pad
+                )
+            ),
+            self.ui_manager, container=self
+        )
 
         # Events
         self.on_applied = Event()
@@ -32,7 +54,6 @@ class PropertiesPanel(UIPanel):
         if not self.current_rule:
             self.apply_btn.hide()
             self.message_board.set_text("")
-            self.message_board.set_relative_position((0, 0))
             return
 
         i = 0
@@ -42,16 +63,26 @@ class PropertiesPanel(UIPanel):
         else:
             for properties in rule.get_properties():
                 _input = PropertiesInput(
-                    Rect(0, i * 60, 200, 60), self.ui_manager, self,
-                    label=properties.name, type=properties.type
+                    Rect(
+                        0, i * self.input_height,
+                        self.relative_rect.w, self.input_height
+                    ),
+                    self.ui_manager, self,
+                    label=properties.name, property_type=properties.type
                 )
                 _input.set_data(properties.data)
                 self.inputs.append(_input)
                 i += 1
             self.apply_btn.show()
 
-        self.apply_btn.set_relative_position((0, i * 60))
-        self.message_board.set_relative_position((0, i * 60 + 30))
+        self.apply_btn.set_relative_position((self.pad, i * self.input_height + self.pad))
+        self.message_board.set_relative_position((
+            self.pad, self.apply_btn.relative_rect.bottom + self.pad
+        ))
+        self.message_board.set_dimensions((self.message_board.relative_rect.w, min(
+            self.max_msg_height,
+            self.relative_rect.height - self.apply_btn.relative_rect.bottom - 2 * self.pad
+        )))
 
     def process_event(self, evt):
         match evt.type:

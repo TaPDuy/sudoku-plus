@@ -32,11 +32,23 @@ POS_LIST_PATTERN = re.compile(fr"^(({POS_REGEX})\s*,\s*)*({POS_REGEX})$")
 
 
 class PropertiesInput(UIPanel):
-    def __init__(self, rect: Rect, manager: IUIManagerInterface, container=None, label: str = "", type: PropertiesType=PropertiesType.INT):
-        super().__init__(rect, 0, manager, container=container)
-        self.type = type
-        self.label = UILabel(Rect(0, 0, rect.w, 30), label, self.ui_manager, self)
-        self.input = UITextEntryLine(Rect(0, 20, rect.w, 30), self.ui_manager, self)
+    def __init__(
+            self, rect: Rect,
+            manager: IUIManagerInterface,
+            container=None, label: str = "",
+            property_type: PropertiesType = PropertiesType.INT
+    ):
+        super().__init__(rect, 0, manager, container=container, margins={'left': 0, 'right': 0, 'top': 0, 'bottom': 0})
+        self.type = property_type
+
+        self.pad = 10
+        self.label = UILabel(Rect(
+            0, self.pad, self.relative_rect.w, self.relative_rect.h / 2 - self.pad
+        ), label, self.ui_manager, self)
+        self.input = UITextEntryLine(Rect(
+            self.pad, self.label.relative_rect.bottom,
+            self.relative_rect.w - 2 * self.pad, self.relative_rect.h / 2
+        ), self.ui_manager, self)
 
     def set_text(self, text: str):
         self.input.set_text(text)
