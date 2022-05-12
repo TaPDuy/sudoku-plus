@@ -60,9 +60,6 @@ class Grid:
         # Components
         self.tiles = [[Tile() for x in range(self.tlw)] for y in range(self.tlh)]
 
-        # Control properties
-        self.old_conflicts = set()
-
         # Events
         self.on_changed = Event()
 
@@ -135,14 +132,13 @@ class Grid:
                 self.tiles[y][x].color = 0
                 self.tiles[y][x].locked = False
 
-    def highlight_conflicts(self, conflicts: set):
-        changed_conflicts = conflicts.difference(self.old_conflicts)
-        changed_nonconflicts = self.old_conflicts.difference(conflicts)
+    def highlight_conflicts(self, conflicts: set, old_conflicts: set):
+        changed_conflicts = conflicts.difference(old_conflicts)
+        changed_nonconflicts = old_conflicts.difference(conflicts)
 
         for cx, cy in changed_nonconflicts:
             self.tiles[cy][cx].highlight = False
         for cx, cy in changed_conflicts:
             self.tiles[cy][cx].highlight = True
 
-        self.old_conflicts = conflicts
         self.on_changed(positions=changed_conflicts | changed_nonconflicts)
