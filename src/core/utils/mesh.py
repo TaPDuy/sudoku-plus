@@ -4,12 +4,12 @@ from abc import abstractmethod, ABC
 class MeshGrid(ABC):
     """Holds and calculates the data needed to build a mesh base using Marching Square."""
 
-    def __init__(self, state_size: tuple[int, int], bit_size: tuple[int, int]):
+    def __init__(self, size: tuple[int, int]):
         """state_size: The size of the state grid
         bit_size: the size of the bit grid"""
 
-        self.state_size = self.state_w, self.state_h = state_size
-        self.bit_size = self.bit_w, self.bit_h = bit_size
+        self.state_size = self.state_w, self.state_h = size
+        self.bit_size = self.bit_w, self.bit_h = self.state_w + 1, self.state_h + 1
 
         self._states = [[0 for _ in range(self.state_w)] for _ in range(self.state_h)]
         self.bits = [[0 for _ in range(self.bit_w)] for _ in range(self.bit_h)]

@@ -15,7 +15,7 @@ class Application:
     def __init__(self, size: tuple[int, int] = (700, 500)):
         self._clock = pg.time.Clock()
         self.size = self.width, self.height = size
-        self._screen = pg.display.set_mode(size)
+        self._screen = pg.display.set_mode(size, pg.RESIZABLE)
         self._font = pg.font.SysFont("Consolas", 14)
 
         self.ui_manager = GUIManager(size)
@@ -35,6 +35,9 @@ class Application:
             last_time = new_time
 
             for evt in pg.event.get():
+                # if evt.type == pg.VIDEORESIZE:
+                #     self.recalculate_componenets(evt.w, evt.h)
+
                 self._process_events(evt)
                 self.ui_manager.process_events(evt)
 
@@ -55,6 +58,9 @@ class Application:
 
     def close(self):
         self.is_running = False
+
+    def recalculate_componenets(self, new_width, new_height):
+        pass
 
     def _process_events(self, evt):
         pass

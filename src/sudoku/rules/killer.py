@@ -78,7 +78,7 @@ class KillerRule(ComponentRule):
         width = max(self.bound_to, key=lambda x: x[0])[0] - top_left[0] + 1
         height = max(self.bound_to, key=lambda x: x[1])[1] - top_left[1] + 1
 
-        mesh_grid = KillerMeshGrid((width << 1, height << 1), ((width << 1) + 1, (height << 1) + 1))
+        mesh_grid = KillerMeshGrid((width << 1, height << 1))
         for x, y in self.bound_to:
             conditions = (
                 (x + 1, y) in self.bound_to,

@@ -1,6 +1,6 @@
 class Action:
 
-    def __init__(self, data):
+    def __init__(self, **data):
         pass
 
     def undo(self):
@@ -72,6 +72,6 @@ def new_action(action_type=Action):
             no_record = kwargs.pop('no_record', False)
             data = func(*args, **kwargs)
             if not no_record:
-                ActionManager.insert_action(action_type(data))
+                ActionManager.insert_action(action_type(**data))
         return handler
     return decorator

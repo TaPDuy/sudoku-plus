@@ -10,7 +10,7 @@ from pygame_gui.elements import UIPanel, UISelectionList, UIButton
 
 from .rules.rule import Rule
 from .rules.global_rules import SudokuRule
-from core.event import Event, EventData
+from core.event import Event
 
 
 class Level:
@@ -83,9 +83,9 @@ class LevelList(UIPanel):
                                 break
 
                         if index != -1:
-                            self.on_load_requested(EventData({"level": self.levels[index]}))
+                            self.on_load_requested(level=self.levels[index])
                     case self.new_btn:
-                        self.on_load_requested(EventData({"level": random_sudoku()}))
+                        self.on_load_requested(level=random_sudoku())
 
 
 SEEDS = (

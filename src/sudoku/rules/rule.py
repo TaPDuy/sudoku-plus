@@ -37,6 +37,7 @@ class RuleManager:
         # Events
         self.on_rule_added = Event()
         self.on_rule_removed = Event()
+        self.on_conflict_changed = Event()
 
     def add_rule(self, rules: set[Rule] | Rule):
         rules = rules if type(rules) is set else {rules}
@@ -85,6 +86,8 @@ class RuleManager:
         self.value_to_tile_map: dict[int, set] = {}
 
     def update(self, new_val: int, old_values: dict[tuple[int, int], int]):
+        old_conflicts = set(self.conflicts)
+
         for pos, old_val in old_values.items():
             tmp_new = 0 if new_val == old_val else new_val
 
@@ -103,7 +106,9 @@ class RuleManager:
                 for rule in self.pos_to_comp_map[pos]:
                     rule.update(pos, tmp_new, old_val)
 
-        self.board.highlight_conflicts(self.get_conflicts())
+        new_conflicts = set(self.conflicts)
+        if old_conflicts != new_conflicts:
+            self.on_conflict_changed(conflicts=new_conflicts)
 
     def _update_conflict(self, pos: tuple[int, int], new_val: int, old_val: int, rule: Rule):
         if old_val:
@@ -129,9 +134,6 @@ class RuleManager:
 
                     self.conflicts[pos].add(valpos)
                     self.conflicts[valpos].add(pos)
-
-    def get_conflicts(self) -> set:
-        return set(self.conflicts)
 
     def check(self) -> bool:
         return len(self.conflicts) == 0 and \

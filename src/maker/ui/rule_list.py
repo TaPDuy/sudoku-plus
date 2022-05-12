@@ -12,7 +12,7 @@ from sudoku.rules import (
     ThermometerRule, PalindromeRule,
     EvenRule, OddRule, BlackDotRule, WhiteDotRule, SurroundRule, GlobalRule
 )
-from core.event import Event, EventData
+from core.event import Event
 
 
 class RuleListPanel(UIPanel):
@@ -85,7 +85,7 @@ class RuleListPanel(UIPanel):
                     if not existed:
                         rule = RuleListPanel.__RULE_CLASSES[select]()
                         self.selected_rules.append(rule)
-                        self.on_rule_added(EventData({"rules": rule}))
+                        self.on_rule_added(rules=rule)
                         self.rule_list.set_item_list([
                             RuleListPanel.__RULE_CLASSES.inverse[type(rule)] for rule in self.selected_rules
                         ])
@@ -96,7 +96,7 @@ class RuleListPanel(UIPanel):
                             index = self.rule_list.item_list.index(item)
                             break
 
-                    self.on_rule_removed(EventData({"rules": self.selected_rules.pop(index)}))
+                    self.on_rule_removed(rules=self.selected_rules.pop(index))
                     self.rule_list.set_item_list([RuleListPanel.__RULE_CLASSES.inverse[type(rule)] for rule in self.selected_rules])
 
             case pgui.UI_SELECTION_LIST_NEW_SELECTION:
@@ -108,4 +108,4 @@ class RuleListPanel(UIPanel):
                             break
 
                     if index != -1:
-                        self.on_rule_selected(EventData({'rule': self.selected_rules[index]}))
+                        self.on_rule_selected(rule=self.selected_rules[index])

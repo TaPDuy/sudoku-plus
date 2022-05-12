@@ -65,14 +65,14 @@ class Game(Application):
             0, 0, self.side_panel.relative_rect.width, self.side_panel.relative_rect.width
         ), (8, 8), self.ui_manager, container=self.side_panel)
         for _ in range(9):
-            self.input.assign(_, partial(self.board.grid.fill_selection, _ + 1))
+            self.input.assign(_, partial(self.board.fill_selection, _ + 1))
         self.input.assign(InputPanel.BUTTON_VALUE, partial(self.select_input_mode, InputPanel.BUTTON_VALUE))
         self.input.assign(InputPanel.BUTTON_MARK, partial(self.select_input_mode, InputPanel.BUTTON_MARK))
         self.input.assign(InputPanel.BUTTON_COLOR, partial(self.select_input_mode, InputPanel.BUTTON_COLOR))
         self.input.assign(InputPanel.BUTTON_UNDO, ActionManager.undo)
         self.input.assign(InputPanel.BUTTON_REDO, ActionManager.redo)
         self.input.assign(InputPanel.BUTTON_CHECK, self.check_win)
-        self.board.grid.set_focusable_areas(self.board.grid.rect, self.input.rect)
+        self.board.set_focusable_areas(self.board.grid_rect, self.input.rect)
 
         self.rule_desc = UITextBox("", Rect(
             self.input.relative_rect.bottomleft,
@@ -90,8 +90,7 @@ class Game(Application):
         # Load initial values
         self.board.grid.clear()
         for pos, val in level.start_values.items():
-            self.board.grid.fill_tiles(val, InputMode.INPUT_MODE_VALUE, [pos])
-        self.board.grid.lock_tile(list(level.start_values.keys()), True)
+            self.board.fill_tiles(val, [pos], InputMode.INPUT_MODE_VALUE, lock=True, no_record=True)
 
         # Draw component rules
         self.board.set_title(level.name)
@@ -104,9 +103,9 @@ class Game(Application):
             print("Something's wrong...")
 
     def select_input_mode(self, index):
-        self.input.toggle_highlight_button(self.board.grid.force_mode.value + InputPanel.BUTTON_VALUE)
+        self.input.toggle_highlight_button(self.board.force_mode.value + InputPanel.BUTTON_VALUE)
         self.input.toggle_highlight_button(index)
-        self.board.grid.force_mode = InputMode(index - InputPanel.BUTTON_VALUE)
+        self.board.force_mode = InputMode(index - InputPanel.BUTTON_VALUE)
 
     def _process_events(self, evt):
         match evt.type:
@@ -124,9 +123,10 @@ class Game(Application):
                             ActionManager.redo()
 
         self.input.process_events(evt)
-        self.board.grid.process_events(evt)
+        self.board.process_events(evt)
 
     def _update(self, dt):
+        self.board.update()
         self.sprites.update()
 
     def _draw(self, surface) -> list[Rect | RectType]:

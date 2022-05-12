@@ -110,7 +110,7 @@ class LevelMaker(Application):
 
         self.board.grid.clear()
         for pos, val in level.start_values.items():
-            self.board.grid.fill_tiles(val, InputMode.INPUT_MODE_VALUE, {pos})
+            self.board.fill_tiles(val, [pos], InputMode.INPUT_MODE_VALUE, lock=True, no_record=True)
 
         self.board.redraw_rules()
 
@@ -167,9 +167,10 @@ class LevelMaker(Application):
                 elif evt.ui_element == self.menu.new_btn:
                     self.new_level()
 
-        self.board.grid.process_events(evt)
+        self.board.process_events(evt)
 
     def _update(self, dt):
+        self.board.update()
         self.sprites.update()
 
     def _draw(self, surface) -> list[Rect | RectType]:
