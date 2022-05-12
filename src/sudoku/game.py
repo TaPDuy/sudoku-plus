@@ -6,8 +6,8 @@ from pygame_gui.core import UIContainer
 
 from core.app import Application
 from core.action import ActionManager
-from sudoku.board import InputMode
-from sudoku.boardui import BoardUI
+from sudoku.grid import InputMode
+from sudoku.board import Board
 from sudoku.input import InputPanel
 from sudoku.level import Level, LevelList, random_sudoku
 from core.audio import BgmPlayer
@@ -52,7 +52,7 @@ class Game(Application):
         )
         self.main_panel = UIContainer(main_rect, self.ui_manager)
 
-        self.board = BoardUI(
+        self.board = Board(
             (0, 0), main_rect.height, main_rect.height / 11,
             self.sprites, self.ui_manager, self.main_panel, main_rect.height / 22
         )

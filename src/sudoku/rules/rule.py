@@ -1,5 +1,5 @@
 from pygame import Surface
-from sudoku.board import Board
+from sudoku.grid import Grid
 from maker.properties import Properties
 
 from core.event import Event
@@ -20,7 +20,7 @@ class Rule:
 
 class RuleManager:
 
-    def __init__(self, board: Board, rules: set[Rule] = None):
+    def __init__(self, board: Grid, rules: set[Rule] = None):
         self.board = board
 
         self.component_rules = set()

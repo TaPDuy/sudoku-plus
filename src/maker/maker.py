@@ -1,12 +1,12 @@
 import os
 
 from core.app import Application
-from sudoku.board import InputMode
+from sudoku.grid import InputMode
 from sudoku.level import Level
 from .ui.rule_list import RuleListPanel
 from .ui.properties import PropertiesPanel
 from .ui.menu import Menu
-from sudoku.boardui import BoardUI
+from sudoku.board import Board
 
 import pygame as pg
 import pygame_gui as pgui
@@ -47,7 +47,7 @@ class LevelMaker(Application):
     def init_components(self):
         ratio = self.width / self.height
         board_size = self.height if ratio > 5 / 3 else .6 * self.width
-        self.board = BoardUI(
+        self.board = Board(
             (self.width / 2 - board_size / 2, self.height / 2 - board_size / 2),
             board_size, board_size / 11, self.sprites, self.ui_manager
         )
