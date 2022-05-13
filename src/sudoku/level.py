@@ -42,7 +42,7 @@ class LevelList(UIPanel):
 
     def __init__(self, relative_rect: Rect, manager: IUIManagerInterface, container=None):
         super().__init__(relative_rect, 0, manager, container=container)
-        self.levels = ()
+        self.levels = []
         self.level_list = UISelectionList(
             Rect(0, 0, self.relative_rect.w, self.relative_rect.h - 30),
             [], manager, container=self
@@ -62,13 +62,11 @@ class LevelList(UIPanel):
     def load_levels(self):
         filenames = [_ for _ in os.listdir("levels") if _.endswith('.dat')]
 
-        lvls = []
         for name in filenames:
             with open("levels/" + name, 'rb') as f:
-                lvls += [pickle.load(f)]
+                self.levels += [(name, pickle.load(f))]
 
-        self.levels = tuple(lvls)
-        self.level_list.set_item_list([_.name for _ in self.levels])
+        self.level_list.set_item_list([_[1].name for _ in self.levels])
 
     def process_event(self, evt):
         match evt.type:
@@ -83,7 +81,7 @@ class LevelList(UIPanel):
                                 break
 
                         if index != -1:
-                            self.on_load_requested(level=self.levels[index])
+                            self.on_load_requested(level=self.levels[index][1])
                     case self.new_btn:
                         self.on_load_requested(level=random_sudoku())
 
