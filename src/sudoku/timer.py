@@ -17,10 +17,18 @@ class Time:
         self.minutes = minutes
         self.seconds = seconds
 
-        if self.hours * 3600 + self.minutes * 60 + self.seconds < 0:
+        if self.ticks < 0:
             self.hours = self.minutes = self.seconds = 0
         else:
             self.__normalize()
+
+    @classmethod
+    def to_time(cls, ticks: int):
+        return cls(seconds=ticks)
+
+    @property
+    def ticks(self) -> int:
+        return self.hours * 3600 + self.minutes * 60 + self.seconds
 
     def __iadd__(self, other: int):
         self.seconds += other
@@ -29,7 +37,7 @@ class Time:
         return self
 
     def __isub__(self, other: int):
-        if self.hours * 3600 + self.minutes * 60 + self.seconds < other:
+        if self.ticks < other:
             self.hours = self.minutes = self.seconds = 0
         else:
             self.seconds -= other
@@ -87,7 +95,7 @@ class Time:
         return f"{self.hours:02d}:{self.minutes:02d}:{self.seconds:02d}"
 
     def __repr__(self):
-        return f"Time={{hrs={self.hours}, min={self.minutes}, sec={self.seconds}}}"
+        return f"Time={{ticks={self.ticks}, hrs={self.hours}, min={self.minutes}, sec={self.seconds}}}"
 
 
 class Timer(Title):
