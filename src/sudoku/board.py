@@ -1,7 +1,7 @@
 import pygame as pg
 from pygame.rect import Rect
 from pygame import Surface, SRCALPHA
-from pygame.font import SysFont, Font
+from pygame.font import SysFont
 from pygame.transform import smoothscale
 from pygame.sprite import LayeredDirty, DirtySprite
 from pygame_gui.core import IContainerLikeInterface
@@ -14,45 +14,8 @@ from .rules.killer import KillerRule
 from .rules.surround import SurroundRule
 from .rules.dots import DotRule
 from core.gfx.graphics import Graphics
-
-
-class Title:
-
-    def __init__(self, text: str, rect: Rect, sprite_groups: LayeredDirty, align_top=True):
-        self.rect = rect
-        self.align_top = align_top
-
-        self.__color = (255, 255, 255)
-        self.__font = SysFont("Arial", 64)
-        self.__base_sprite = self.__font.render(text, True, self.__color)
-
-        self.__text_sprite = DirtySprite(sprite_groups)
-        self.__redraw()
-
-    def set_font(self, font: Font):
-        self.__font = font
-        self.__redraw()
-
-    def set_color(self, color: tuple[int, int, int]):
-        self.__color = color
-        self.__redraw()
-
-    def set_text(self, text: str):
-        self.__base_sprite = self.__font.render(text, True, self.__color)
-        self.__redraw()
-
-    def __redraw(self):
-        self.__text_sprite.dirty = 1
-
-        height = min(
-            self.rect.h,
-            self.__base_sprite.get_height() * self.rect.w / self.__base_sprite.get_width()
-        )
-        self.__text_sprite.rect = Rect(
-            (self.rect.left, self.rect.top if self.align_top else self.rect.bottom - height),
-            (self.__base_sprite.get_width() * height / self.__base_sprite.get_height(), height)
-        )
-        self.__text_sprite.image = smoothscale(self.__base_sprite, self.__text_sprite.rect.size)
+from .title import Title
+from .timer import Timer
 
 
 class Board:
@@ -119,7 +82,11 @@ class Board:
         self.title = Title(" ", Rect(
             (self.grid_rect.left, self.grid_rect.top - title_height),
             (self.grid_rect.w, title_height)
-        ), sprite_groups, False)
+        ), sprite_groups, align_top=False)
+        self.timer = Timer(Rect(
+            (self.grid_rect.left, self.grid_rect.bottom),
+            (self.grid_rect.w, title_height)
+        ), sprite_groups, align_left=False)
         self.ui_manager = manager
 
         # Control properties
@@ -197,6 +164,8 @@ class Board:
                         self.fill_selection(evt.key - pg.K_1 + 1)
                     case pg.K_KP1 | pg.K_KP2 | pg.K_KP3 | pg.K_KP4 | pg.K_KP5 | pg.K_KP6 | pg.K_KP7 | pg.K_KP8 | pg.K_KP9:
                         self.fill_selection(evt.key - pg.K_KP1 + 1)
+
+        self.timer.process_events(evt)
 
     def update(self):
         mpos = pg.mouse.get_pos()
