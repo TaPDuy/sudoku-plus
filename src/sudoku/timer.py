@@ -45,6 +45,44 @@ class Time:
             self.hours += self.minutes // 60
             self.minutes %= 60
 
+    def __lt__(self, other):
+        if self.hours != other.hours:
+            return self.hours < other.hours
+        elif self.minutes != other.minutes:
+            return self.minutes < other.minutes
+        else:
+            return self.seconds < other.seconds
+
+    def __le__(self, other):
+        if self.hours != other.hours:
+            return self.hours < other.hours
+        elif self.minutes != other.minutes:
+            return self.minutes < other.minutes
+        else:
+            return self.seconds <= other.seconds
+
+    def __gt__(self, other):
+        if self.hours != other.hours:
+            return self.hours > other.hours
+        elif self.minutes != other.minutes:
+            return self.minutes > other.minutes
+        else:
+            return self.seconds > other.seconds
+
+    def __ge__(self, other):
+        if self.hours != other.hours:
+            return self.hours > other.hours
+        elif self.minutes != other.minutes:
+            return self.minutes > other.minutes
+        else:
+            return self.seconds >= other.seconds
+
+    def __eq__(self, other):
+        return self.hours == other.hours and self.minutes == other.minutes and self.seconds == other.seconds
+
+    def __ne__(self, other):
+        return self.hours != other.hours or self.minutes != other.minutes or self.seconds != other.seconds
+
     def __str__(self):
         return f"{self.hours:02d}:{self.minutes:02d}:{self.seconds:02d}"
 
