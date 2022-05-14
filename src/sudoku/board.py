@@ -183,6 +183,9 @@ class Board:
                 self.selection.unselect(self.get_tile_pos((mpos[0] - self.grid_rect.left, mpos[1] - self.grid_rect.top)))
 
     def fill_selection(self, value):
+        if not self.timer.running:
+            self.timer.start()
+
         self.fill_tiles(value, self.selection.selected)
 
     def fill_tiles(self, value: int, positions: list | set, mode: InputMode | None = None, **kwargs):

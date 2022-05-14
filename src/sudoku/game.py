@@ -94,6 +94,9 @@ class Game(Application):
         for pos, val in level.start_values.items():
             self.board.fill_tiles(val, [pos], InputMode.INPUT_MODE_VALUE, lock=True, no_record=True)
 
+        self.board.timer.stop()
+        self.board.timer.reset()
+
         # Draw component rules
         self.board.set_title(level.name)
         if level_id:
