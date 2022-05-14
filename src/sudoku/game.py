@@ -9,7 +9,7 @@ from core.action import ActionManager
 from sudoku.grid import InputMode
 from sudoku.board import Board
 from sudoku.input import InputPanel
-from sudoku.level import Level, LevelList, random_sudoku
+from sudoku.level import Level, LevelList, random_sudoku, generate_level_id
 from sudoku.score import Highscore
 from core.audio import BgmPlayer
 
@@ -83,6 +83,7 @@ class Game(Application):
         self.rule_desc.hide()
 
     def load_level(self, level: Level, level_id: str = None):
+        level_id = level_id or generate_level_id()
         self.loaded_level = level
 
         # Load rules
@@ -102,8 +103,7 @@ class Game(Application):
 
         # Draw component rules
         self.board.set_title(level.name)
-        if level_id:
-            self.board.set_highscore(Highscore.get(level_id))
+        self.board.set_highscore(Highscore.get(level_id))
         self.board.redraw_rules()
 
     def check_win(self):

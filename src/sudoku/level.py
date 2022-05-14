@@ -2,6 +2,7 @@ import os
 import random
 import numpy as np
 import pickle
+from datetime import datetime
 
 import pygame_gui as pgui
 from pygame import Rect
@@ -11,6 +12,13 @@ from pygame_gui.elements import UIPanel, UISelectionList, UIButton
 from .rules.rule import Rule
 from .rules.global_rules import SudokuRule
 from core.event import Event
+
+
+def generate_level_id() -> str:
+    current_dt = datetime.now()
+    return (f"untitled_level"
+            f"_{current_dt.hour:02d}{current_dt.minute:02d}{current_dt.second:02d}"
+            f"_{current_dt.day:02d}{current_dt.month:02d}{current_dt.year:04d}")
 
 
 class Level:
