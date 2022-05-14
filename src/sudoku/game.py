@@ -40,7 +40,8 @@ class Game(Application):
         # Event handlers
         self.level_list.on_load_requested.add_handler(self.load_level)
 
-        self.load_level(random_sudoku())
+        self.loaded_level = random_sudoku()
+        self.load_level(self.loaded_level)
 
     def init_components(self):
         ratio = self.width / self.height
@@ -82,6 +83,8 @@ class Game(Application):
         self.rule_desc.hide()
 
     def load_level(self, level: Level, level_id: str = None):
+        self.loaded_level = level
+
         # Load rules
         self.board.rule_manager.clear_rule()
         self.board.rule_manager.add_rule(level.ruleset)
