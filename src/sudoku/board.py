@@ -15,7 +15,7 @@ from .rules.surround import SurroundRule
 from .rules.dots import DotRule
 from core.gfx.graphics import Graphics
 from .title import Title
-from .timer import Timer
+from .timer import Timer, Time
 
 
 class Board:
@@ -85,7 +85,11 @@ class Board:
         ), sprite_groups, align_top=False)
         self.timer = Timer(Rect(
             (self.grid_rect.left, self.grid_rect.bottom),
-            (self.grid_rect.w, title_height)
+            (self.grid_rect.w, title_height / 2)
+        ), sprite_groups, align_left=False, prefix="CURRENT TIME: ")
+        self.best_time = Title("BEST TIME: 00:00:00", Rect(
+            (self.timer.rect.left, self.timer.rect.bottom),
+            (self.timer.rect.w, title_height / 2)
         ), sprite_groups, align_left=False)
         self.ui_manager = manager
 
@@ -130,6 +134,9 @@ class Board:
         self.selection.generate_mesh_sprites(.25, (255, 0, 255, 150), 1, (255, 0, 255))
         KillerRule.generate_killer_mesh(self.tile_size)
         self.__initdraw()
+
+    def set_highscore(self, time: Time):
+        self.best_time.set_text("BEST TIME: " + str(time))
 
     def set_focusable_areas(self, *rects):
         self.focusable = list(rects)

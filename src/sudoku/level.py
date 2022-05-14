@@ -81,7 +81,7 @@ class LevelList(UIPanel):
                                 break
 
                         if index != -1:
-                            self.on_load_requested(level=self.levels[index][1])
+                            self.on_load_requested(level_id=self.levels[index][0], level=self.levels[index][1])
                     case self.new_btn:
                         self.on_load_requested(level=random_sudoku())
 

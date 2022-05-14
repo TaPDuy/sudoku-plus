@@ -10,6 +10,7 @@ from sudoku.grid import InputMode
 from sudoku.board import Board
 from sudoku.input import InputPanel
 from sudoku.level import Level, LevelList, random_sudoku
+from sudoku.score import Highscore
 from core.audio import BgmPlayer
 
 from functools import partial
@@ -78,8 +79,9 @@ class Game(Application):
             self.input.relative_rect.bottomleft,
             (self.side_panel.relative_rect.width, main_rect.height - self.input.relative_rect.height)
         ), self.ui_manager, container=self.side_panel)
+        self.rule_desc.hide()
 
-    def load_level(self, level: Level):
+    def load_level(self, level: Level, level_id: str = None):
         # Load rules
         self.board.rule_manager.clear_rule()
         self.board.rule_manager.add_rule(level.ruleset)
@@ -94,6 +96,8 @@ class Game(Application):
 
         # Draw component rules
         self.board.set_title(level.name)
+        if level_id:
+            self.board.set_highscore(Highscore.get(level_id))
         self.board.redraw_rules()
 
     def check_win(self):
