@@ -74,6 +74,7 @@ class Game(Application):
         self.input.assign(InputPanel.BUTTON_UNDO, ActionManager.undo)
         self.input.assign(InputPanel.BUTTON_REDO, ActionManager.redo)
         self.input.assign(InputPanel.BUTTON_CHECK, self.check_win)
+        self.input.assign(InputPanel.BUTTON_RESET, self.reset)
         self.board.set_focusable_areas(self.board.grid_rect, self.input.rect)
 
         self.rule_desc = UITextBox("", Rect(
@@ -81,6 +82,9 @@ class Game(Application):
             (self.side_panel.relative_rect.width, main_rect.height - self.input.relative_rect.height)
         ), self.ui_manager, container=self.side_panel)
         self.rule_desc.hide()
+
+    def reset(self):
+        self.load_level(self.loaded_level)
 
     def load_level(self, level: Level, level_id: str = None):
         level_id = level_id or generate_level_id()
