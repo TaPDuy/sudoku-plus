@@ -132,6 +132,8 @@ class Grid:
                 self.tiles[y][x].color = 0
                 self.tiles[y][x].locked = False
 
+        self.on_changed(positions={(x, y) for y in range(self.tlh) for x in range(self.tlw)})
+
     def highlight_conflicts(self, conflicts: set, old_conflicts: set):
         changed_conflicts = conflicts.difference(old_conflicts)
         changed_nonconflicts = old_conflicts.difference(conflicts)
