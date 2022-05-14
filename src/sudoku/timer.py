@@ -109,8 +109,9 @@ class Timer(Title):
     def start(self):
         self.running = True
 
-    def stop(self):
+    def stop(self) -> Time:
         self.running = False
+        return self.time
 
     def reset(self) -> Time:
         tmp = self.time
