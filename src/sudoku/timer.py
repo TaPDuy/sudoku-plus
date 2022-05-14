@@ -100,10 +100,11 @@ class Time:
 
 class Timer(Title):
 
-    def __init__(self, rect: Rect, sprite_groups: LayeredDirty, align_top=True, align_left=True):
-        super().__init__("00:00:00", rect, sprite_groups, align_top, align_left)
+    def __init__(self, rect: Rect, sprite_groups: LayeredDirty, align_top=True, align_left=True, prefix=""):
+        super().__init__(prefix + "00:00:00", rect, sprite_groups, align_top, align_left)
         self.time: Time = Time()
         self.running = False
+        self.prefix = prefix
 
     def start(self):
         self.running = True
@@ -120,4 +121,4 @@ class Timer(Title):
         if evt.type == TIMER_TICK:
             if self.running:
                 self.time += 1
-                self.set_text(str(self.time))
+                self.set_text(self.prefix + str(self.time))
