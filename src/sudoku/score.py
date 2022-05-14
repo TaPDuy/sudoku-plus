@@ -26,10 +26,11 @@ class Highscore:
     @staticmethod
     def update(level_id: str, time: Time):
         if Highscore.highscores.get(level_id):
-            if time < Highscore.highscores[level_id]:
+            if time.ticks < Highscore.highscores[level_id]:
                 Highscore.highscores[level_id] = time.ticks
         else:
             Highscore.highscores[level_id] = time.ticks
+        print(Highscore.highscores)
 
     @staticmethod
     def get(level_id: str) -> Time:

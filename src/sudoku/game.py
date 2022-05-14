@@ -40,6 +40,7 @@ class Game(Application):
         # Event handlers
         self.level_list.on_load_requested.add_handler(self.load_level)
 
+        self.loaded_id = None
         self.loaded_level = random_sudoku()
         self.load_level(self.loaded_level)
 
@@ -84,10 +85,10 @@ class Game(Application):
         self.rule_desc.hide()
 
     def reset(self):
-        self.load_level(self.loaded_level)
+        self.load_level(self.loaded_level, self.loaded_id)
 
     def load_level(self, level: Level, level_id: str = None):
-        level_id = level_id or generate_level_id()
+        self.loaded_id = level_id or generate_level_id()
         self.loaded_level = level
 
         # Load rules
@@ -112,6 +113,7 @@ class Game(Application):
 
     def check_win(self):
         if self.board.rule_manager.check():
+            Highscore.update(self.loaded_id, self.board.timer.stop())
             print("You win!")
         else:
             print("Something's wrong...")
