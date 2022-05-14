@@ -116,6 +116,7 @@ class Timer(Title):
     def reset(self) -> Time:
         tmp = self.time
         self.time = Time()
+        self.set_text(self.prefix + str(self.time))
         return tmp
 
     def process_events(self, evt):
