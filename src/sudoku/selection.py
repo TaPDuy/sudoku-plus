@@ -19,6 +19,7 @@ class SelectionGrid(DirtySprite):
         super().__init__()
 
         # Graphics properties
+        self.container = container
         self.tile_size = self.tlw, self.tlh = int(rect.w / 20), int(rect.h / 20)
         self.render_tile_size = self.render_tlw, self.render_tlh = self.tlw // 2, self.tlh // 2
         self.rect = self.relative_rect = rect
@@ -34,6 +35,18 @@ class SelectionGrid(DirtySprite):
 
         # Properties
         self.selected = set()
+
+    def set_relative_rect(self, rect: Rect):
+        self.tile_size = self.tlw, self.tlh = int(rect.w / 20), int(rect.h / 20)
+        self.rect = self.relative_rect = rect
+        if self.container:
+            self.rect = Rect(
+                (self.container.rect.x + self.rect.left, self.container.rect.y + self.rect.top),
+                self.rect.size
+            )
+
+        self.dirty = 1
+        self.image = smoothscale(self.__original_image, self.rect.size)
 
     def clear(self):
         self.selected.clear()

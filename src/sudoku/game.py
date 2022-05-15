@@ -103,6 +103,32 @@ class Game(Application):
 
         self.rule_desc = UITextBox("", desc_rect, self.ui_manager, container=self.side_panel)
 
+    def recalculate_componenets(self, new_width, new_height):
+        ratio = new_width / new_height
+        index = 0 if ratio <= 3 / 4 else (1 if ratio < 4 / 3 else 2)
+
+        main_rect = Rect(*(DIM_MATS[index][_][0] * new_width + DIM_MATS[index][_][1] * new_height for _ in range(4)))
+        side_rect = Rect(*(DIM_MATS[index][_][2] * new_width + DIM_MATS[index][_][3] * new_height for _ in range(4)))
+
+        vertical = ratio > 3 / 4
+        input_rect = Rect(0, 0, side_rect.w, side_rect.w) if vertical else Rect(0, 0, side_rect.h, side_rect.h)
+        desc_rect = Rect(
+            input_rect.bottomleft, (side_rect.w, side_rect.h - input_rect.h)
+        ) if vertical else Rect(
+            input_rect.topright, (side_rect.w - input_rect.w, side_rect.h)
+        )
+
+        self.board.resize(main_rect.topleft, main_rect.height, main_rect.height / 11, main_rect.height / 22)
+
+        self.side_panel.set_position(side_rect.topleft)
+        self.side_panel.set_dimensions(side_rect.size)
+
+        self.input.set_relative_rect(input_rect)
+        self.board.set_focusable_areas(self.board.grid_rect, self.input.rect)
+
+        self.rule_desc.set_relative_position(desc_rect.topleft)
+        self.rule_desc.set_dimensions(desc_rect.size)
+
     def reset(self):
         self.load_level(self.loaded_level, self.loaded_id)
 

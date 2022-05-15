@@ -53,6 +53,7 @@ class Board:
             title_height=20
     ):
         # Properties
+        self.container = container
         self.rect = self.relative_rect = Rect(pxpos, (pxsize, pxsize))
         if container:
             container_rect = container.get_container().get_rect()
@@ -133,6 +134,51 @@ class Board:
 
         self.selection.generate_mesh_sprites(.25, (255, 0, 255, 150), 1, (255, 0, 255))
         KillerRule.generate_killer_mesh(self.tile_size)
+        self.__initdraw()
+
+    def resize(self, pxpos: tuple[float, float], pxsize: float, padding: float, title_height=20):
+
+        # Properties
+        self.rect = self.relative_rect = Rect(pxpos, (pxsize, pxsize))
+        if self.container:
+            container_rect = self.container.get_container().get_rect()
+            self.rect = Rect(
+                (container_rect.x + self.rect.left, container_rect.y + self.rect.top),
+                self.rect.size
+            )
+
+        # Components' properties
+        self.grid_rect = Rect(
+            self.rect.left + padding, self.rect.top + padding,
+            self.rect.w - padding * 2, self.rect.h - padding * 2
+        )
+        self.grid_relative_rect = Rect((padding, padding), self.grid_rect.size)
+        self.tile_size = self.tlw, self.tlh = self.grid_rect.w / 9, self.grid_rect.h / 9
+
+        # Components
+        self.selection.set_relative_rect(Rect(
+            self.grid_relative_rect.left - self.tlw / 2,
+            self.grid_relative_rect.top - self.tlh / 2,
+            self.tlw * 10, self.tlh * 10
+        ))
+        self.title.set_rect(Rect(
+            (self.grid_rect.left, self.grid_rect.top - title_height),
+            (self.grid_rect.w, title_height)
+        ))
+        self.timer.set_rect(Rect(
+            (self.grid_rect.left, self.grid_rect.bottom),
+            (self.grid_rect.w, title_height / 2)
+        ))
+        self.best_time.set_rect(Rect(
+            (self.timer.rect.left, self.timer.rect.bottom),
+            (self.timer.rect.w, title_height / 2)
+        ))
+
+        # Layers
+        for _ in range(5):
+            self.layers[_].rect = Rect(self.grid_rect)
+            self.layers[_].image = smoothscale(self.layers[_].image, self.grid_rect.size)
+            self.layers[_].dirty = 1
         self.__initdraw()
 
     def set_highscore(self, time: Time):
@@ -256,6 +302,7 @@ class Board:
 
     def __initdraw(self):
         layer = self.layers[Board.LAYER_GRID]
+        layer.image.fill((0, 0, 0, 0))
 
         for tly in range(9):
             Graphics.line(

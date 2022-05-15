@@ -71,6 +71,19 @@ class InputPanel(UIPanel):
         self.toggle_highlight_button(InputPanel.BUTTON_VALUE)
         self.functions = {}
 
+    def set_relative_rect(self, rect: Rect):
+        self.button_size = ((rect.w - 5 * self.hgap) / 4, (rect.h - 5 * self.vgap) / 4)
+        for y in range(4):
+            for x in range(4):
+                self.buttons[y * 4 + x].set_dimensions(self.button_size)
+                self.buttons[y * 4 + x].set_relative_position((
+                    x * self.button_size[0] + (x + 1) * self.hgap,
+                    y * self.button_size[1] + (y + 1) * self.vgap
+                ))
+
+        self.set_dimensions(rect.size)
+        self.set_relative_position(rect.topleft)
+
     def assign(self, index: int, func):
         self.functions[index] = func
 

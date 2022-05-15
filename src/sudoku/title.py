@@ -18,6 +18,10 @@ class Title:
         self.__text_sprite = DirtySprite(sprite_groups)
         self.__redraw()
 
+    def set_rect(self, rect: Rect):
+        self.rect = rect
+        self.__redraw()
+
     def set_font(self, font: Font):
         self.__font = font
         self.__redraw()

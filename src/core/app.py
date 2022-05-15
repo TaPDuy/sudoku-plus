@@ -34,9 +34,12 @@ class Application:
             dt = new_time - last_time
             last_time = new_time
 
+            rects = []
+
             for evt in pg.event.get():
-                # if evt.type == pg.VIDEORESIZE:
-                #     self.recalculate_componenets(evt.w, evt.h)
+                if evt.type == pg.VIDEORESIZE:
+                    self.recalculate_componenets(evt.w, evt.h)
+                    rects.append(Rect(0, 0, evt.w, evt.h))
 
                 self._process_events(evt)
                 self.ui_manager.process_events(evt)
@@ -45,10 +48,10 @@ class Application:
             self.ui_manager.update(dt * Application.TARGET_FPS)
 
             self._screen.fill(Application.CLEAR_COLOR)
-            rects = self._draw(self._screen)
+            rects += self._draw(self._screen)
             ui_rects = self.ui_manager.draw_ui(self._screen)
             if ui_rects:
-                rects.extend(ui_rects)
+                rects += ui_rects
 
             textsurface = self._font.render(f"FPS: {int(self._clock.get_fps())}", False, (255, 255, 255))
             rects.append(self._screen.blit(textsurface, (0, 0)))
