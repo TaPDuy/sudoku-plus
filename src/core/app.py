@@ -38,8 +38,11 @@ class Application:
 
             for evt in pg.event.get():
                 if evt.type == pg.VIDEORESIZE:
+                    print(f"Resized to {evt.w}x{evt.h}")
                     self.recalculate_componenets(evt.w, evt.h)
                     rects.append(Rect(0, 0, evt.w, evt.h))
+                    self.ui_manager.set_window_resolution((evt.w, evt.h))
+                    # self._screen = pg.display.set_mode((evt.w, evt.h), pg.RESIZABLE)
 
                 self._process_events(evt)
                 self.ui_manager.process_events(evt)
