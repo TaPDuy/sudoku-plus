@@ -71,6 +71,8 @@ class Board:
         )
         self.grid_relative_rect = Rect((padding, padding), self.grid_rect.size)
         self.tile_size = self.tlw, self.tlh = self.grid_rect.w / 9, self.grid_rect.h / 9
+        self.render_tile_size = self.render_tlw, self.render_tlh = self.tile_size
+        self.render_grid_rect = self.grid_rect
 
         # Components
         self.grid = Grid()
@@ -102,6 +104,7 @@ class Board:
         self.should_select = False
 
         # Layers
+        self.__origin_layers = [Surface(self.grid_rect.size, SRCALPHA) for _ in range(5)]
         self.layers = [DirtySprite() for _ in range(6)]
 
         self.layers[Board.LAYER_COLOR].image = Surface(self.grid_rect.size, SRCALPHA)
@@ -176,10 +179,9 @@ class Board:
 
         # Layers
         for _ in range(5):
-            self.layers[_].rect = Rect(self.grid_rect)
-            self.layers[_].image = smoothscale(self.layers[_].image, self.grid_rect.size)
             self.layers[_].dirty = 1
-        self.__initdraw()
+            self.layers[_].rect = self.grid_rect
+            self.layers[_].image = smoothscale(self.__origin_layers[_], self.grid_rect.size)
 
     def set_highscore(self, time: Time):
         self.best_time.set_text("BEST TIME: " + str(time))
@@ -252,34 +254,37 @@ class Board:
 
     def draw_tile(self, tlx, tly):
         tile = self.grid.tiles[tly][tlx]
-        pxpos = tlx * self.tlw, tly * self.tlh
+        pxpos = tlx * self.render_tlw, tly * self.render_tlh
 
-        layer = self.layers[Board.LAYER_COLOR]
-        layer.dirty = 1
-        Graphics.rect(layer.image, pxpos, self.tile_size, Board.TILE_COLORS[tile.color])
+        layer = self.__origin_layers[Board.LAYER_COLOR]
+        Graphics.rect(layer, pxpos, self.render_tile_size, Board.TILE_COLORS[tile.color])
+        self.layers[Board.LAYER_COLOR].dirty = 1
+        self.layers[Board.LAYER_COLOR].image = smoothscale(layer, self.grid_rect.size)
 
-        layer = self.layers[Board.LAYER_NUMBER]
-        layer.dirty = 1
-        Graphics.rect(layer.image, pxpos, self.tile_size, Board.TILE_COLORS[0])
+        layer = self.__origin_layers[Board.LAYER_NUMBER]
+        Graphics.rect(layer, pxpos, self.render_tile_size, Board.TILE_COLORS[0])
 
         if 0 < tile.value < 10:
             text = Board.FONT_VALUE.render(
                 str(tile.value), True,
                 (255, 0, 0) if tile.highlight else ((140, 160, 160) if tile.locked else (255, 255, 255))
             )
-            text = smoothscale(text, (text.get_width() * self.tlw / 64, text.get_height() * self.tlh / 64))
-            layer.image.blit(text, (
-                pxpos[0] + self.tlw / 2 - text.get_width() / 2,
-                pxpos[1] + self.tlh / 2 - text.get_height() / 2
+            text = smoothscale(text, (text.get_width() * self.render_tlw / 64, text.get_height() * self.render_tlh / 64))
+            layer.blit(text, (
+                pxpos[0] + self.render_tlw / 2 - text.get_width() / 2,
+                pxpos[1] + self.render_tlh / 2 - text.get_height() / 2
             ))
         elif tile.mark:
             textstr = ''.join(str(i + 1) for i in range(9) if 1 << i & tile.mark)
             text = Board.FONT_MARK.render(textstr, True, (255, 255, 255))
-            text = smoothscale(text, (text.get_width() * self.tlw / 64, text.get_height() * self.tlh / 64))
-            layer.image.blit(text, (
-                pxpos[0] + self.tlw / 2 - text.get_width() / 2,
-                pxpos[1] + self.tlh / 2 - text.get_height() / 2
+            text = smoothscale(text, (text.get_width() * self.render_tlw / 64, text.get_height() * self.render_tlh / 64))
+            layer.blit(text, (
+                pxpos[0] + self.render_tlw / 2 - text.get_width() / 2,
+                pxpos[1] + self.render_tlh / 2 - text.get_height() / 2
             ))
+
+        self.layers[Board.LAYER_NUMBER].dirty = 1
+        self.layers[Board.LAYER_NUMBER].image = smoothscale(layer, self.grid_rect.size)
 
     def set_title(self, title: str):
         if not len(title):
@@ -290,42 +295,47 @@ class Board:
         return int(pxpos[0] / self.tlw), int(pxpos[1] / self.tlh)
 
     def redraw_rules(self):
-        self.layers[Board.LAYER_TOP_RULE].image.fill((0, 0, 0, 0))
-        self.layers[Board.LAYER_BOTTOM_RULE].image.fill((0, 0, 0, 0))
+        self.__origin_layers[Board.LAYER_TOP_RULE].fill((0, 0, 0, 0))
+        self.__origin_layers[Board.LAYER_BOTTOM_RULE].fill((0, 0, 0, 0))
         for _ in self.rule_manager.component_rules:
             if isinstance(_, (DotRule, SurroundRule, KillerRule)):
-                _.draw(self.layers[Board.LAYER_TOP_RULE].image, self.tile_size)
+                _.draw(self.__origin_layers[Board.LAYER_TOP_RULE], self.render_tile_size)
             else:
-                _.draw(self.layers[Board.LAYER_BOTTOM_RULE].image, self.tile_size)
+                _.draw(self.__origin_layers[Board.LAYER_BOTTOM_RULE], self.render_tile_size)
+
         self.layers[Board.LAYER_TOP_RULE].dirty = 1
         self.layers[Board.LAYER_BOTTOM_RULE].dirty = 1
+        self.layers[Board.LAYER_TOP_RULE].image = smoothscale(self.__origin_layers[Board.LAYER_TOP_RULE], self.grid_rect.size)
+        self.layers[Board.LAYER_BOTTOM_RULE].image = smoothscale(self.__origin_layers[Board.LAYER_BOTTOM_RULE], self.grid_rect.size)
 
     def __initdraw(self):
-        layer = self.layers[Board.LAYER_GRID]
-        layer.image.fill((0, 0, 0, 0))
+        layer = self.__origin_layers[Board.LAYER_GRID]
+        layer.fill((0, 0, 0, 0))
 
         for tly in range(9):
             Graphics.line(
-                layer.image,
-                (0, tly * self.tlh), (self.grid_rect.w, tly * self.tlh),
+                layer,
+                (0, tly * self.render_tlh), (self.render_grid_rect.w, tly * self.render_tlh),
                 1 if tly % 3 else 2, (140, 160, 160)
             )
 
         for tlx in range(9):
             Graphics.line(
-                layer.image,
-                (tlx * self.tlw, 0), (tlx * self.tlw, self.grid_rect.h),
+                layer,
+                (tlx * self.render_tlw, 0), (tlx * self.render_tlw, self.render_grid_rect.h),
                 1 if tlx % 3 else 2, (140, 160, 160)
             )
 
         Graphics.line(
-            layer.image,
-            (0, self.grid_rect.h - 1), (self.grid_rect.w, self.grid_rect.h - 1),
+            layer,
+            (0, self.render_grid_rect.h - 1), (self.render_grid_rect.w, self.render_grid_rect.h - 1),
             2, (140, 160, 160)
         )
         Graphics.line(
-            layer.image,
-            (self.grid_rect.w - 1, 0), (self.grid_rect.w - 1, self.grid_rect.h),
+            layer,
+            (self.render_grid_rect.w - 1, 0), (self.render_grid_rect.w - 1, self.render_grid_rect.h),
             2, (140, 160, 160)
         )
 
+        self.layers[Board.LAYER_GRID].dirty = 1
+        self.layers[Board.LAYER_GRID].image = smoothscale(layer, self.grid_rect.size)
