@@ -78,3 +78,37 @@ class ButtonGrid(UIPanel):
 
         self.set_relative_position(rect.topleft)
         self.set_dimensions(rect.size)
+
+
+class TabController:
+
+    def __init__(self):
+        self.current_tab = 0
+        self.__tabs: list[IUIElementInterface] = []
+
+    def add_tab(self, tab: IUIElementInterface):
+        self.__tabs.append(tab)
+        if len(self.__tabs) - 1 != self.current_tab:
+            tab.hide()
+
+    def insert_tab(self, index: int, tab: IUIElementInterface):
+        if index != self.current_tab:
+            tab.hide()
+
+        self.__tabs.insert(index, tab)
+        if index <= self.current_tab:
+            self.current_tab += 1
+
+    def next_tab(self):
+        self.set_tab((self.current_tab + 1) % len(self.__tabs))
+
+    def prev_tab(self):
+        self.set_tab((self.current_tab - 1) % len(self.__tabs))
+
+    def set_tab(self, index: int):
+        if index < 0 or index >= len(self.__tabs) or index == self.current_tab:
+            return
+
+        self.__tabs[self.current_tab].hide()
+        self.__tabs[index].show()
+        self.current_tab = index
