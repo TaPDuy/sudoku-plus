@@ -16,6 +16,29 @@ from core.audio import BgmPlayer
 from functools import partial
 
 
+DIM_MATS = \
+    (
+        (
+            (0, 0, 0, 0),
+            (-2/3, .5, -1/3, 1),
+            (1, 0, 1, 0),
+            (1, 0, 1/3, 0)
+        ),
+        (
+            (0, 0, 2/3, 0),
+            (-1/3, .5, 0, 0),
+            (2/3, 0, 1/3, 0),
+            (2/3, 0, 0, 1)
+        ),
+        (
+            (.5, -2/3, 1, -1/3),
+            (0, 0, 0, 0),
+            (0, 1, 0, 1/3),
+            (0, 1, 0, 1)
+        )
+    )
+
+
 class Game(Application):
 
     def __init__(self):
@@ -46,27 +69,27 @@ class Game(Application):
 
     def init_components(self):
         ratio = self.width / self.height
-        main_rect = Rect(
-            0, .5 * self.height - 3 / 8 * self.width,
-            self.width, .75 * self.width
-        ) if ratio < 4 / 3 else Rect(
-            .5 * self.width - 2 / 3 * self.height, 0,
-            4 / 3 * self.height, self.height
+        index = 0 if ratio <= 3/4 else (1 if ratio < 4/3 else 2)
+
+        main_rect = Rect(*(DIM_MATS[index][_][0] * self.width + DIM_MATS[index][_][1] * self.height for _ in range(4)))
+        side_rect = Rect(*(DIM_MATS[index][_][2] * self.width + DIM_MATS[index][_][3] * self.height for _ in range(4)))
+
+        vertical = ratio > 3/4
+        input_rect = Rect(0, 0, side_rect.w, side_rect.w) if vertical else Rect(0, 0, side_rect.h, side_rect.h)
+        desc_rect = Rect(
+            input_rect.bottomleft, (side_rect.w, side_rect.h - input_rect.h)
+        ) if vertical else Rect(
+            input_rect.topright, (side_rect.w - input_rect.w, side_rect.h)
         )
-        self.main_panel = UIContainer(main_rect, self.ui_manager)
 
         self.board = Board(
-            (0, 0), main_rect.height, main_rect.height / 11,
+            main_rect.topleft, main_rect.height, main_rect.height / 11,
             self.sprites, self.ui_manager, self.main_panel, main_rect.height / 22
         )
 
-        self.side_panel = UIContainer(Rect(
-            self.board.relative_rect.topright, (main_rect.height / 3, main_rect.height)
-        ), self.ui_manager, container=self.main_panel)
+        self.side_panel = UIContainer(Rect(side_rect.topleft, side_rect.size), self.ui_manager)
 
-        self.input = InputPanel(Rect(
-            0, 0, self.side_panel.relative_rect.width, self.side_panel.relative_rect.width
-        ), (8, 8), self.ui_manager, container=self.side_panel)
+        self.input = InputPanel(input_rect, (8, 8), self.ui_manager, container=self.side_panel)
         for _ in range(9):
             self.input.assign(_, partial(self.board.fill_selection, _ + 1))
         self.input.assign(InputPanel.BUTTON_VALUE, partial(self.select_input_mode, InputPanel.BUTTON_VALUE))
@@ -78,11 +101,7 @@ class Game(Application):
         self.input.assign(InputPanel.BUTTON_RESET, self.reset)
         self.board.set_focusable_areas(self.board.grid_rect, self.input.rect)
 
-        self.rule_desc = UITextBox("", Rect(
-            self.input.relative_rect.bottomleft,
-            (self.side_panel.relative_rect.width, main_rect.height - self.input.relative_rect.height)
-        ), self.ui_manager, container=self.side_panel)
-        self.rule_desc.hide()
+        self.rule_desc = UITextBox("", desc_rect, self.ui_manager, container=self.side_panel)
 
     def reset(self):
         self.load_level(self.loaded_level, self.loaded_id)
