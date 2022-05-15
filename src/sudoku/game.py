@@ -6,6 +6,7 @@ from pygame_gui.core import UIContainer
 
 from core.app import Application
 from core.action import ActionManager
+from core.ui import ButtonGrid
 from sudoku.grid import InputMode
 from sudoku.board import Board
 from sudoku.input import InputPanel
@@ -58,6 +59,7 @@ class Game(Application):
         self.board = None
         self.input = None
         self.rule_desc = None
+        self.menu = None
         self.init_components()
 
         # Event handlers
@@ -76,10 +78,15 @@ class Game(Application):
 
         vertical = ratio > 3/4
         input_rect = Rect(0, 0, side_rect.w, side_rect.w) if vertical else Rect(0, 0, side_rect.h, side_rect.h)
-        desc_rect = Rect(
-            input_rect.bottomleft, (side_rect.w, side_rect.h - input_rect.h)
+        menu_rect = Rect(
+            input_rect.bottomleft, (side_rect.w, side_rect.w / 4)
         ) if vertical else Rect(
-            input_rect.topright, (side_rect.w - input_rect.w, side_rect.h)
+            input_rect.topright, (side_rect.h / 4, side_rect.h)
+        )
+        desc_rect = Rect(
+            menu_rect.bottomleft, (side_rect.w, side_rect.h - input_rect.h - menu_rect.h)
+        ) if vertical else Rect(
+            menu_rect.topright, (side_rect.w - input_rect.w - menu_rect.w, side_rect.h)
         )
 
         self.board = Board(
@@ -101,6 +108,12 @@ class Game(Application):
         self.input.assign(InputPanel.BUTTON_RESET, self.reset)
         self.board.set_focusable_areas(self.board.grid_rect, self.input.rect)
 
+        self.menu = ButtonGrid((4, 1) if vertical else (1, 4), menu_rect, 5, self.ui_manager, self.side_panel)
+        self.menu.add_button("Rules", "rules")
+        self.menu.add_button("Controls", "controls")
+        self.menu.add_button("Settings", "settings")
+        self.menu.add_button("Levels", "levels")
+
         self.rule_desc = UITextBox("", desc_rect, self.ui_manager, container=self.side_panel)
 
     def recalculate_componenets(self, new_width, new_height):
@@ -112,10 +125,15 @@ class Game(Application):
 
         vertical = ratio > 3 / 4
         input_rect = Rect(0, 0, side_rect.w, side_rect.w) if vertical else Rect(0, 0, side_rect.h, side_rect.h)
-        desc_rect = Rect(
-            input_rect.bottomleft, (side_rect.w, side_rect.h - input_rect.h)
+        menu_rect = Rect(
+            input_rect.bottomleft, (side_rect.w, side_rect.w / 4)
         ) if vertical else Rect(
-            input_rect.topright, (side_rect.w - input_rect.w, side_rect.h)
+            input_rect.topright, (side_rect.h / 4, side_rect.h)
+        )
+        desc_rect = Rect(
+            menu_rect.bottomleft, (side_rect.w, side_rect.h - input_rect.h - menu_rect.h)
+        ) if vertical else Rect(
+            menu_rect.topright, (side_rect.w - input_rect.w - menu_rect.w, side_rect.h)
         )
 
         self.board.resize(main_rect.topleft, main_rect.height, main_rect.height / 11, main_rect.height / 22)
@@ -125,6 +143,9 @@ class Game(Application):
 
         self.input.set_relative_rect(input_rect)
         self.board.set_focusable_areas(self.board.grid_rect, self.input.rect)
+
+        self.menu.set_relative_rect(menu_rect)
+        self.menu.set_grid_size((4, 1) if vertical else (1, 4))
 
         self.rule_desc.set_relative_position(desc_rect.topleft)
         self.rule_desc.set_dimensions(desc_rect.size)

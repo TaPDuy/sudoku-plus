@@ -5,8 +5,8 @@ from sudoku.grid import InputMode
 from sudoku.level import Level
 from .ui.rule_list import RuleListPanel
 from .ui.properties import PropertiesPanel
-from .ui.menu import Menu
 from sudoku.board import Board
+from core.ui import ButtonGrid
 
 import pygame as pg
 import pygame_gui as pgui
@@ -60,7 +60,16 @@ class LevelMaker(Application):
             Rect(0, 0, board_size / 3, self.height), 0, self.ui_manager,
             margins={'left': 0, 'right': 0, 'top': 0, 'bottom': 0}
         )
-        self.menu = Menu(Rect(0, 0, self.left_panel.relative_rect.w, 30), self.ui_manager, self.left_panel)
+
+        # self.menu = Menu(Rect(0, 0, self.left_panel.relative_rect.w, 30), self.ui_manager, self.left_panel)
+        self.menu = ButtonGrid(
+            (3, 1), Rect(0, 0, self.left_panel.relative_rect.w, 30), 5,
+            self.ui_manager, self.left_panel
+        )
+        self.menu.add_button("Save", "save")
+        self.menu.add_button("Open", "open")
+        self.menu.add_button("New", "new")
+
         self.rule_list = RuleListPanel(Rect(
             self.menu.relative_rect.bottomleft,
             (self.left_panel.relative_rect.w, self.left_panel.relative_rect.h - self.menu.relative_rect.h)
@@ -199,11 +208,11 @@ class LevelMaker(Application):
             case pg.WINDOWCLOSE:
                 self.close()
             case pgui.UI_BUTTON_PRESSED:
-                if evt.ui_element == self.menu.save_btn:
+                if evt.ui_element == self.menu.get_button("save"):
                     self.save()
-                elif evt.ui_element == self.menu.open_btn:
+                elif evt.ui_element == self.menu.get_button("open"):
                     self.open()
-                elif evt.ui_element == self.menu.new_btn:
+                elif evt.ui_element == self.menu.get_button("new"):
                     self.new_level()
 
         self.board.process_events(evt)
