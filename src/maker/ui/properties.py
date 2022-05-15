@@ -84,6 +84,38 @@ class PropertiesPanel(UIPanel):
             self.relative_rect.height - self.apply_btn.relative_rect.bottom - 2 * self.pad
         )))
 
+    def set_relative_rect(self, rect: Rect):
+        self.label_w, self.label_h = rect.w, 20
+
+        # self.apply_btn.set_relative_position((self.pad, self.pad))
+        # self.apply_btn.set_dimensions((rect.w - 2 * self.pad, 30))
+
+        # self.message_board.set_relative_position((self.pad, self.apply_btn.relative_rect.bottom + self.pad))
+        # self.message_board.set_dimensions((
+        #     rect.w - 2 * self.pad, min(
+        #         self.max_msg_height,
+        #         rect.h - self.apply_btn.relative_rect.bottom - 2 * self.pad
+        #     )
+        # ))
+
+        i = 0
+        for _ in self.inputs:
+            _.set_relative_rect(Rect(0, i * self.input_height, rect.w, self.input_height))
+            i += 1
+
+        self.apply_btn.set_relative_position((self.pad, i * self.input_height + self.pad))
+        self.apply_btn.set_dimensions((rect.w - 2 * self.pad, 30))
+        self.message_board.set_relative_position((
+            self.pad, self.apply_btn.relative_rect.bottom + self.pad
+        ))
+        self.message_board.set_dimensions((rect.w - 2 * self.pad, min(
+            self.max_msg_height,
+            rect.h - self.apply_btn.relative_rect.bottom - 2 * self.pad
+        )))
+
+        self.set_relative_position(rect.topleft)
+        self.set_dimensions(rect.size)
+
     def process_event(self, evt):
         match evt.type:
             case pgui.UI_BUTTON_PRESSED:

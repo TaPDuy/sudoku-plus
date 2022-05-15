@@ -10,6 +10,7 @@ class Menu(UIPanel):
             margins={'left': 0, 'right': 0, 'top': 0, 'bottom': 0}
         )
 
+        self.gap = gap
         btnw, btnh = (rect.w - 4 * gap) / 3, rect.h - 2 * gap
 
         self.save_btn = UIButton(Rect(
@@ -32,3 +33,18 @@ class Menu(UIPanel):
         self.new_btn.shadow_width = 0
         self.new_btn.border_width = 0
         self.new_btn.rebuild()
+
+    def set_relative_rect(self, rect: Rect):
+        btnw, btnh = (rect.w - 4 * self.gap) / 3, rect.h - 2 * self.gap
+
+        self.save_btn.set_relative_position((self.gap, self.gap))
+        self.save_btn.set_dimensions((btnw, btnh))
+
+        self.open_btn.set_relative_position((btnw + 2 * self.gap, self.gap))
+        self.open_btn.set_dimensions((btnw, btnh))
+
+        self.new_btn.set_relative_position((2 * btnw + 3 * self.gap, self.gap))
+        self.new_btn.set_dimensions((btnw, btnh))
+
+        self.set_relative_position(rect.topleft)
+        self.set_dimensions(rect.size)

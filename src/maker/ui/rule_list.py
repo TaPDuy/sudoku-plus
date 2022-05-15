@@ -69,6 +69,37 @@ class RuleListPanel(UIPanel):
         self.on_rule_added = Event()
         self.on_rule_removed = Event()
 
+    def set_relative_rect(self, rect: Rect):
+        self.label_w, self.label_h = rect.w, 20
+        self.btn_w, self.btn_h = (rect.w - 3 * self.pad) / 2, 30
+
+        self.label_1.set_relative_position((0, self.pad))
+        self.label_1.set_dimensions((self.label_w, self.label_h))
+
+        self.rule_drop_down.set_relative_position((self.pad, self.label_1.relative_rect.bottom + self.pad))
+        self.rule_drop_down.set_dimensions((rect.w - 2 * self.pad, self.label_h))
+
+        self.add_button.set_relative_position((self.pad, self.rule_drop_down.relative_rect.bottom + self.pad))
+        self.add_button.set_dimensions((self.btn_w, self.btn_h))
+
+        self.remove_button.set_relative_position((
+            self.btn_w + 2 * self.pad,
+            self.rule_drop_down.relative_rect.bottom + self.pad
+        ))
+        self.remove_button.set_dimensions((self.btn_w, self.btn_h))
+
+        self.label_2.set_relative_position((0, self.add_button.relative_rect.bottom + self.pad))
+        self.label_2.set_dimensions((self.label_w, self.label_h))
+
+        self.rule_list.set_relative_position((self.pad, self.label_2.relative_rect.bottom + self.pad))
+        self.rule_list.set_dimensions((
+            rect.w - 2 * self.pad,
+            min(self.max_list_height, rect.h - self.label_2.relative_rect.bottom - 2 * self.pad)
+        ))
+
+        self.set_relative_position(rect.topleft)
+        self.set_dimensions(rect.size)
+
     def set_rule_list(self, rules: set):
         self.selected_rules = list(rules)
         self.rule_list.set_item_list([RuleListPanel.__RULE_CLASSES.inverse[type(rule)] for rule in self.selected_rules])

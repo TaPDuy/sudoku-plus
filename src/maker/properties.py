@@ -50,6 +50,16 @@ class PropertiesInput(UIPanel):
             self.relative_rect.w - 2 * self.pad, self.relative_rect.h / 2
         ), self.ui_manager, self)
 
+    def set_relative_rect(self, rect: Rect):
+        self.label.set_relative_position((0, self.pad))
+        self.label.set_dimensions((rect.w, rect.h / 2 - self.pad))
+
+        self.input.set_relative_position((self.pad, self.label.relative_rect.bottom))
+        self.input.set_dimensions((rect.w - 2 * self.pad, rect.h / 2))
+
+        self.set_relative_position(rect.topleft)
+        self.set_dimensions(rect.size)
+
     def set_text(self, text: str):
         self.input.set_text(text)
 

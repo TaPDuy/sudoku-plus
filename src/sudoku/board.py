@@ -50,7 +50,8 @@ class Board:
             sprite_groups: LayeredDirty,
             manager: IUIManagerInterface,
             container: IContainerLikeInterface = None,
-            title_height=20
+            title_height=20,
+            show_timer=True
     ):
         # Properties
         self.container = container
@@ -86,6 +87,7 @@ class Board:
             (self.grid_rect.left, self.grid_rect.top - title_height),
             (self.grid_rect.w, title_height)
         ), sprite_groups, align_top=False)
+
         self.timer = Timer(Rect(
             (self.grid_rect.left, self.grid_rect.bottom),
             (self.grid_rect.w, title_height / 2)
@@ -94,6 +96,7 @@ class Board:
             (self.timer.rect.left, self.timer.rect.bottom),
             (self.timer.rect.w, title_height / 2)
         ), sprite_groups, align_left=False)
+
         self.ui_manager = manager
 
         # Control properties
@@ -138,6 +141,10 @@ class Board:
         self.selection.generate_mesh_sprites(.25, (255, 0, 255, 150), 1, (255, 0, 255))
         KillerRule.generate_killer_mesh(self.tile_size)
         self.__initdraw()
+
+    def hide_timer(self):
+        self.timer.hide()
+        self.best_time.hide()
 
     def resize(self, pxpos: tuple[float, float], pxsize: float, padding: float, title_height=20):
 

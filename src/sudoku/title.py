@@ -10,6 +10,7 @@ class Title:
         self.rect = rect
         self.align_top = align_top
         self.align_left = align_left
+        self.hidden = False
 
         self.__color = (255, 255, 255)
         self.__font = SysFont("Arial", 64)
@@ -17,6 +18,11 @@ class Title:
 
         self.__text_sprite = DirtySprite(sprite_groups)
         self.__redraw()
+
+    def hide(self):
+        self.hidden = True
+        self.__text_sprite.dirty = 1
+        self.__text_sprite.image.fill((0, 0, 0, 0))
 
     def set_rect(self, rect: Rect):
         self.rect = rect
@@ -35,6 +41,9 @@ class Title:
         self.__redraw()
 
     def __redraw(self):
+        if self.hidden:
+            return
+
         self.__text_sprite.dirty = 1
 
         height = min(

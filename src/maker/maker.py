@@ -34,6 +34,9 @@ class LevelMaker(Application):
         self.menu = None
         self.rule_list = None
 
+        self.label_1 = None
+        self.label_2 = None
+
         self.right_panel = None
         self.name = None
         self.properties_panel = None
@@ -51,6 +54,7 @@ class LevelMaker(Application):
             (self.width / 2 - board_size / 2, self.height / 2 - board_size / 2),
             board_size, board_size / 11, self.sprites, self.ui_manager
         )
+        self.board.hide_timer()
 
         self.left_panel = UIPanel(
             Rect(0, 0, board_size / 3, self.height), 0, self.ui_manager,
@@ -68,16 +72,16 @@ class LevelMaker(Application):
         )
 
         pad = 10
-        label_1 = UILabel(
+        self.label_1 = UILabel(
             Rect(0, pad, self.right_panel.relative_rect.w, 20),
             "Level name", self.ui_manager, self.right_panel
         )
         self.name = UITextEntryLine(Rect(
-            pad, label_1.relative_rect.bottom + pad,
+            pad, self.label_1.relative_rect.bottom + pad,
             self.right_panel.relative_rect.w - 2 * pad, 30
         ), self.ui_manager, self.right_panel)
 
-        label_2 = UILabel(
+        self.label_2 = UILabel(
             Rect(
                 0, self.name.relative_rect.bottom + pad,
                 self.right_panel.relative_rect.w, 20
@@ -85,10 +89,45 @@ class LevelMaker(Application):
             "Rule properties", self.ui_manager, self.right_panel
         )
         self.properties_panel = PropertiesPanel(Rect(
-            0, label_2.relative_rect.bottom,
+            0, self.label_2.relative_rect.bottom,
             self.left_panel.relative_rect.w,
-            self.left_panel.relative_rect.h - label_2.relative_rect.bottom
+            self.left_panel.relative_rect.h - self.label_2.relative_rect.bottom
         ), self.ui_manager, self.right_panel)
+
+    def recalculate_componenets(self, new_width, new_height):
+        ratio = new_width / new_height
+        board_size = new_height if ratio > 5 / 3 else .6 * new_width
+        self.board.resize(
+            (new_width / 2 - board_size / 2, new_height / 2 - board_size / 2),
+            board_size, board_size / 11
+        )
+
+        self.left_panel.set_position((0, 0))
+        self.left_panel.set_dimensions((board_size / 3, new_height))
+
+        self.menu.set_relative_rect(Rect(0, 0, self.left_panel.relative_rect.w, 30))
+        self.rule_list.set_relative_rect(Rect(
+            self.menu.relative_rect.bottomleft,
+            (self.left_panel.relative_rect.w, self.left_panel.relative_rect.h - self.menu.relative_rect.h)
+        ))
+
+        self.right_panel.set_position((new_width - board_size / 3, 0))
+        self.right_panel.set_dimensions((board_size / 3, new_height))
+
+        pad = 10
+        self.label_1.set_relative_position((0, pad))
+        self.label_1.set_dimensions((board_size / 3, 20))
+
+        self.name.set_relative_position((pad, self.label_1.relative_rect.bottom + pad))
+        self.name.set_dimensions((board_size / 3 - 2 * pad, 30))
+
+        self.label_2.set_relative_position((0, self.name.relative_rect.bottom + pad))
+        self.label_2.set_dimensions((board_size / 3, 20))
+
+        self.properties_panel.set_relative_rect(Rect(
+            0, self.label_2.relative_rect.bottom,
+            board_size / 3, new_height - self.label_2.relative_rect.bottom
+        ))
 
     def assign_event_handlers(self):
         self.rule_list.on_rule_selected.add_handler(self.properties_panel.set_rule)
