@@ -1,4 +1,5 @@
 import pygame as pg
+import pygame_gui as pgui
 from pygame.rect import Rect, RectType
 from pygame.sprite import LayeredDirty
 from pygame_gui.elements import UITextBox
@@ -6,7 +7,7 @@ from pygame_gui.core import UIContainer
 
 from core.app import Application
 from core.action import ActionManager
-from core.ui import ButtonGrid
+from core.ui import ButtonGrid, TabController
 from sudoku.grid import InputMode
 from sudoku.board import Board
 from sudoku.input import InputPanel
@@ -45,25 +46,22 @@ class Game(Application):
     def __init__(self):
         super().__init__((1080, 720))
         self.sprites = LayeredDirty()
-
-        self.level_list = LevelList(Rect(900, 250, 175, 200), self.ui_manager)
-        self.level_list.load_levels()
-
-        self.player = BgmPlayer(Rect(900, 500, 200, 150), self.ui_manager)
-        self.player.load_bgm()
-        self.player.play()
+        self.tabs = TabController()
 
         self.main_panel = None
         self.game_panel = None
         self.side_panel = None
         self.board = None
         self.input = None
-        self.rule_desc = None
-        self.menu = None
-        self.init_components()
 
-        # Event handlers
-        self.level_list.on_load_requested.add_handler(self.load_level)
+        self.menu = None
+        self.rule_desc = None
+        self.controls = None
+        self.level_list = None
+        self.player = None
+
+        self.init_components()
+        self.init_events()
 
         self.loaded_id = None
         self.loaded_level = random_sudoku()
@@ -115,6 +113,19 @@ class Game(Application):
         self.menu.add_button("Levels", "levels")
 
         self.rule_desc = UITextBox("", desc_rect, self.ui_manager, container=self.side_panel)
+        self.controls = UITextBox("--- Controls ---", desc_rect, self.ui_manager, container=self.side_panel)
+
+        self.level_list = LevelList(desc_rect, self.ui_manager, self.side_panel)
+        self.level_list.load_levels()
+
+        self.player = BgmPlayer(desc_rect, self.ui_manager, self.side_panel)
+        self.player.load_bgm()
+        self.player.play()
+
+        self.tabs.add_tab(self.rule_desc)
+        self.tabs.add_tab(self.controls)
+        self.tabs.add_tab(self.player)
+        self.tabs.add_tab(self.level_list)
 
     def recalculate_componenets(self, new_width, new_height):
         ratio = new_width / new_height
@@ -149,6 +160,13 @@ class Game(Application):
 
         self.rule_desc.set_relative_position(desc_rect.topleft)
         self.rule_desc.set_dimensions(desc_rect.size)
+        self.controls.set_relative_position(desc_rect.topleft)
+        self.controls.set_dimensions(desc_rect.size)
+        self.level_list.set_relative_rect(desc_rect)
+        self.player.set_relative_rect(desc_rect)
+
+    def init_events(self):
+        self.level_list.on_load_requested.add_handler(self.load_level)
 
     def reset(self):
         self.load_level(self.loaded_level, self.loaded_id)
@@ -203,6 +221,15 @@ class Game(Application):
                     case pg.K_y:
                         if evt.mod & pg.KMOD_CTRL:
                             ActionManager.redo()
+            case pgui.UI_BUTTON_PRESSED:
+                if evt.ui_element == self.menu.get_button("rules"):
+                    self.tabs.set_tab(0)
+                elif evt.ui_element == self.menu.get_button("controls"):
+                    self.tabs.set_tab(1)
+                elif evt.ui_element == self.menu.get_button("settings"):
+                    self.tabs.set_tab(2)
+                elif evt.ui_element == self.menu.get_button("levels"):
+                    self.tabs.set_tab(3)
 
         self.input.process_events(evt)
         self.board.process_events(evt)

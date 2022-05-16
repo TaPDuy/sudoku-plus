@@ -12,6 +12,7 @@ from pygame_gui.elements import UIPanel, UISelectionList, UIButton
 from .rules.rule import Rule
 from .rules.global_rules import SudokuRule
 from core.event import Event
+from core.ui import ButtonGrid
 
 
 def generate_level_id() -> str:
@@ -55,17 +56,26 @@ class LevelList(UIPanel):
             Rect(0, 0, self.relative_rect.w, self.relative_rect.h - 30),
             [], manager, container=self
         )
-        self.load_btn = UIButton(
-            Rect(self.level_list.relative_rect.bottomleft, (self.relative_rect.w / 2, 30)),
-            "Load", manager, self
-        )
-        self.new_btn = UIButton(
-            Rect(self.load_btn.relative_rect.topright, (self.relative_rect.w / 2, 30)),
-            "New", manager, self
-        )
+
+        self.buttons = ButtonGrid((2, 1), Rect(
+            self.level_list.relative_rect.bottomleft, (self.relative_rect.w, 30)
+        ), 5, manager, self)
+        self.buttons.add_button("Load", "load")
+        self.buttons.add_button("New", "new")
 
         # Events
         self.on_load_requested = Event()
+
+    def set_relative_rect(self, rect: Rect):
+        self.level_list.set_relative_position((0, 0))
+        self.level_list.set_dimensions((rect.w, rect.h - 30))
+
+        self.buttons.set_relative_rect(Rect(
+            self.level_list.relative_rect.bottomleft, (rect.w, 30)
+        ))
+
+        self.set_relative_position(rect.topleft)
+        self.set_dimensions(rect.size)
 
     def load_levels(self):
         filenames = [_ for _ in os.listdir("levels") if _.endswith('.dat')]
@@ -79,19 +89,17 @@ class LevelList(UIPanel):
     def process_event(self, evt):
         match evt.type:
             case pgui.UI_BUTTON_PRESSED:
-                match evt.ui_element:
-                    case self.load_btn:
+                if evt.ui_element == self.buttons.get_button("load"):
+                    index = -1
+                    for item in self.level_list.item_list:
+                        if item['selected']:
+                            index = self.level_list.item_list.index(item)
+                            break
 
-                        index = -1
-                        for item in self.level_list.item_list:
-                            if item['selected']:
-                                index = self.level_list.item_list.index(item)
-                                break
-
-                        if index != -1:
-                            self.on_load_requested(level_id=self.levels[index][0], level=self.levels[index][1])
-                    case self.new_btn:
-                        self.on_load_requested(level=random_sudoku())
+                    if index != -1:
+                        self.on_load_requested(level_id=self.levels[index][0], level=self.levels[index][1])
+                elif evt.ui_element == self.buttons.get_button("new"):
+                    self.on_load_requested(level=random_sudoku())
 
 
 SEEDS = (

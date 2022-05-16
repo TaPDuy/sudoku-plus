@@ -39,6 +39,25 @@ class BgmPlayer(UIPanel):
         self.__index: int = 0
         self.__prev_volume = 1.0
 
+    def set_relative_rect(self, rect: Rect):
+        self.names.set_relative_position((0, 0))
+        self.names.set_dimensions((rect.w, rect.h - 60))
+
+        self.prev_btn.set_relative_position(self.names.relative_rect.bottomleft)
+        self.prev_btn.set_dimensions((rect.w / 2, 30))
+
+        self.next_btn.set_relative_position(self.prev_btn.relative_rect.topright)
+        self.next_btn.set_dimensions((rect.w / 2, 30))
+
+        self.volume_btn.set_relative_position(self.prev_btn.relative_rect.bottomleft)
+        self.volume_btn.set_dimensions((30, 30))
+
+        self.volume_slider.set_relative_position(self.volume_btn.relative_rect.topright)
+        self.volume_slider.set_dimensions((rect.w - 30, 30))
+
+        self.set_relative_position(rect.topleft)
+        self.set_dimensions(rect.size)
+
     def load_bgm(self):
         filenames = [_ for _ in os.listdir("bgm") if _.endswith(('.mp3', '.wav', '.ogg'))]
 
