@@ -1,5 +1,4 @@
 import pygame as pg
-import pygame_gui as pgui
 from pygame.rect import Rect, RectType
 from pygame.sprite import LayeredDirty
 from pygame_gui.elements import UITextBox
@@ -10,12 +9,9 @@ from core.action import ActionManager
 from core.ui import ButtonGrid, TabController
 from sudoku.grid import InputMode
 from sudoku.board import Board
-from sudoku.input import InputPanel
 from sudoku.level import Level, LevelList, random_sudoku, generate_level_id
 from sudoku.score import Highscore
 from core.audio import BgmPlayer
-
-from functools import partial
 
 
 DIM_MATS = \
@@ -94,16 +90,23 @@ class Game(Application):
 
         self.side_panel = UIContainer(Rect(side_rect.topleft, side_rect.size), self.ui_manager)
 
-        self.input = InputPanel(input_rect, (8, 8), self.ui_manager, container=self.side_panel)
-        for _ in range(9):
-            self.input.assign(_, partial(self.board.fill_selection, _ + 1))
-        self.input.assign(InputPanel.BUTTON_VALUE, partial(self.select_input_mode, InputPanel.BUTTON_VALUE))
-        self.input.assign(InputPanel.BUTTON_MARK, partial(self.select_input_mode, InputPanel.BUTTON_MARK))
-        self.input.assign(InputPanel.BUTTON_COLOR, partial(self.select_input_mode, InputPanel.BUTTON_COLOR))
-        self.input.assign(InputPanel.BUTTON_UNDO, ActionManager.undo)
-        self.input.assign(InputPanel.BUTTON_REDO, ActionManager.redo)
-        self.input.assign(InputPanel.BUTTON_CHECK, self.check_win)
-        self.input.assign(InputPanel.BUTTON_RESET, self.reset)
+        self.input = ButtonGrid((4, 4), input_rect, 5, self.ui_manager, self.side_panel)
+        self.input.add_button("7", "7", keys=[pg.K_7, pg.K_KP7])
+        self.input.add_button("8", "8", keys=[pg.K_8, pg.K_KP8])
+        self.input.add_button("9", "9", keys=[pg.K_9, pg.K_KP9])
+        self.input.add_button("Value", "value", sticky=True)
+        self.input.add_button("4", "4", keys=[pg.K_4, pg.K_KP4])
+        self.input.add_button("5", "5", keys=[pg.K_5, pg.K_KP5])
+        self.input.add_button("6", "6", keys=[pg.K_6, pg.K_KP6])
+        self.input.add_button("Mark", "mark", sticky=True)
+        self.input.add_button("1", "1", keys=[pg.K_1, pg.K_KP1])
+        self.input.add_button("2", "2", keys=[pg.K_2, pg.K_KP2])
+        self.input.add_button("3", "3", keys=[pg.K_3, pg.K_KP3])
+        self.input.add_button("Color", "color", sticky=True)
+        self.input.add_button("Undo", "undo")
+        self.input.add_button("Redo", "redo")
+        self.input.add_button("Check", "check")
+        self.input.add_button("Reset", "reset")
         self.board.set_focusable_areas(self.board.grid_rect, self.input.rect)
 
         self.menu = ButtonGrid((4, 1) if vertical else (1, 4), menu_rect, 5, self.ui_manager, self.side_panel)
@@ -167,6 +170,8 @@ class Game(Application):
 
     def init_events(self):
         self.level_list.on_load_requested.add_handler(self.load_level)
+        self.menu.on_button_pressed.add_handler(self.handle_menu_buttons)
+        self.input.on_button_pressed.add_handler(self.handle_input_buttons)
 
     def reset(self):
         self.load_level(self.loaded_level, self.loaded_id)
@@ -202,11 +207,6 @@ class Game(Application):
         else:
             print("Something's wrong...")
 
-    def select_input_mode(self, index):
-        self.input.toggle_highlight_button(self.board.force_mode.value + InputPanel.BUTTON_VALUE)
-        self.input.toggle_highlight_button(index)
-        self.board.force_mode = InputMode(index - InputPanel.BUTTON_VALUE)
-
     def _process_events(self, evt):
         match evt.type:
             case pg.WINDOWCLOSE:
@@ -221,18 +221,38 @@ class Game(Application):
                     case pg.K_y:
                         if evt.mod & pg.KMOD_CTRL:
                             ActionManager.redo()
-            case pgui.UI_BUTTON_PRESSED:
-                if evt.ui_element == self.menu.get_button("rules"):
-                    self.tabs.set_tab(0)
-                elif evt.ui_element == self.menu.get_button("controls"):
-                    self.tabs.set_tab(1)
-                elif evt.ui_element == self.menu.get_button("settings"):
-                    self.tabs.set_tab(2)
-                elif evt.ui_element == self.menu.get_button("levels"):
-                    self.tabs.set_tab(3)
 
-        self.input.process_events(evt)
         self.board.process_events(evt)
+
+    def handle_menu_buttons(self, button_id: str):
+        match button_id:
+            case "rules":
+                self.tabs.set_tab(0)
+            case "controls":
+                self.tabs.set_tab(1)
+            case "settings":
+                self.tabs.set_tab(2)
+            case "levels":
+                self.tabs.set_tab(3)
+
+    def handle_input_buttons(self, button_id: str):
+        match button_id:
+            case "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9":
+                self.board.fill_selection(int(button_id))
+            case "value":
+                self.board.force_mode = InputMode.INPUT_MODE_VALUE
+            case "mark":
+                self.board.force_mode = InputMode.INPUT_MODE_MARK
+            case "color":
+                self.board.force_mode = InputMode.INPUT_MODE_COLOR
+            case "undo":
+                ActionManager.undo()
+            case "redo":
+                ActionManager.redo()
+            case "check":
+                self.check_win()
+            case "reset":
+                self.reset()
 
     def _update(self, dt):
         self.board.update()
