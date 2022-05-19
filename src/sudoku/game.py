@@ -110,10 +110,10 @@ class Game(Application):
         self.board.set_focusable_areas(self.board.grid_rect, self.input.rect)
 
         self.menu = ButtonGrid((4, 1) if vertical else (1, 4), menu_rect, 5, self.ui_manager, self.side_panel)
-        self.menu.add_button("Rules", "rules")
-        self.menu.add_button("Controls", "controls")
-        self.menu.add_button("Settings", "settings")
-        self.menu.add_button("Levels", "levels")
+        self.menu.add_button("Rules", "rules", sticky=True)
+        self.menu.add_button("Controls", "controls", sticky=True)
+        self.menu.add_button("Settings", "settings", sticky=True)
+        self.menu.add_button("Levels", "levels", sticky=True)
 
         self.rule_desc = UITextBox("", desc_rect, self.ui_manager, container=self.side_panel)
         self.controls = UITextBox("--- Controls ---", desc_rect, self.ui_manager, container=self.side_panel)
