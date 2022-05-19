@@ -21,7 +21,7 @@ import tkinter.filedialog
 class LevelMaker(Application):
 
     def __init__(self):
-        super().__init__((1080, 720))
+        super().__init__((1800, 720))
 
         self.opened_level_path = ""
         self.levels_path = os.getcwd() + "/levels"
@@ -57,7 +57,7 @@ class LevelMaker(Application):
         self.board.hide_timer()
 
         self.left_panel = UIPanel(
-            Rect(0, 0, board_size / 3, self.height), 0, self.ui_manager,
+            Rect(0, 0, self.board.rect.left, self.height), 0, self.ui_manager,
             margins={'left': 0, 'right': 0, 'top': 0, 'bottom': 0}
         )
 
@@ -76,7 +76,7 @@ class LevelMaker(Application):
         ), self.ui_manager, self.left_panel)
 
         self.right_panel = UIPanel(
-            Rect(self.width - board_size / 3, 0, board_size / 3, self.height), 0, self.ui_manager,
+            Rect(self.board.rect.right, 0, self.width - self.board.rect.right, self.height), 0, self.ui_manager,
             margins={'left': 0, 'right': 0, 'top': 0, 'bottom': 0}
         )
 
@@ -112,7 +112,7 @@ class LevelMaker(Application):
         )
 
         self.left_panel.set_position((0, 0))
-        self.left_panel.set_dimensions((board_size / 3, new_height))
+        self.left_panel.set_dimensions((self.board.rect.left, new_height))
 
         self.menu.set_relative_rect(Rect(0, 0, self.left_panel.relative_rect.w, 30))
         self.rule_list.set_relative_rect(Rect(
@@ -120,22 +120,22 @@ class LevelMaker(Application):
             (self.left_panel.relative_rect.w, self.left_panel.relative_rect.h - self.menu.relative_rect.h)
         ))
 
-        self.right_panel.set_position((new_width - board_size / 3, 0))
-        self.right_panel.set_dimensions((board_size / 3, new_height))
+        self.right_panel.set_position((self.board.rect.right, 0))
+        self.right_panel.set_dimensions((new_width - self.board.rect.right, new_height))
 
         pad = 10
         self.label_1.set_relative_position((0, pad))
-        self.label_1.set_dimensions((board_size / 3, 20))
+        self.label_1.set_dimensions((self.right_panel.relative_rect.w, 20))
 
         self.name.set_relative_position((pad, self.label_1.relative_rect.bottom + pad))
-        self.name.set_dimensions((board_size / 3 - 2 * pad, 30))
+        self.name.set_dimensions((self.right_panel.relative_rect.w - 2 * pad, 30))
 
         self.label_2.set_relative_position((0, self.name.relative_rect.bottom + pad))
-        self.label_2.set_dimensions((board_size / 3, 20))
+        self.label_2.set_dimensions((self.right_panel.relative_rect.w, 20))
 
         self.properties_panel.set_relative_rect(Rect(
             0, self.label_2.relative_rect.bottom,
-            board_size / 3, new_height - self.label_2.relative_rect.bottom
+            self.right_panel.relative_rect.w, new_height - self.label_2.relative_rect.bottom
         ))
 
     def assign_event_handlers(self):
