@@ -107,7 +107,7 @@ class Board:
         self.should_select = False
 
         # Layers
-        self.__origin_layers = [Surface(self.grid_rect.size, SRCALPHA) for _ in range(5)]
+        self.__origin_layers = [Surface(self.render_grid_rect.size, SRCALPHA) for _ in range(5)]
         self.layers = [DirtySprite() for _ in range(6)]
 
         self.layers[Board.LAYER_COLOR].image = Surface(self.grid_rect.size, SRCALPHA)

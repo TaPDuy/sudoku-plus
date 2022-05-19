@@ -85,7 +85,7 @@ class Game(Application):
 
         self.board = Board(
             main_rect.topleft, main_rect.height, main_rect.height / 11,
-            self.sprites, self.ui_manager, self.main_panel, main_rect.height / 22
+            self.sprites, self.ui_manager, title_height=main_rect.height / 22
         )
 
         self.side_panel = UIContainer(Rect(side_rect.topleft, side_rect.size), self.ui_manager)

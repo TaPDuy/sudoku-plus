@@ -21,7 +21,7 @@ import tkinter.filedialog
 class LevelMaker(Application):
 
     def __init__(self):
-        super().__init__((1800, 720))
+        super().__init__((1280, 720))
 
         self.opened_level_path = ""
         self.levels_path = os.getcwd() + "/levels"
@@ -49,7 +49,7 @@ class LevelMaker(Application):
 
     def init_components(self):
         ratio = self.width / self.height
-        board_size = self.height if ratio > 5 / 3 else .6 * self.width
+        board_size = self.height if ratio > 2 else 1/2 * self.width
         self.board = Board(
             (self.width / 2 - board_size / 2, self.height / 2 - board_size / 2),
             board_size, board_size / 11, self.sprites, self.ui_manager
@@ -105,7 +105,7 @@ class LevelMaker(Application):
 
     def recalculate_componenets(self, new_width, new_height):
         ratio = new_width / new_height
-        board_size = new_height if ratio > 5 / 3 else .6 * new_width
+        board_size = new_height if ratio > 2 else 1/2 * new_width
         self.board.resize(
             (new_width / 2 - board_size / 2, new_height / 2 - board_size / 2),
             board_size, board_size / 11
