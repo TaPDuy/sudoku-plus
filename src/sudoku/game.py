@@ -13,28 +13,37 @@ from sudoku.level import Level, LevelList, random_sudoku, generate_level_id
 from sudoku.score import Highscore
 from core.audio import BgmPlayer
 
-
 DIM_MATS = \
     (
         (
             (0, 0, 0, 0),
-            (-2/3, .5, -1/3, 1),
+            (-2 / 3, .5, -1 / 3, 1),
             (1, 0, 1, 0),
-            (1, 0, 1/3, 0)
+            (1, 0, 1 / 3, 0)
         ),
         (
-            (0, 0, 2/3, 0),
-            (-1/3, .5, 0, 0),
-            (2/3, 0, 1/3, 0),
-            (2/3, 0, 0, 1)
+            (0, 0, 2 / 3, 0),
+            (-1 / 3, .5, 0, 0),
+            (2 / 3, 0, 1 / 3, 0),
+            (2 / 3, 0, 0, 1)
         ),
         (
-            (.5, -2/3, 1, -1/3),
+            (.5, -2 / 3, 1, -1 / 3),
             (0, 0, 0, 0),
-            (0, 1, 0, 1/3),
+            (0, 1, 0, 1 / 3),
             (0, 1, 0, 1)
         )
     )
+
+CONTROLS_TEXT = (
+    "<b>Controls:</b><br>"
+    "- 1-9 (or numpad): Fill selections <br>"
+    "- Backspace: Delete <br>"
+    "- Ctrl-Z, Crtl-Y: Undo/Redo <br>"
+    "- Hold Shift: Switch to mode after current mode <br>"
+    "- Hold Ctrl: Switch to mode before current mode <br>"
+    "- Escape: Pause <br>"
+)
 
 
 class Game(Application):
@@ -43,6 +52,8 @@ class Game(Application):
         super().__init__((1080, 720))
         self.sprites = LayeredDirty()
         self.tabs = TabController()
+        self.paused = False
+        self.win = False
 
         self.main_panel = None
         self.game_panel = None
@@ -65,12 +76,12 @@ class Game(Application):
 
     def init_components(self):
         ratio = self.width / self.height
-        index = 0 if ratio <= 3/4 else (1 if ratio < 4/3 else 2)
+        index = 0 if ratio <= 3 / 4 else (1 if ratio < 4 / 3 else 2)
 
         main_rect = Rect(*(DIM_MATS[index][_][0] * self.width + DIM_MATS[index][_][1] * self.height for _ in range(4)))
         side_rect = Rect(*(DIM_MATS[index][_][2] * self.width + DIM_MATS[index][_][3] * self.height for _ in range(4)))
 
-        vertical = ratio > 3/4
+        vertical = ratio > 3 / 4
         input_rect = Rect(0, 0, side_rect.w, side_rect.w) if vertical else Rect(0, 0, side_rect.h, side_rect.h)
         menu_rect = Rect(
             input_rect.bottomleft, (side_rect.w, side_rect.w / 4)
@@ -116,7 +127,7 @@ class Game(Application):
         self.menu.add_button("Levels", "levels", sticky=True)
 
         self.rule_desc = UITextBox("", desc_rect, self.ui_manager, container=self.side_panel)
-        self.controls = UITextBox("--- Controls ---", desc_rect, self.ui_manager, container=self.side_panel)
+        self.controls = UITextBox(CONTROLS_TEXT, desc_rect, self.ui_manager, container=self.side_panel)
 
         self.level_list = LevelList(desc_rect, self.ui_manager, self.side_panel)
         self.level_list.load_levels()
@@ -188,10 +199,13 @@ class Game(Application):
         self.rule_desc.set_text("--- Ruleset ---<br>" + "<br>".join(" - " + _.DESCRIPTIONS for _ in types))
 
         # Load initial values
+        self.board.unlock()
         self.board.grid.clear()
         for pos, val in level.start_values.items():
             self.board.fill_tiles(val, [pos], InputMode.INPUT_MODE_VALUE, lock=True, no_record=True)
 
+        self.win = False
+        self.board.playing = False
         self.board.timer.stop()
         self.board.timer.reset()
 
@@ -200,12 +214,28 @@ class Game(Application):
         self.board.set_highscore(Highscore.get(level_id))
         self.board.redraw_rules()
 
+        if self.paused:
+            self.board.title.set_text(self.board.title_text.upper() + " (PAUSED)")
+            self.board.lock()
+
     def check_win(self):
         if self.board.rule_manager.check():
-            Highscore.update(self.loaded_id, self.board.timer.stop())
+            self.win = True
+            self.board.lock()
+            Highscore.update(self.loaded_id, self.board.timer.time)
             print("You win!")
         else:
             print("Something's wrong...")
+
+    def pause(self):
+        if self.paused and not self.win:
+            self.paused = False
+            self.board.set_title(self.board.title_text.upper())
+            self.board.unlock()
+        else:
+            self.paused = True
+            self.board.title.set_text(self.board.title_text.upper() + " (PAUSED)")
+            self.board.lock()
 
     def _process_events(self, evt):
         match evt.type:
@@ -214,12 +244,12 @@ class Game(Application):
             case pg.KEYDOWN:
                 match evt.key:
                     case pg.K_ESCAPE:
-                        self.close()
+                        self.pause()
                     case pg.K_z:
-                        if evt.mod & pg.KMOD_CTRL:
+                        if not self.paused and evt.mod & pg.KMOD_CTRL:
                             ActionManager.undo()
                     case pg.K_y:
-                        if evt.mod & pg.KMOD_CTRL:
+                        if not self.paused and evt.mod & pg.KMOD_CTRL:
                             ActionManager.redo()
 
         self.board.process_events(evt)
@@ -246,11 +276,14 @@ class Game(Application):
             case "color":
                 self.board.force_mode = InputMode.INPUT_MODE_COLOR
             case "undo":
-                ActionManager.undo()
+                if not self.paused:
+                    ActionManager.undo()
             case "redo":
-                ActionManager.redo()
+                if not self.paused:
+                    ActionManager.redo()
             case "check":
-                self.check_win()
+                if not self.win:
+                    self.check_win()
             case "reset":
                 self.reset()
 

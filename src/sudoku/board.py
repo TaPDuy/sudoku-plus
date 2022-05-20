@@ -83,7 +83,9 @@ class Board:
             self.tlw * 10, self.tlh * 10
         ), self)
         self.rule_manager = RuleManager(self.grid)
-        self.title = Title(" ", Rect(
+
+        self.title_text = " "
+        self.title = Title(self.title_text, Rect(
             (self.grid_rect.left, self.grid_rect.top - title_height),
             (self.grid_rect.w, title_height)
         ), sprite_groups, align_top=False)
@@ -105,6 +107,8 @@ class Board:
         self.is_focused = False
         self.multi_select = False
         self.should_select = False
+        self.locked = False
+        self.playing = False
 
         # Layers
         self.__origin_layers = [Surface(self.render_grid_rect.size, SRCALPHA) for _ in range(5)]
@@ -141,6 +145,16 @@ class Board:
         self.selection.generate_mesh_sprites(.25, (255, 0, 255, 150), 1, (255, 0, 255))
         KillerRule.generate_killer_mesh(self.tile_size)
         self.__initdraw()
+
+    def lock(self):
+        if self.playing:
+            self.timer.stop()
+        self.locked = True
+
+    def unlock(self):
+        if self.playing:
+            self.timer.start()
+        self.locked = False
 
     def hide_timer(self):
         self.timer.hide()
@@ -238,12 +252,16 @@ class Board:
                 self.selection.unselect(self.get_tile_pos((mpos[0] - self.grid_rect.left, mpos[1] - self.grid_rect.top)))
 
     def fill_selection(self, value):
-        if not self.timer.running:
-            self.timer.start()
-
         self.fill_tiles(value, self.selection.selected)
 
     def fill_tiles(self, value: int, positions: list | set, mode: InputMode | None = None, **kwargs):
+        if self.locked:
+            return
+
+        if not self.playing:
+            self.timer.start()
+            self.playing = True
+
         if not mode:
             mode = InputMode(
                 (
@@ -294,9 +312,8 @@ class Board:
         self.layers[Board.LAYER_NUMBER].image = smoothscale(layer, self.grid_rect.size)
 
     def set_title(self, title: str):
-        if not len(title):
-            title = " "
-        self.title.set_text(title.upper())
+        self.title_text = title if len(title) else " "
+        self.title.set_text(self.title_text.upper())
 
     def get_tile_pos(self, pxpos: tuple[float, float]) -> tuple[int, int]:
         return int(pxpos[0] / self.tlw), int(pxpos[1] / self.tlh)
