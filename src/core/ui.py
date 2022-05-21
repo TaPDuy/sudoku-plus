@@ -1,14 +1,16 @@
-from pygame.rect import Rect
+from pygame import Rect, Surface, SRCALPHA
+from pygame.transform import smoothscale
+from pygame_gui.core import UIContainer
 from pygame_gui.core.interfaces import IUIManagerInterface, IUIElementInterface
-from pygame_gui.elements import UIPanel, UIButton
+from pygame_gui.elements import UIPanel, UIButton, UILabel
 import pygame_gui as pgui
 import pygame as pg
 
 from core.event import Event
+from core.gfx.graphics import Graphics
 
 
 class ButtonGrid(UIPanel):
-
     class Button(UIButton):
 
         def __init__(
@@ -170,3 +172,94 @@ class TabController:
         self.__tabs[self.current_tab].hide()
         self.__tabs[index].show()
         self.current_tab = index
+
+
+class CheckBox(UIContainer):
+
+    __RENDER_SIZE = 64, 64
+    __SPRITE_CHECK = Surface(__RENDER_SIZE, SRCALPHA)
+    __SPRITE_UNCHECK = Surface(__RENDER_SIZE, SRCALPHA)
+    __FILL_COLOR = (50, 50, 100)
+    __STROKE_COLOR = (200, 200, 225)
+
+    class Button(UIButton):
+
+        def __init__(self, rect: Rect, manager: IUIManagerInterface, container):
+            super().__init__(rect, "", manager, container)
+
+        def can_hover(self) -> bool:
+            return False
+
+    def __init__(self, rect: Rect, label: str, manager: IUIManagerInterface, container=None):
+        super().__init__(
+            rect, manager, container=container
+        )
+
+        self.pad = 5
+        btn_rect = Rect(
+            self.pad, self.pad,
+            self.rect.h - 2 * self.pad, self.rect.h - 2 * self.pad
+        )
+
+        self.button = CheckBox.Button(btn_rect, manager, self)
+        self.button.set_image(smoothscale(CheckBox.__SPRITE_UNCHECK, self.button.rect.size))
+
+        self.label = UILabel(Rect(
+            self.rect.h, self.pad,
+            self.rect.w - self.button.relative_rect.right - self.pad,
+            self.rect.h - 2 * self.pad
+        ), label, manager, self)
+
+        self.checked = False
+
+    def set_relative_rect(self, rect: Rect):
+        self.button.set_relative_position((self.pad, self.pad))
+        self.button.set_dimensions((rect.w - 2 * self.pad, rect.h - 2 * self.pad))
+
+        self.label.set_relative_position((rect.h, self.pad))
+        self.label.set_dimensions((
+            rect.w - self.button.relative_rect.right - self.pad, rect.h - 2 * self.pad
+        ))
+
+        self.set_relative_position(rect.topleft)
+        self.set_dimensions(rect.size)
+
+    def process_event(self, evt):
+        if evt.type == pgui.UI_BUTTON_PRESSED:
+            if evt.ui_element is self.button:
+                if self.checked:
+                    self.button.set_image(smoothscale(CheckBox.__SPRITE_UNCHECK, self.button.rect.size))
+                    self.checked = False
+                else:
+                    self.button.set_image(smoothscale(CheckBox.__SPRITE_CHECK, self.button.rect.size))
+                    self.checked = True
+
+    @staticmethod
+    def render_sprites():
+        CheckBox.__SPRITE_CHECK.fill(CheckBox.__FILL_COLOR)
+        Graphics.lines(CheckBox.__SPRITE_CHECK, [
+            (0, 0), (CheckBox.__RENDER_SIZE[0] - 1, 0),
+            (CheckBox.__RENDER_SIZE[0] - 1, CheckBox.__RENDER_SIZE[1] - 1),
+            (0, CheckBox.__RENDER_SIZE[1] - 1), (0, 0)
+        ], 5, CheckBox.__STROKE_COLOR)
+        Graphics.line(
+            CheckBox.__SPRITE_CHECK,
+            (0, 0), (CheckBox.__RENDER_SIZE[0] - 1, CheckBox.__RENDER_SIZE[1] - 1),
+            5, CheckBox.__STROKE_COLOR
+        )
+        Graphics.line(
+            CheckBox.__SPRITE_CHECK,
+            (CheckBox.__RENDER_SIZE[0] - 1, 0), (0, CheckBox.__RENDER_SIZE[1] - 1),
+            5, CheckBox.__STROKE_COLOR
+        )
+
+        CheckBox.__SPRITE_UNCHECK.fill(CheckBox.__FILL_COLOR)
+        Graphics.lines(CheckBox.__SPRITE_UNCHECK, [
+            (0, 0), (CheckBox.__RENDER_SIZE[0] - 1, 0),
+            (CheckBox.__RENDER_SIZE[0] - 1, CheckBox.__RENDER_SIZE[1] - 1),
+            (0, CheckBox.__RENDER_SIZE[1] - 1), (0, 0)
+        ], 5, CheckBox.__STROKE_COLOR)
+
+
+def init():
+    CheckBox.render_sprites()

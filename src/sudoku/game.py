@@ -4,6 +4,7 @@ from pygame.sprite import LayeredDirty
 from pygame_gui.elements import UITextBox
 from pygame_gui.core import UIContainer
 
+import core.ui
 from core.app import Application
 from core.action import ActionManager
 from core.ui import ButtonGrid, TabController
@@ -50,6 +51,9 @@ class Game(Application):
 
     def __init__(self):
         super().__init__((1080, 720))
+
+        core.ui.init()
+
         self.sprites = LayeredDirty()
         self.tabs = TabController()
         self.paused = False
