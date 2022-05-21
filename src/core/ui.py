@@ -212,6 +212,13 @@ class CheckBox(UIContainer):
 
         self.checked = False
 
+    def set_checked(self, b: bool):
+        self.button.set_image(smoothscale(
+            CheckBox.__SPRITE_CHECK if b else CheckBox.__SPRITE_UNCHECK,
+            self.button.rect.size
+        ))
+        self.checked = b
+
     def set_relative_rect(self, rect: Rect):
         self.button.set_relative_position((self.pad, self.pad))
         self.button.set_dimensions((rect.w - 2 * self.pad, rect.h - 2 * self.pad))
@@ -227,12 +234,7 @@ class CheckBox(UIContainer):
     def process_event(self, evt):
         if evt.type == pgui.UI_BUTTON_PRESSED:
             if evt.ui_element is self.button:
-                if self.checked:
-                    self.button.set_image(smoothscale(CheckBox.__SPRITE_UNCHECK, self.button.rect.size))
-                    self.checked = False
-                else:
-                    self.button.set_image(smoothscale(CheckBox.__SPRITE_CHECK, self.button.rect.size))
-                    self.checked = True
+                self.set_checked(not self.checked)
 
     @staticmethod
     def render_sprites():
