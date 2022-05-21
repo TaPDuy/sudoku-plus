@@ -12,7 +12,7 @@ from sudoku.grid import InputMode
 from sudoku.board import Board
 from sudoku.level import Level, LevelList, random_sudoku, generate_level_id
 from sudoku.score import Highscore
-from core.audio import BgmPlayer
+from sudoku.settings import SettingsPanel
 
 DIM_MATS = \
     (
@@ -69,7 +69,7 @@ class Game(Application):
         self.rule_desc = None
         self.controls = None
         self.level_list = None
-        self.player = None
+        self.settings = None
 
         self.init_components()
         self.init_events()
@@ -136,13 +136,13 @@ class Game(Application):
         self.level_list = LevelList(desc_rect, self.ui_manager, self.side_panel)
         self.level_list.load_levels()
 
-        self.player = BgmPlayer(desc_rect, self.ui_manager, self.side_panel)
-        self.player.load_bgm()
-        self.player.play()
+        self.settings = SettingsPanel(desc_rect, self.ui_manager, self.side_panel)
+        self.settings.add_setting("Fullscreen", "fullscreen")
+        self.settings.add_setting("Toggle highlight", "highlight")
 
         self.tabs.add_tab(self.rule_desc)
         self.tabs.add_tab(self.controls)
-        self.tabs.add_tab(self.player)
+        self.tabs.add_tab(self.settings)
         self.tabs.add_tab(self.level_list)
 
     def recalculate_componenets(self, new_width, new_height):
@@ -181,12 +181,16 @@ class Game(Application):
         self.controls.set_relative_position(desc_rect.topleft)
         self.controls.set_dimensions(desc_rect.size)
         self.level_list.set_relative_rect(desc_rect)
-        self.player.set_relative_rect(desc_rect)
+        self.settings.set_relative_rect(desc_rect)
 
     def init_events(self):
         self.level_list.on_load_requested.add_handler(self.load_level)
+
         self.menu.on_button_pressed.add_handler(self.handle_menu_buttons)
         self.input.on_button_pressed.add_handler(self.handle_input_buttons)
+
+        self.settings.on_changed.add_handler(self.handle_settings_changes)
+        self.tabs.on_tab_switched.add_handler(self.settings.discard_changes)
 
     def reset(self):
         self.load_level(self.loaded_level, self.loaded_id)
@@ -257,6 +261,18 @@ class Game(Application):
                             ActionManager.redo()
 
         self.board.process_events(evt)
+
+    def handle_settings_changes(self, changes: dict):
+        if "fullscreen" in changes:
+            if changes["fullscreen"]:
+                print("change to fullscreen")
+            else:
+                print("change to windowed")
+        if "highlight" in changes:
+            if changes["highlight"]:
+                print("conflict highlight on")
+            else:
+                print("conflict highlight off")
 
     def handle_menu_buttons(self, button_id: str):
         match button_id:
