@@ -227,7 +227,7 @@ class CheckBox(UIContainer):
 
     def set_relative_rect(self, rect: Rect):
         self.button.set_relative_position((self.pad, self.pad))
-        self.button.set_dimensions((rect.w - 2 * self.pad, rect.h - 2 * self.pad))
+        self.button.set_dimensions((rect.h - 2 * self.pad, rect.h - 2 * self.pad))
 
         self.label.set_relative_position((rect.h, self.pad))
         self.label.set_dimensions((
