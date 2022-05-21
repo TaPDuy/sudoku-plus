@@ -15,6 +15,8 @@ class Application:
     def __init__(self, size: tuple[int, int] = (700, 500)):
         self._clock = pg.time.Clock()
         self.size = self.width, self.height = size
+
+        self.info = pg.display.Info()
         self._screen = pg.display.set_mode(size, pg.RESIZABLE)
         self._font = pg.font.SysFont("Consolas", 14)
 
@@ -40,9 +42,11 @@ class Application:
                 if evt.type == pg.VIDEORESIZE:
                     print(f"Resized to {evt.w}x{evt.h}")
                     self.recalculate_componenets(evt.w, evt.h)
-                    rects.append(Rect(0, 0, evt.w, evt.h))
                     self.ui_manager.set_window_resolution((evt.w, evt.h))
-                    # self._screen = pg.display.set_mode((evt.w, evt.h), pg.RESIZABLE)
+                    self.size = self.width, self.height = evt.w, evt.h
+
+                    self._screen.fill(Application.CLEAR_COLOR)
+                    pg.display.update()
 
                 self._process_events(evt)
                 self.ui_manager.process_events(evt)
@@ -61,6 +65,20 @@ class Application:
 
             pg.display.update(rects)
             self._clock.tick(0)
+
+    def set_fullscreen(self, b: bool):
+        pg.display.quit()
+        pg.display.init()
+
+        size = (self.info.current_w, self.info.current_h) if b else self.size
+        mode = pg.FULLSCREEN if b else pg.RESIZABLE
+
+        self._screen = pg.display.set_mode(size, mode)
+        self.recalculate_componenets(*size)
+        self.ui_manager.set_window_resolution(size)
+
+        self._screen.fill(Application.CLEAR_COLOR)
+        pg.display.update()
 
     def close(self):
         self.is_running = False

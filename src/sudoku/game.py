@@ -264,10 +264,7 @@ class Game(Application):
 
     def handle_settings_changes(self, changes: dict):
         if "fullscreen" in changes:
-            if changes["fullscreen"]:
-                print("change to fullscreen")
-            else:
-                print("change to windowed")
+            self.set_fullscreen(changes["fullscreen"])
         if "highlight" in changes:
             if changes["highlight"]:
                 print("conflict highlight on")
