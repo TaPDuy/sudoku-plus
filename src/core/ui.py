@@ -146,6 +146,8 @@ class TabController:
         self.current_tab = 0
         self.__tabs: list[IUIElementInterface] = []
 
+        self.on_tab_switched = Event()
+
     def add_tab(self, tab: IUIElementInterface):
         self.__tabs.append(tab)
         if len(self.__tabs) - 1 != self.current_tab:
@@ -161,9 +163,11 @@ class TabController:
 
     def next_tab(self):
         self.set_tab((self.current_tab + 1) % len(self.__tabs))
+        self.on_tab_switched()
 
     def prev_tab(self):
         self.set_tab((self.current_tab - 1) % len(self.__tabs))
+        self.on_tab_switched()
 
     def set_tab(self, index: int):
         if index < 0 or index >= len(self.__tabs) or index == self.current_tab:
@@ -172,6 +176,8 @@ class TabController:
         self.__tabs[self.current_tab].hide()
         self.__tabs[index].show()
         self.current_tab = index
+
+        self.on_tab_switched()
 
 
 class CheckBox(UIContainer):
