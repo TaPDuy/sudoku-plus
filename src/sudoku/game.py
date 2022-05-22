@@ -257,7 +257,8 @@ class Game(Application):
                     case pg.K_ESCAPE:
                         self.close()
                     case pg.K_RETURN:
-                        self.pause()
+                        if not self.win:
+                            self.pause()
                     case pg.K_z:
                         if not self.paused and evt.mod & pg.KMOD_CTRL:
                             ActionManager.undo()
@@ -301,7 +302,7 @@ class Game(Application):
                 if not self.paused:
                     ActionManager.redo()
             case "check":
-                if not self.win:
+                if not self.win and not self.paused:
                     self.board.check_win_conditions()
             case "reset":
                 self.reset()
