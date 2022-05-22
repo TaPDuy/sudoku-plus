@@ -288,7 +288,8 @@ class Game(Application):
     def handle_input_buttons(self, button_id: str):
         match button_id:
             case "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9":
-                self.board.fill_selection(int(button_id))
+                if not self.paused:
+                    self.board.fill_selection(int(button_id))
             case "value":
                 self.board.force_mode = InputMode.INPUT_MODE_VALUE
             case "mark":
