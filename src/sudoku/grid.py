@@ -118,7 +118,6 @@ class Grid:
         return {(x, y): self.tiles[y][x].value for y in range(self.tlh) for x in range(self.tlw) if self.tiles[y][x].value}
 
     def is_complete(self) -> bool:
-        print(self.__tile_filled)
         return self.__tile_filled == self.tlw * self.tlh
 
     def clear(self):
