@@ -107,6 +107,7 @@ class Board:
         self.is_focused = False
         self.multi_select = False
         self.should_select = False
+        self.enable_highlight = True
         self.locked = False
         self.playing = False
 
@@ -273,6 +274,10 @@ class Board:
 
         self.grid.fill_tiles(value, mode, positions, **kwargs)
 
+    def set_enable_highlight(self, b: bool):
+        self.enable_highlight = b
+        self.draw_tiles(set(self.rule_manager.conflicts.keys()))
+
     def draw_tiles(self, positions: list | set):
         for x, y in positions:
             self.draw_tile(x, y)
@@ -292,7 +297,8 @@ class Board:
         if 0 < tile.value < 10:
             text = Board.FONT_VALUE.render(
                 str(tile.value), True,
-                (255, 0, 0) if tile.highlight else ((140, 160, 160) if tile.locked else (255, 255, 255))
+                (255, 0, 0) if self.enable_highlight and tile.highlight else
+                ((140, 160, 160) if tile.locked else (255, 255, 255))
             )
             text = smoothscale(text, (text.get_width() * self.render_tlw / 64, text.get_height() * self.render_tlh / 64))
             layer.blit(text, (

@@ -46,14 +46,15 @@ class SettingsPanel(UIPanel):
         for setting_id in self.__settings:
             self.__settings[setting_id].set_checked(self.__settings_values[setting_id])
 
-    def add_setting(self, name: str, setting_id: str):
+    def add_setting(self, name: str, setting_id: str, initial_value=False):
         ln = len(self.__settings)
 
-        self.__settings_values[setting_id] = False
+        self.__settings_values[setting_id] = initial_value
         self.__settings[setting_id] = CheckBox(Rect(
             self.pad, ln * self.component_height + (ln + 1) * self.pad,
             self.rect.w, self.component_height
         ), name, self.ui_manager, self)
+        self.__settings[setting_id].set_checked(initial_value)
         ln += 1
 
         self.apply_btn.set_relative_position((self.pad, ln * self.pad + ln * self.component_height))

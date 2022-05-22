@@ -138,7 +138,7 @@ class Game(Application):
 
         self.settings = SettingsPanel(desc_rect, self.ui_manager, self.side_panel)
         self.settings.add_setting("Fullscreen", "fullscreen")
-        self.settings.add_setting("Toggle highlight", "highlight")
+        self.settings.add_setting("Toggle highlight", "highlight", True)
 
         self.tabs.add_tab(self.rule_desc)
         self.tabs.add_tab(self.controls)
@@ -266,10 +266,7 @@ class Game(Application):
         if "fullscreen" in changes:
             self.set_fullscreen(changes["fullscreen"])
         if "highlight" in changes:
-            if changes["highlight"]:
-                print("conflict highlight on")
-            else:
-                print("conflict highlight off")
+            self.board.set_enable_highlight(changes["highlight"])
 
     def handle_menu_buttons(self, button_id: str):
         match button_id:
