@@ -53,8 +53,6 @@ class Game(Application):
     def __init__(self):
         super().__init__((1080, 720))
 
-        core.ui.init()
-
         self.sprites = LayeredDirty()
         self.tabs = TabController()
         self.paused = False
@@ -314,3 +312,10 @@ class Game(Application):
 
     def _draw(self, surface) -> list[Rect | RectType]:
         return self.sprites.draw(surface)
+
+    def init(self):
+        Highscore.load()
+        core.ui.init()
+
+    def cleanup(self):
+        Highscore.save()

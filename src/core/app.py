@@ -24,6 +24,8 @@ class Application:
 
         self.is_running = False
 
+        self.init()
+
     def run(self):
         self._screen.fill(Application.CLEAR_COLOR)
         pg.display.update()
@@ -66,6 +68,8 @@ class Application:
             pg.display.update(rects)
             self._clock.tick(0)
 
+        self.cleanup()
+
     def set_fullscreen(self, b: bool):
         pg.display.quit()
         pg.display.init()
@@ -82,6 +86,12 @@ class Application:
 
     def close(self):
         self.is_running = False
+
+    def init(self):
+        pass
+
+    def cleanup(self):
+        pass
 
     def recalculate_componenets(self, new_width, new_height):
         pass
