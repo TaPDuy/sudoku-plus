@@ -31,6 +31,7 @@ class Event:
 
     def __call__(self, **data):
         for handler in self.__handlers:
-            args = inspect.signature(handler).parameters.keys()
-            if set(args).issubset(set(data)):
-                handler(*[data[_] for _ in args])
+            param = inspect.signature(handler).parameters.values()
+            required_args = {p.name for p in param if p.default is p.empty}
+            if required_args.issubset(set(data)):
+                handler(*[data[p.name] for p in param if p.name in data])
