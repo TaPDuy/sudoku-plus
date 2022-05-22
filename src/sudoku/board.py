@@ -20,6 +20,8 @@ from .timer import Timer, Time
 
 
 class Board:
+    RENDER_SIZE = 64, 64
+
     LAYER_SELECTION = 5
     LAYER_TOP_RULE = 4
     LAYER_NUMBER = 3
@@ -73,8 +75,8 @@ class Board:
         )
         self.grid_relative_rect = Rect((padding, padding), self.grid_rect.size)
         self.tile_size = self.tlw, self.tlh = self.grid_rect.w / 9, self.grid_rect.h / 9
-        self.render_tile_size = self.render_tlw, self.render_tlh = self.tile_size
-        self.render_grid_rect = self.grid_rect
+        self.render_tile_size = self.render_tlw, self.render_tlh = Board.RENDER_SIZE
+        self.render_grid_rect = Rect(0, 0, self.render_tlw * 9, self.render_tlh * 9)
 
         # Components
         self.grid = Grid()
@@ -146,7 +148,7 @@ class Board:
         self.grid.on_changed.add_handler(self.draw_tiles)
         self.rule_manager.on_conflict_changed.add_handler(self.grid.highlight_conflicts)
 
-        self.selection.generate_mesh_sprites(.25, (255, 0, 255, 150), 1, (255, 0, 255))
+        self.selection.generate_mesh_sprites(.25, (255, 0, 255, 100), 1, (255, 0, 255))
         KillerRule.generate_killer_mesh(self.tile_size)
         self.__initdraw()
 

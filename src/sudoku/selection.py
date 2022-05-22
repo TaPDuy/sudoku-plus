@@ -13,6 +13,8 @@ from core.utils.mesh import MeshGrid
 
 
 class SelectionGrid(DirtySprite):
+    RENDER_SIZE = 16, 16
+
     sprite_map = {}
 
     def __init__(self, rect: Rect, container=None):
@@ -21,7 +23,7 @@ class SelectionGrid(DirtySprite):
         # Graphics properties
         self.container = container
         self.tile_size = self.tlw, self.tlh = int(rect.w / 20), int(rect.h / 20)
-        self.render_tile_size = self.render_tlw, self.render_tlh = self.tlw // 2, self.tlh // 2
+        self.render_tile_size = self.render_tlw, self.render_tlh = SelectionGrid.RENDER_SIZE
         self.rect = self.relative_rect = rect
         if container:
             self.rect = Rect(
