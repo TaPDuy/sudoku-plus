@@ -158,7 +158,7 @@ class LevelMaker(Application):
 
         self.board.grid.clear()
         for pos, val in level.start_values.items():
-            self.board.fill_tiles(val, [pos], InputMode.INPUT_MODE_VALUE, lock=True, no_record=True)
+            self.board.fill_tiles(val, [pos], InputMode.INPUT_MODE_VALUE, no_record=True)
 
         self.board.redraw_rules()
 
