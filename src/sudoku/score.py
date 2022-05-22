@@ -24,13 +24,16 @@ class Highscore:
             json.dump(Highscore.highscores, file)
 
     @staticmethod
-    def update(level_id: str, time: Time):
+    def update(level_id: str, time: Time) -> bool:
         if Highscore.highscores.get(level_id):
             if time.ticks < Highscore.highscores[level_id]:
                 Highscore.highscores[level_id] = time.ticks
+                return True
         else:
             Highscore.highscores[level_id] = time.ticks
-        print(Highscore.highscores)
+            return True
+
+        return False
 
     @staticmethod
     def get(level_id: str) -> Time:

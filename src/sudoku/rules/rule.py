@@ -1,5 +1,4 @@
 from pygame import Surface
-from sudoku.grid import Grid
 from maker.properties import Properties
 
 from core.event import Event
@@ -20,8 +19,7 @@ class Rule:
 
 class RuleManager:
 
-    def __init__(self, board: Grid, rules: set[Rule] = None):
-        self.board = board
+    def __init__(self, rules: set[Rule] = None):
 
         self.component_rules = set()
         self.global_rules = set()
@@ -136,9 +134,7 @@ class RuleManager:
                     self.conflicts[valpos].add(pos)
 
     def check(self) -> bool:
-        return len(self.conflicts) == 0 and \
-               all(map(lambda rule: rule.check(), self.component_rules)) and \
-               self.board.is_complete()
+        return len(self.conflicts) == 0 and all(map(lambda rule: rule.check(), self.component_rules))
 
 
 class GlobalRule(Rule):

@@ -82,7 +82,7 @@ class Board:
             self.grid_relative_rect.top - self.tlh / 2,
             self.tlw * 10, self.tlh * 10
         ), self)
-        self.rule_manager = RuleManager(self.grid)
+        self.rule_manager = RuleManager()
 
         self.title_text = " "
         self.title = Title(self.title_text, Rect(
@@ -146,6 +146,9 @@ class Board:
         self.selection.generate_mesh_sprites(.25, (255, 0, 255, 150), 1, (255, 0, 255))
         KillerRule.generate_killer_mesh(self.tile_size)
         self.__initdraw()
+
+    def check_win_conditions(self) -> bool:
+        return self.grid.is_complete() and self.rule_manager.check()
 
     def lock(self):
         if self.playing:

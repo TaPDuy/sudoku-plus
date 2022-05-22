@@ -228,13 +228,14 @@ class Game(Application):
             self.board.lock()
 
     def check_win(self):
-        if self.board.rule_manager.check():
+        if self.board.check_win_conditions():
             self.win = True
             self.board.lock()
-            Highscore.update(self.loaded_id, self.board.timer.time)
-            print("You win!")
-        else:
-            print("Something's wrong...")
+            new_best = Highscore.update(self.loaded_id, self.board.timer.time)
+            self.board.title.set_text(
+                self.board.title_text.upper() +
+                (" (NEW RECORD)" if new_best else " (COMPLETED)")
+            )
 
     def pause(self):
         if self.paused and not self.win:
