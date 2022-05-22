@@ -43,7 +43,8 @@ CONTROLS_TEXT = (
     "- Ctrl-Z, Crtl-Y: Undo/Redo <br>"
     "- Hold Shift: Switch to mode after current mode <br>"
     "- Hold Ctrl: Switch to mode before current mode <br>"
-    "- Escape: Pause <br>"
+    "- Enter: Pause <br>"
+    "- Escape: Exit <br>"
 )
 
 
@@ -252,6 +253,8 @@ class Game(Application):
             case pg.KEYDOWN:
                 match evt.key:
                     case pg.K_ESCAPE:
+                        self.close()
+                    case pg.K_RETURN:
                         self.pause()
                     case pg.K_z:
                         if not self.paused and evt.mod & pg.KMOD_CTRL:
