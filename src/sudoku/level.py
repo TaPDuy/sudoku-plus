@@ -4,10 +4,9 @@ import numpy as np
 import pickle
 from datetime import datetime
 
-import pygame_gui as pgui
 from pygame import Rect
 from pygame_gui.core.interfaces import IUIManagerInterface
-from pygame_gui.elements import UIPanel, UISelectionList, UIButton
+from pygame_gui.elements import UIPanel, UISelectionList
 
 from .rules.rule import Rule
 from .rules.global_rules import SudokuRule
@@ -65,6 +64,7 @@ class LevelList(UIPanel):
 
         # Events
         self.on_load_requested = Event()
+        self.buttons.on_button_pressed.add_handler(self.handle_button_pressed)
 
     def set_relative_rect(self, rect: Rect):
         self.level_list.set_relative_position((0, 0))
@@ -86,20 +86,20 @@ class LevelList(UIPanel):
 
         self.level_list.set_item_list([_[1].name for _ in self.levels])
 
-    def process_event(self, evt):
-        match evt.type:
-            case pgui.UI_BUTTON_PRESSED:
-                if evt.ui_element == self.buttons.get_button("load"):
-                    index = -1
-                    for item in self.level_list.item_list:
-                        if item['selected']:
-                            index = self.level_list.item_list.index(item)
-                            break
+    def handle_button_pressed(self, button_id: str):
+        match button_id:
+            case "load":
+                index = -1
+                for item in self.level_list.item_list:
+                    if item['selected']:
+                        index = self.level_list.item_list.index(item)
+                        break
 
-                    if index != -1:
-                        self.on_load_requested(level_id=self.levels[index][0], level=self.levels[index][1])
-                elif evt.ui_element == self.buttons.get_button("new"):
-                    self.on_load_requested(level=random_sudoku())
+                if index != -1:
+                    self.on_load_requested(level_id=self.levels[index][0], level=self.levels[index][1])
+
+            case "new":
+                self.on_load_requested(level=random_sudoku())
 
 
 SEEDS = (
