@@ -2,7 +2,7 @@ import os
 
 from core.app import Application
 from sudoku.grid import InputMode
-from sudoku.level import Level
+from sudoku.level import Level, LevelList
 from .ui.rule_list import RuleListPanel
 from .ui.properties import PropertiesPanel
 from sudoku.board import Board
@@ -24,7 +24,7 @@ class LevelMaker(Application):
         super().__init__((1280, 720))
 
         self.opened_level_path = ""
-        self.levels_path = os.getcwd() + "/levels"
+        self.levels_path = f"{os.getcwd()}/{LevelList.LEVELS_PATH}"
         if not os.path.exists(self.levels_path):
             os.makedirs(self.levels_path)
 

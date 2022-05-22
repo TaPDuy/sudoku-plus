@@ -47,6 +47,7 @@ class Level:
 
 
 class LevelList(UIPanel):
+    LEVELS_PATH = "data/levels"
 
     def __init__(self, relative_rect: Rect, manager: IUIManagerInterface, container=None):
         super().__init__(relative_rect, 0, manager, container=container)
@@ -78,10 +79,10 @@ class LevelList(UIPanel):
         self.set_dimensions(rect.size)
 
     def load_levels(self):
-        filenames = [_ for _ in os.listdir("levels") if _.endswith('.dat')]
+        filenames = [_ for _ in os.listdir(LevelList.LEVELS_PATH) if _.endswith('.dat')]
 
         for name in filenames:
-            with open("levels/" + name, 'rb') as f:
+            with open(f"{LevelList.LEVELS_PATH}/{name}", 'rb') as f:
                 self.levels += [(name, pickle.load(f))]
 
         self.level_list.set_item_list([_[1].name for _ in self.levels])

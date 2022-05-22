@@ -11,6 +11,7 @@ pygame.mixer.init()
 
 
 class BgmPlayer(UIPanel):
+    BGM_PATH = "data/bgm"
 
     def __init__(self, relative_rect: Rect, manager: IUIManagerInterface, container=None):
         super().__init__(relative_rect, 0, manager, container=container)
@@ -59,11 +60,11 @@ class BgmPlayer(UIPanel):
         self.set_dimensions(rect.size)
 
     def load_bgm(self):
-        filenames = [_ for _ in os.listdir("bgm") if _.endswith(('.mp3', '.wav', '.ogg'))]
+        filenames = [_ for _ in os.listdir(BgmPlayer.BGM_PATH) if _.endswith(('.mp3', '.wav', '.ogg'))]
 
         bgms = []
         for name in filenames:
-            bgms += [(name, Sound("bgm/" + name))]
+            bgms += [(name, Sound(f"{BgmPlayer.BGM_PATH}/{name}"))]
 
         self.bgms = tuple(bgms)
 

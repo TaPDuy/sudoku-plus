@@ -6,7 +6,7 @@ from sudoku.timer import Time
 
 
 class Highscore:
-    __PATH = "highscore.json"
+    __PATH = "data/highscore.json"
     highscores = {}
 
     @staticmethod
