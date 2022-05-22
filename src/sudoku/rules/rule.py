@@ -134,6 +134,7 @@ class RuleManager:
                     self.conflicts[valpos].add(pos)
 
     def check(self) -> bool:
+        print("rule checfk")
         return len(self.conflicts) == 0 and all(map(lambda rule: rule.check(), self.component_rules))
 
 

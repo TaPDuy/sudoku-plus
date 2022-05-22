@@ -193,6 +193,8 @@ class Game(Application):
         self.settings.on_changed.add_handler(self.handle_settings_changes)
         self.tabs.on_tab_switched.add_handler(self.settings.discard_changes)
 
+        self.board.on_won.add_handler(self.handle_win)
+
     def reset(self):
         self.load_level(self.loaded_level, self.loaded_id)
 
@@ -227,15 +229,14 @@ class Game(Application):
             self.board.title.set_text(self.board.title_text.upper() + " (PAUSED)")
             self.board.lock()
 
-    def check_win(self):
-        if self.board.check_win_conditions():
-            self.win = True
-            self.board.lock()
-            new_best = Highscore.update(self.loaded_id, self.board.timer.time)
-            self.board.title.set_text(
-                self.board.title_text.upper() +
-                (" (NEW RECORD)" if new_best else " (COMPLETED)")
-            )
+    def handle_win(self):
+        self.win = True
+        self.board.lock()
+        new_best = Highscore.update(self.loaded_id, self.board.timer.time)
+        self.board.title.set_text(
+            self.board.title_text.upper() +
+            (" (NEW RECORD)" if new_best else " (COMPLETED)")
+        )
 
     def pause(self):
         if self.paused and not self.win:
@@ -301,7 +302,7 @@ class Game(Application):
                     ActionManager.redo()
             case "check":
                 if not self.win:
-                    self.check_win()
+                    self.board.check_win_conditions()
             case "reset":
                 self.reset()
 

@@ -57,6 +57,9 @@ class Grid:
         # Properties
         self.tlsize = self.tlw, self.tlh = 9, 9
 
+        # Control properties
+        self.__tile_filled = 0
+
         # Components
         self.tiles = [[Tile() for x in range(self.tlw)] for y in range(self.tlh)]
 
@@ -72,6 +75,7 @@ class Grid:
                 tile.locked = True
 
             tile.value = 0 if value == old_value else value
+            self.__tile_filled += bool(tile.value) - bool(old_value)
             self.on_changed(new_val=value, old_values={pos: old_value}, positions={pos})
 
         return old_value
@@ -108,23 +112,17 @@ class Grid:
                 case InputMode.INPUT_MODE_COLOR:
                     old_values[pos] = self.set_color(pos, value)
 
-        # if mode == InputMode.INPUT_MODE_VALUE:
-        #     self.on_changed(new_val=value, old_values=old_values)
-        # self.on_changed(positions=tiles)
-
         return {'component': self, 'input_mode': mode, 'old_values': old_values, 'new_value': value}
 
     def get_numbered_tiles(self) -> dict[tuple[int, int], int]:
         return {(x, y): self.tiles[y][x].value for y in range(self.tlh) for x in range(self.tlw) if self.tiles[y][x].value}
 
     def is_complete(self) -> bool:
-        for y in range(self.tlh):
-            for x in range(self.tlw):
-                if self.tiles[y][x].value == 0:
-                    return False
-        return True
+        print(self.__tile_filled)
+        return self.__tile_filled == self.tlw * self.tlh
 
     def clear(self):
+        self.__tile_filled = 0
         for y in range(self.tlh):
             for x in range(self.tlw):
                 self.tiles[y][x].value = 0

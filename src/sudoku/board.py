@@ -14,6 +14,7 @@ from .rules.killer import KillerRule
 from .rules.surround import SurroundRule
 from .rules.dots import DotRule
 from core.gfx.graphics import Graphics
+from core.event import Event
 from .title import Title
 from .timer import Timer, Time
 
@@ -139,6 +140,8 @@ class Board:
         sprite_groups.add(self.layers[Board.LAYER_SELECTION], layer=Board.LAYER_SELECTION)
 
         # Event handlers
+        self.on_won = Event()
+
         self.grid.on_changed.add_handler(self.rule_manager.update)
         self.grid.on_changed.add_handler(self.draw_tiles)
         self.rule_manager.on_conflict_changed.add_handler(self.grid.highlight_conflicts)
@@ -147,8 +150,9 @@ class Board:
         KillerRule.generate_killer_mesh(self.tile_size)
         self.__initdraw()
 
-    def check_win_conditions(self) -> bool:
-        return self.grid.is_complete() and self.rule_manager.check()
+    def check_win_conditions(self):
+        if self.grid.is_complete() and self.rule_manager.check():
+            self.on_won()
 
     def lock(self):
         if self.playing:
@@ -276,6 +280,7 @@ class Board:
             )
 
         self.grid.fill_tiles(value, mode, positions, **kwargs)
+        self.check_win_conditions()
 
     def set_enable_highlight(self, b: bool):
         self.enable_highlight = b
