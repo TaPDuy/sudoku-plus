@@ -51,7 +51,7 @@ CONTROLS_TEXT = (
 class Game(Application):
 
     def __init__(self):
-        super().__init__((1080, 720))
+        super().__init__("Sudoku+", (1080, 720))
 
         self.sprites = LayeredDirty()
         self.tabs = TabController()

@@ -21,7 +21,7 @@ import tkinter.filedialog
 class LevelMaker(Application):
 
     def __init__(self):
-        super().__init__((1280, 720))
+        super().__init__("Sudoku Level Maker", (1280, 720))
 
         self.opened_level_path = ""
         self.levels_path = f"{os.getcwd()}/{LevelList.LEVELS_PATH}"

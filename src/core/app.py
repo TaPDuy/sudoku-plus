@@ -12,12 +12,14 @@ class Application:
     TARGET_FPS = 60
     CLEAR_COLOR = (10, 0, 20)
 
-    def __init__(self, size: tuple[int, int] = (700, 500)):
+    def __init__(self, title: str = "Pygame application", size: tuple[int, int] = (700, 500)):
+
         self._clock = pg.time.Clock()
         self.size = self.width, self.height = size
 
         self.info = pg.display.Info()
         self._screen = pg.display.set_mode(size, pg.RESIZABLE)
+        pg.display.set_caption(title)
         self._font = pg.font.SysFont("Consolas", 14)
 
         self.ui_manager = GUIManager(size)
