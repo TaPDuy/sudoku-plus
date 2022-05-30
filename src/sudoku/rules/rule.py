@@ -105,6 +105,7 @@ class RuleManager:
 
         new_conflicts = set(self.conflicts)
         if self.old_conflicts != new_conflicts:
+            print(f"[Rule Manager]: Conflicts = {self.conflicts}")
             self.on_conflict_changed(old_conflicts=self.old_conflicts, conflicts=new_conflicts)
         self.old_conflicts = new_conflicts
 
@@ -134,7 +135,6 @@ class RuleManager:
                     self.conflicts[valpos].add(pos)
 
     def check(self) -> bool:
-        print("rule checfk")
         return len(self.conflicts) == 0 and all(map(lambda rule: rule.check(), self.component_rules))
 
 

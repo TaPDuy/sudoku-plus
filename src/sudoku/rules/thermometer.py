@@ -26,6 +26,7 @@ class ThermometerRule(ComponentRule):
     def update(self, pos: tuple[int, int], new_val: int, old_val: int):
         index = self.bound_to.index(pos)
         self.values[index] = new_val
+        print(f"[Thermometer Rule]: Current values = {self.values}.")
 
     def check(self) -> bool:
         if 0 in self.values:
@@ -60,6 +61,8 @@ class ThermometerRule(ComponentRule):
                 raise PropertiesError("Tiles must be next to each other and form a path (in order).")
 
         self.bound_to = bound_to
+        self.length = len(self.bound_to)
+        self.values = [0 for _ in np.arange(self.length)]
 
     def draw(self, surface: Surface, tile_size: tuple[float, float]):
         org = (self.bound_to[0][0] + .5) * tile_size[0], (self.bound_to[0][1] + .5) * tile_size[1]

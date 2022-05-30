@@ -59,6 +59,7 @@ class SurroundRule(ComponentRule):
             self.values.remove(old_val)
         if new_val:
             self.values.append(new_val)
+        print(f"[Surround Rule]: Current values = {self.values}, target values = {self.target}.")
 
     def check(self) -> bool:
         if len(self.values) < 4:

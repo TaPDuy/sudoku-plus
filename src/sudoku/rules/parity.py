@@ -20,6 +20,7 @@ class ParityRule(ComponentRule):
 
     def update(self, pos: tuple[int, int], new_val: int, old_val: int):
         self.value = new_val
+        print(f"[Parity Rule]: Current value = {self.value}.")
 
     def get_properties(self) -> list[Properties]:
         return [

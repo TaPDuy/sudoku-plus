@@ -19,6 +19,7 @@ class DotRule(ComponentRule):
 
     def update(self, pos: tuple[int, int], new_val: int, old_val: int):
         self.values[self.bound_to.index(pos)] = new_val
+        print(f"[Dot rule]: Current values = {self.values}.")
 
     def get_properties(self) -> list[Properties]:
         return [

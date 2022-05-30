@@ -36,6 +36,7 @@ class KillerRule(ComponentRule):
 
     def update(self, pos: tuple[int, int], new_val: int, old_val: int):
         self.sum = self.sum - old_val + new_val
+        print(f"[Killer Rule]: Current sum = {self.sum}, target sum = {self.target}.")
 
     def conflict(self, p1: tuple[int, int], p2: tuple[int, int]) -> bool:
         return p1 in self.bound_to and p2 in self.bound_to

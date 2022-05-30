@@ -27,6 +27,7 @@ class ArrowRule(ComponentRule):
             self.target = new_val
         else:
             self.sum = self.sum - old_val + new_val
+        print(f"[Arrow Rule]: Current sum = {self.sum}, target sum = {self.target}.")
 
     def check(self) -> bool:
         return self.sum == self.target != 0
